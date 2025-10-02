@@ -2371,106 +2371,153 @@ if selected == 'Alzheimers Prediction':
     col1, col2, col3, col4 = st.columns(4)
 
     with col1:
+        country = st.selectbox("Country", ["USA", "UK", "Canada", "Australia", "India", "China", "Germany", "France", "Other"])
         age = st.number_input("Age", min_value=40, max_value=100, value=65)
         gender = st.selectbox("Gender", ["Male", "Female"])
-        ethnicity = st.number_input("Ethnicity (coded)", min_value=0, value=0)
-        education_level = st.number_input("Years of Education", min_value=0, max_value=30, value=12)
-        bmi = st.number_input("BMI", min_value=10.0, max_value=50.0, value=22.0)
+        education_level = st.slider("Education Level", 0, 5, 3, help="0=No formal education, 5=Doctorate")
+        bmi = st.number_input("BMI", min_value=10.0, max_value=50.0, value=25.0)
 
     with col2:
-        smoking = st.selectbox("Smoking", ["No", "Yes"])
-        alcohol = st.number_input("Alcohol Consumption", min_value=0, value=0)
-        physical_activity = st.number_input("Physical Activity Level", min_value=0, value=5)
-        diet_quality = st.number_input("Diet Quality Score", min_value=0, max_value=10, value=5)
-        sleep_quality = st.number_input("Sleep Quality Score", min_value=0, max_value=10, value=7)
+        physical_activity = st.selectbox("Physical Activity Level", ["Low", "Moderate", "High"])
+        smoking_status = st.selectbox("Smoking Status", ["Never", "Former", "Current"])
+        alcohol_consumption = st.selectbox("Alcohol Consumption", ["None", "Light", "Moderate", "Heavy"])
+        diabetes = st.selectbox("Diabetes", ["No", "Yes"])
+        hypertension = st.selectbox("Hypertension", ["No", "Yes"])
 
     with col3:
+        cholesterol_level = st.selectbox("Cholesterol Level", ["Normal", "High", "Very High"])
         family_history = st.selectbox("Family History of Alzheimer's", ["No", "Yes"])
-        cardiovascular_disease = st.selectbox("Cardiovascular Disease", ["No", "Yes"])
-        diabetes = st.selectbox("Diabetes", ["No", "Yes"])
-        depression = st.selectbox("Depression", ["No", "Yes"])
-        head_injury = st.selectbox("Head Injury", ["No", "Yes"])
+        cognitive_test_score = st.slider("Cognitive Test Score", 0, 100, 75)
+        depression_level = st.selectbox("Depression Level", ["None", "Mild", "Moderate", "Severe"])
+        sleep_quality = st.selectbox("Sleep Quality", ["Poor", "Fair", "Good", "Excellent"])
 
     with col4:
-        hypertension = st.selectbox("Hypertension", ["No", "Yes"])
-        systolic_bp = st.number_input("Systolic BP", min_value=80, max_value=200, value=120)
-        diastolic_bp = st.number_input("Diastolic BP", min_value=50, max_value=120, value=80)
-        cholesterol_total = st.number_input("Total Cholesterol", min_value=100.0, max_value=400.0, value=200.0)
-        cholesterol_ldl = st.number_input("LDL Cholesterol", min_value=50.0, max_value=300.0, value=100.0)
+        dietary_habits = st.selectbox("Dietary Habits", ["Poor", "Average", "Good", "Excellent"])
+        air_pollution = st.selectbox("Air Pollution Exposure", ["Low", "Medium", "High"])
+        employment_status = st.selectbox("Employment Status", ["Employed", "Unemployed", "Retired"])
+        marital_status = st.selectbox("Marital Status", ["Single", "Married", "Divorced", "Widowed"])
+        genetic_risk = st.selectbox("Genetic Risk Factor (APOE-ε4)", ["No", "Yes"])
 
-    # Additional cholesterol types
-    cholesterol_hdl = st.number_input("HDL Cholesterol", min_value=20.0, max_value=100.0, value=50.0)
-    cholesterol_triglycerides = st.number_input("Triglycerides", min_value=20.0, max_value=500.0, value=150.0)
+    # Additional fields
+    col5, col6 = st.columns(2)
+    with col5:
+        social_engagement = st.selectbox("Social Engagement Level", ["Low", "Moderate", "High"])
+        income_level = st.selectbox("Income Level", ["Low", "Medium", "High"])
+    
+    with col6:
+        stress_levels = st.selectbox("Stress Levels", ["Low", "Moderate", "High"])
+        living_area = st.selectbox("Urban vs Rural Living", ["Urban", "Rural"])
 
-    # Cognitive and functional assessments
-    mmse = st.slider("MMSE (Mini Mental State Exam) Score", 0, 30, 25)
-    functional_assessment = st.number_input("Functional Assessment Score", min_value=0.0, max_value=10.0, value=5.0)
-    memory_complaints = st.selectbox("Memory Complaints", ["No", "Yes"])
-    behavioral_problems = st.selectbox("Behavioral Problems", ["No", "Yes"])
-    adl = st.number_input("Activities of Daily Living (ADL) Score", min_value=0.0, max_value=10.0, value=5.0)
-
-    confusion = st.selectbox("Confusion", ["No", "Yes"])
-    disorientation = st.selectbox("Disorientation", ["No", "Yes"])
-    personality_changes = st.selectbox("Personality Changes", ["No", "Yes"])
-    difficulty_completing_tasks = st.selectbox("Difficulty Completing Tasks", ["No", "Yes"])
-    forgetfulness = st.selectbox("Forgetfulness", ["No", "Yes"])
-
-    diagnosis = st.text_input("Diagnosis")
-    doctor_in_charge = st.text_input("Doctor In Charge")
+    diagnosis = st.text_input("Diagnosis (Optional)")
+    doctor_in_charge = st.text_input("Doctor In Charge (Optional)")
 
     if st.button("Predict Alzheimer's Risk"):
-        # Convert categorical fields to numeric
-        gender_num = 1 if gender == "Male" else 0
-        smoking_num = 1 if smoking == "Yes" else 0
-        family_history_num = 1 if family_history == "Yes" else 0
-        cardiovascular_disease_num = 1 if cardiovascular_disease == "Yes" else 0
-        diabetes_num = 1 if diabetes == "Yes" else 0
-        depression_num = 1 if depression == "Yes" else 0
-        head_injury_num = 1 if head_injury == "Yes" else 0
-        hypertension_num = 1 if hypertension == "Yes" else 0
-        memory_complaints_num = 1 if memory_complaints == "Yes" else 0
-        behavioral_problems_num = 1 if behavioral_problems == "Yes" else 0
-        confusion_num = 1 if confusion == "Yes" else 0
-        disorientation_num = 1 if disorientation == "Yes" else 0
-        personality_changes_num = 1 if personality_changes == "Yes" else 0
-        difficulty_completing_tasks_num = 1 if difficulty_completing_tasks == "Yes" else 0
-        forgetfulness_num = 1 if forgetfulness == "Yes" else 0
-
-        # Prepare model input vector in the order of dataset columns
-        user_input = [
-            age, gender_num, ethnicity, education_level, bmi, smoking_num, alcohol,
-            physical_activity, diet_quality, sleep_quality, family_history_num,
-            cardiovascular_disease_num, diabetes_num, depression_num, head_injury_num,
-            hypertension_num, systolic_bp, diastolic_bp, cholesterol_total, cholesterol_ldl,
-            cholesterol_hdl, cholesterol_triglycerides, mmse, functional_assessment,
-            memory_complaints_num, behavioral_problems_num, adl, confusion_num,
-            disorientation_num, personality_changes_num, difficulty_completing_tasks_num,
-            forgetfulness_num
-        ]
-
-        # Predict using model (assumed pre-loaded as alzheimers_model)
-        prediction = alzheimers_model.predict([user_input])
-
-        if prediction[0] == 1:
-            st.error("High risk of Alzheimer's detected! Please consult a neurologist.")
-        else:
-            st.success("Low risk of Alzheimer's. Maintain a healthy lifestyle.")
-
-        # Optional: Generate recommendations with patient info
-        if name:
-            patient_info = {
-                "name": name,
-                "age": age,
-                "gender": gender,
-                "mmse_score": mmse,
-                # Add other info as needed here
+        try:
+            # Create input dictionary with EXACT column names from CSV
+            user_input = {
+                'Country': country,
+                'Age': age,
+                'Gender': gender,
+                'Education Level': education_level,
+                'BMI': bmi,
+                'Physical Activity Level': physical_activity,
+                'Smoking Status': smoking_status,
+                'Alcohol Consumption': alcohol_consumption,
+                'Diabetes': diabetes,
+                'Hypertension': hypertension,
+                'Cholesterol Level': cholesterol_level,
+                'Family History of Alzheimer\'s': family_history,
+                'Cognitive Test Score': cognitive_test_score,
+                'Depression Level': depression_level,
+                'Sleep Quality': sleep_quality,
+                'Dietary Habits': dietary_habits,
+                'Air Pollution Exposure': air_pollution,
+                'Employment Status': employment_status,
+                'Marital Status': marital_status,
+                'Genetic Risk Factor (APOE-ε4 allele)': genetic_risk,
+                'Social Engagement Level': social_engagement,
+                'Income Level': income_level,
+                'Stress Levels': stress_levels,
+                'Urban vs Rural Living': living_area
             }
-            recommendations = get_health_recommendations("Alzheimer's Disease", "early stage", patient_info)
-            if recommendations:
-                display_recommendations(recommendations)
-                display_health_tips_dynamic("Alzheimer's", severity.lower())
-
-
+            
+            # Convert to DataFrame
+            input_df = pd.DataFrame([user_input])
+            
+            # Encode categorical features using saved encoders
+            for col, encoder in label_encoders.items():
+                if col in input_df.columns:
+                    try:
+                        input_df[col] = encoder.transform(input_df[col].astype(str))
+                    except ValueError as e:
+                        st.error(f"Invalid value for {col}: {input_df[col].values[0]}")
+                        st.stop()
+            
+            # Ensure correct feature order
+            input_df = input_df[feature_names]
+            
+            # Scale the features
+            input_scaled = scaler.transform(input_df)
+            
+            # Make prediction
+            prediction = alzheimers_model.predict(input_scaled)
+            prediction_proba = alzheimers_model.predict_proba(input_scaled)
+            
+            # Decode prediction
+            predicted_label = target_encoder.inverse_transform(prediction)[0]
+            
+            # Display results
+            st.markdown("---")
+            st.subheader("📊 Prediction Results")
+            
+            col_result1, col_result2 = st.columns(2)
+            
+            with col_result1:
+                if predicted_label == "Yes":
+                    st.error("⚠️ **High risk of Alzheimer's detected!**")
+                    confidence = prediction_proba[0][1] * 100
+                    st.metric("Risk Confidence", f"{confidence:.1f}%")
+                    st.warning("**Recommendation:** Please consult a neurologist for further evaluation.")
+                else:
+                    st.success("✅ **Low risk of Alzheimer's**")
+                    confidence = prediction_proba[0][0] * 100
+                    st.metric("Confidence Level", f"{confidence:.1f}%")
+                    st.info("**Recommendation:** Maintain a healthy lifestyle and regular check-ups.")
+            
+            with col_result2:
+                # Probability chart
+                st.markdown("### Risk Probability")
+                prob_df = pd.DataFrame({
+                    'Risk': target_encoder.classes_,
+                    'Probability (%)': prediction_proba[0] * 100
+                })
+                st.bar_chart(prob_df.set_index('Risk'))
+            
+            # Optional: Generate recommendations with patient info
+            if name:
+                patient_info = {
+                    "name": name,
+                    "age": age,
+                    "gender": gender,
+                    "cognitive_score": cognitive_test_score,
+                    "risk_level": predicted_label,
+                    "confidence": confidence
+                }
+                
+                # Call your recommendation function if it exists
+                try:
+                    recommendations = get_health_recommendations("Alzheimer's Disease", "early stage" if predicted_label == "Yes" else "prevention", patient_info)
+                    if recommendations:
+                        display_recommendations(recommendations)
+                        severity = "high" if predicted_label == "Yes" else "low"
+                        display_health_tips_dynamic("Alzheimer's", severity)
+                except NameError:
+                    pass  # Functions not defined
+        
+        except Exception as e:
+            st.error(f"An error occurred during prediction: {str(e)}")
+            st.info("Please ensure the model files are properly loaded and all inputs are valid.")
+            
 # Epilepsy Prediction
 # Load or import your epilepsy_model here (from joblib, pickle, etc.)
 # epilepsy_model = ...
