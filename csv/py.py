@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
@@ -23,11 +24,13 @@ def train_save_and_evaluate(filename, model_filename):
         clf = RandomForestClassifier(random_state=42)
         clf.fit(X_train, y_train)
 
-        joblib.dump(clf, model_filename)
+        os.makedirs("models", exist_ok=True)
+        save_path = os.path.join("models", model_filename)
+        joblib.dump(clf, save_path)
 
         y_pred = clf.predict(X_test)
         accuracy = accuracy_score(y_test, y_pred)
-        print(f"Model trained, saved to {model_filename}. Accuracy: {accuracy:.4f}")
+        print(f"Model saved to {save_path} with accuracy: {accuracy:.4f}")
         return accuracy
     except Exception as e:
         print(f"Error processing {filename}: {e}")
@@ -35,7 +38,11 @@ def train_save_and_evaluate(filename, model_filename):
 
 if __name__ == "__main__":
     datasets = {
-        "heart.csv": "heart_model.sav",
+        "cervical_cancer.csv": "cervical_model.sav",
+        "copd.csv": "copd_model.sav",
+        "obesity.csv": "obesity_model.sav",
+        "kidney_disease.csv": "kidney_disease.sav",
+        "heart.csv": "heart_disease_model.sav",
         "migraine_data.csv": "migraine_model.sav",
         "lung_cancer.csv": "lung_cancer_model.sav",
         "pneumonia_dataset.csv": "pneumonia_model.sav",
