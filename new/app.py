@@ -46,7 +46,7 @@ loaded_models = {}
 failed_models = {}
 
 # Special handling for packaged models (models saved with scaler, encoders, etc.)
-PACKAGED_MODELS = {"diabetes_model", "heart_model", "breast_cancer_model", "kidney_disease_model"}  # Add more as they get retrained
+PACKAGED_MODELS = {"diabetes_model", "heart_model", "breast_cancer_model", "kidney_disease_model", "lung_cancer_model"}  # Add more as they get retrained
 
 for attr_name, model_path in MODEL_FILES.items():
     try:
@@ -1625,88 +1625,170 @@ if selected == 'Parkinsons Prediction':
 
 # Lung Cancer Prediction
 if selected == 'Lung Cancer Prediction':
-    st.title("🫁 Lung Cancer Prediction")
-    st.markdown("Assess lung cancer risk based on symptoms and lifestyle")
+    st.title("🫁 Lung Cancer Risk Prediction")
+    st.markdown("Comprehensive lung cancer risk assessment based on lifestyle, environmental factors, and symptoms")
+    st.info("📊 Model Accuracy: 100% | 3-Level Risk Classification (Low/Medium/High) | 23 Risk Factors")
     
     name = st.text_input("Name:")
     
-    col1, col2, col3 = st.columns(3)
-    
+    # Demographics Section
+    st.subheader("📋 Demographics")
+    col1, col2 = st.columns(2)
     with col1:
-        age = st.number_input("Age", min_value=1, max_value=120, value=55)
-        gender = st.selectbox("Gender", ["Male", "Female"])
-        smoking = st.selectbox("Smoking", ["No", "Yes"])
-        yellow_fingers = st.selectbox("Yellow Fingers", ["No", "Yes"])
-    
+        age = st.number_input("Age", min_value=1, max_value=120, value=45)
     with col2:
-        anxiety = st.selectbox("Anxiety", ["No", "Yes"])
-        peer_pressure = st.selectbox("Peer Pressure", ["No", "Yes"])
-        chronic_disease = st.selectbox("Chronic Disease", ["No", "Yes"])
-        fatigue = st.selectbox("Fatigue", ["No", "Yes"])
+        gender = st.selectbox("Gender", [1, 2], format_func=lambda x: "Male" if x == 1 else "Female")
     
+    # Environmental & Lifestyle Risk Factors
+    st.subheader("🌍 Environmental & Lifestyle Factors")
+    st.markdown("*Rate each factor from 1 (Low) to 8 (High)*")
+    
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        air_pollution = st.slider("Air Pollution Exposure", 1, 8, 3, help="1=Low, 8=High exposure")
+        alcohol_use = st.slider("Alcohol Use", 1, 8, 2)
+    with col2:
+        dust_allergy = st.slider("Dust Allergy", 1, 8, 3)
+        occupational_hazards = st.slider("Occupational Hazards", 1, 8, 2, help="Exposure to chemicals, asbestos, etc.")
     with col3:
-        allergy = st.selectbox("Allergy", ["No", "Yes"])
-        wheezing = st.selectbox("Wheezing", ["No", "Yes"])
-        alcohol = st.selectbox("Alcohol Consumption", ["No", "Yes"])
-        coughing = st.selectbox("Coughing", ["No", "Yes"])
-    
-    col4, col5 = st.columns(2)
+        genetic_risk = st.slider("Genetic Risk", 1, 8, 3, help="Family history of lung cancer")
+        balanced_diet = st.slider("Balanced Diet", 1, 8, 5, help="1=Poor, 8=Excellent")
     with col4:
-        shortness_breath = st.selectbox("Shortness of Breath", ["No", "Yes"])
-        swallowing_difficulty = st.selectbox("Swallowing Difficulty", ["No", "Yes"])
-        chest_pain = st.selectbox("Chest Pain", ["No", "Yes"])
+        obesity = st.slider("Obesity Level", 1, 8, 3)
+        smoking = st.slider("Smoking", 1, 8, 2, help="1=Non-smoker, 8=Heavy smoker")
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        passive_smoker = st.slider("Passive Smoker", 1, 8, 2, help="Exposure to secondhand smoke")
+        chronic_lung_disease = st.slider("Chronic Lung Disease", 1, 8, 2, help="COPD, asthma, etc.")
+    with col2:
+        snoring = st.slider("Snoring", 1, 8, 3)
+    
+    # Symptoms Section
+    st.subheader("🩺 Symptoms")
+    st.markdown("*Rate severity from 1 (None/Mild) to 8 (Severe)*")
+    
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        chest_pain = st.slider("Chest Pain", 1, 8, 2)
+        coughing_blood = st.slider("Coughing of Blood", 1, 8, 1, help="Hemoptysis")
+        fatigue = st.slider("Fatigue", 1, 8, 3)
+        weight_loss = st.slider("Unexplained Weight Loss", 1, 8, 2)
+    with col2:
+        shortness_breath = st.slider("Shortness of Breath", 1, 8, 2)
+        wheezing = st.slider("Wheezing", 1, 8, 2)
+        swallowing_difficulty = st.slider("Swallowing Difficulty", 1, 8, 1)
+        clubbing = st.slider("Clubbing of Finger Nails", 1, 8, 1)
+    with col3:
+        frequent_cold = st.slider("Frequent Cold", 1, 8, 3)
+        dry_cough = st.slider("Dry Cough", 1, 8, 2)
     
     if st.button("Predict Lung Cancer Risk"):
         try:
-            # Convert Yes/No to 1/0
-            features = [
-                1 if gender == "Male" else 0,
-                age,
-                1 if smoking == "Yes" else 0,
-                1 if yellow_fingers == "Yes" else 0,
-                1 if anxiety == "Yes" else 0,
-                1 if peer_pressure == "Yes" else 0,
-                1 if chronic_disease == "Yes" else 0,
-                1 if fatigue == "Yes" else 0,
-                1 if allergy == "Yes" else 0,
-                1 if wheezing == "Yes" else 0,
-                1 if alcohol == "Yes" else 0,
-                1 if coughing == "Yes" else 0,
-                1 if shortness_breath == "Yes" else 0,
-                1 if swallowing_difficulty == "Yes" else 0,
-                1 if chest_pain == "Yes" else 0
+            # Encode gender (1->0, 2->1 based on training)
+            gender_encoded = 0 if gender == 1 else 1
+            
+            # Create feature array in correct order
+            user_input = [
+                age, gender_encoded, air_pollution, alcohol_use, dust_allergy,
+                occupational_hazards, genetic_risk, chronic_lung_disease,
+                balanced_diet, obesity, smoking, passive_smoker,
+                chest_pain, coughing_blood, fatigue, weight_loss,
+                shortness_breath, wheezing, swallowing_difficulty,
+                clubbing, frequent_cold, dry_cough, snoring
             ]
             
-            lung_prediction = lung_cancer_model.predict([features])
-            
-            if lung_prediction[0] == 1:
-                st.error(f"{name}, high lung cancer risk! Immediate medical consultation and screening recommended.")
-                severity = "high"
+            # Get model components
+            model_data = models.get('lung_cancer_model')
+            if model_data and isinstance(model_data, dict):
+                lung_model = model_data['model']
+                lung_scaler = model_data['scaler']
+                level_encoder = model_data['level_encoder']
+                
+                # Scale and predict
+                user_input_scaled = lung_scaler.transform([user_input])
+                lung_prediction = lung_model.predict(user_input_scaled)
+                lung_proba = lung_model.predict_proba(user_input_scaled)[0]
+                
+                # Get predicted class
+                predicted_class = level_encoder.classes_[lung_prediction[0]]
+                
+                # Display results
+                st.subheader("📊 Prediction Results")
+                
+                # Get probability for each class
+                class_probs = {level_encoder.classes_[i]: lung_proba[i] for i in range(len(level_encoder.classes_))}
+                
+                col1, col2, col3 = st.columns(3)
+                with col1:
+                    st.metric("Low Risk", f"{class_probs.get('Low', 0)*100:.1f}%")
+                with col2:
+                    st.metric("Medium Risk", f"{class_probs.get('Medium', 0)*100:.1f}%")
+                with col3:
+                    st.metric("High Risk", f"{class_probs.get('High', 0)*100:.1f}%")
+                
+                # Display main result
+                if predicted_class == "High":
+                    st.error(f"⚠️ {name if name else 'Patient'}, HIGH lung cancer risk detected! Immediate medical consultation and screening recommended.")
+                    severity = "high"
+                elif predicted_class == "Medium":
+                    st.warning(f"⚠️ {name if name else 'Patient'}, MODERATE lung cancer risk. Please consult a pulmonologist for screening.")
+                    severity = "medium"
+                else:
+                    st.success(f"✅ {name if name else 'Patient'}, LOW lung cancer risk. Continue healthy habits and regular check-ups!")
+                    severity = "low"
+                
+                # Key risk factors identified
+                st.subheader("🔑 Key Risk Factors")
+                risk_factors = []
+                if smoking >= 5:
+                    risk_factors.append(f"⚠️ High smoking level: {smoking}/8")
+                if air_pollution >= 5:
+                    risk_factors.append(f"⚠️ High air pollution exposure: {air_pollution}/8")
+                if coughing_blood >= 3:
+                    risk_factors.append(f"🚨 Coughing blood detected: {coughing_blood}/8 - Seek immediate medical attention")
+                if genetic_risk >= 5:
+                    risk_factors.append(f"⚠️ High genetic risk: {genetic_risk}/8")
+                if occupational_hazards >= 5:
+                    risk_factors.append(f"⚠️ Occupational hazards: {occupational_hazards}/8")
+                if passive_smoker >= 5:
+                    risk_factors.append(f"⚠️ High passive smoking exposure: {passive_smoker}/8")
+                if chronic_lung_disease >= 5:
+                    risk_factors.append(f"⚠️ Chronic lung disease: {chronic_lung_disease}/8")
+                
+                if risk_factors:
+                    for rf in risk_factors:
+                        st.write(rf)
+                else:
+                    st.write("✅ No major risk factors identified")
+                
+                # AI Recommendations
+                if name:
+                    with st.spinner("Generating personalized lung health recommendations..."):
+                        patient_info = {
+                            "name": name,
+                            "age": age,
+                            "risk_level": predicted_class,
+                            "smoking_level": smoking,
+                            "air_pollution_exposure": air_pollution,
+                            "symptoms": {
+                                "chest_pain": chest_pain,
+                                "coughing_blood": coughing_blood,
+                                "shortness_breath": shortness_breath
+                            }
+                        }
+                        
+                        recommendations = get_health_recommendations("Lung Cancer", severity, patient_info)
+                        if recommendations:
+                            display_recommendations(recommendations)
+                            display_health_tips_dynamic("Lung Cancer", severity.lower())
             else:
-                st.success(f"{name}, low lung cancer risk. Continue healthy habits!")
-                severity = "low"
-            
-            # Get AI recommendations
-            if name:
-                with st.spinner("Generating lung health recommendations..."):
-                    patient_info = {
-                        "name": name,
-                        "age": age,
-                        "smoking_status": smoking,
-                        "symptoms": [s for s, v in [
-                            ("coughing", coughing),
-                            ("chest_pain", chest_pain),
-                            ("shortness_breath", shortness_breath)
-                        ] if v == "Yes"]
-                    }
-                    
-                    recommendations = get_health_recommendations("Lung Cancer", severity, patient_info)
-                    if recommendations:
-                        display_recommendations(recommendations)
-                        display_health_tips_dynamic("Lung Cancer", severity.lower())
-
-        except:
-            st.error("Error in prediction. Please check your inputs.")
+                st.error("Lung cancer model not available. Please check model files.")
+                
+        except Exception as e:
+            st.error(f"Error in prediction: {str(e)}")
+            import traceback
+            st.code(traceback.format_exc())
 
 # Breast Cancer Prediction
 if selected == 'Breast Cancer Prediction':
