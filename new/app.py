@@ -28,35 +28,14 @@ else:
     st.info("💡 To enable AI recommendations, add NVIDIA_API_KEY to Streamlit secrets. Get a free key at: https://build.nvidia.com")
 
 # Predeclare model holders for static analyzers; they are populated dynamically below.
-diabetes_model = heart_model = parkinson_model = lung_cancer_model = None
-breast_cancer_model = kidney = hepatitis_model = liver_model = None
-alzheimers_model = epilepsy_model = migraine_model = tb_model = None
-hiv_model = malaria_model = colorectal_model = prostate_model = None
-cervical_model = asthma_model = copd_model = pneumonia_model = obesity_model = None
+diabetes_model = heart_model = breast_cancer_model = None
 
 # Load each model via declarative mapping to avoid silent mismatches
+# Only keeping the 3 high-accuracy models: Diabetes (90.48%), Heart Disease (89.13%), Breast Cancer (97.37%)
 MODEL_FILES = {
     "diabetes_model": "models/diabetes_model.sav",
     "heart_model": "models/heart_disease_model.sav",
-    "parkinson_model": "models/parkinsons_model.sav",
-    "lung_cancer_model": "models/lung_cancer_model.sav",
     "breast_cancer_model": "models/breast_cancer.sav",
-    "kidney": "models/kidney_disease.sav",
-    "hepatitis_model": "models/hepititisc_model.sav",
-    "liver_model": "models/liver_model.sav",
-    "alzheimers_model": "models/alzheimers_model.sav",
-    "epilepsy_model": "models/epilepsy_model.sav",
-    "migraine_model": "models/migraine_model.sav",
-    "tb_model": "models/tuberculosis_model.sav",
-    "hiv_model": "models/hiv_model.sav",
-    "malaria_model": "models/malaria_model.sav",
-    "colorectal_model": "models/colorectal_model.sav",
-    "prostate_model": "models/prostate_model.sav",
-    "cervical_model": "models/cervical_model.sav",
-    "asthma_model": "models/asthma_model.sav",
-    "copd_model": "models/copd_model.sav",
-    "pneumonia_model": "models/pneumonia_model.sav",
-    "obesity_model": "models/obesity_model.sav",
 }
 
 loaded_models = {}
