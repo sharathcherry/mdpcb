@@ -46,7 +46,7 @@ loaded_models = {}
 failed_models = {}
 
 # Special handling for packaged models (models saved with scaler, encoders, etc.)
-PACKAGED_MODELS = {"diabetes_model", "heart_model", "breast_cancer_model", "kidney_disease_model", "lung_cancer_model"}  # Add more as they get retrained
+PACKAGED_MODELS = {"diabetes_model", "heart_model", "breast_cancer_model", "kidney_disease_model", "lung_cancer_model", "parkinsons_model"}  # Add more as they get retrained
 
 for attr_name, model_path in MODEL_FILES.items():
     try:
@@ -1549,79 +1549,272 @@ if selected == 'Heart Disease Prediction':
 # Parkinson's Disease Prediction
 if selected == 'Parkinsons Prediction':
     st.title("🧠 Parkinson's Disease Prediction")
-    st.markdown("Assess Parkinson's disease risk based on vocal measurements")
+    st.markdown("Comprehensive Parkinson's disease risk assessment using clinical, lifestyle, and symptom data")
+    st.info("📊 Model Accuracy: 92.64% | 32 Clinical Features | 2,105 Patient Dataset")
     
     name = st.text_input("Name:")
     
-    st.info("This prediction uses voice analysis parameters. Values are typically obtained from medical voice analysis.")
-    
-    col1, col2, col3 = st.columns(3)
-    
-    with col1:
-        fo = st.number_input("MDVP:Fo(Hz)", min_value=0.0, max_value=300.0, value=150.0)
-        fhi = st.number_input("MDVP:Fhi(Hz)", min_value=0.0, max_value=300.0, value=180.0)
-        flo = st.number_input("MDVP:Flo(Hz)", min_value=0.0, max_value=300.0, value=120.0)
-        jitter_percent = st.number_input("MDVP:Jitter(%)", min_value=0.0, max_value=1.0, value=0.005)
-        jitter_abs = st.number_input("MDVP:Jitter(Abs)", min_value=0.0, max_value=0.1, value=0.00003)
-    
-    with col2:
-        rap = st.number_input("MDVP:RAP", min_value=0.0, max_value=0.1, value=0.003)
-        ppq = st.number_input("MDVP:PPQ", min_value=0.0, max_value=0.1, value=0.003)
-        ddp = st.number_input("Jitter:DDP", min_value=0.0, max_value=0.1, value=0.009)
-        shimmer = st.number_input("MDVP:Shimmer", min_value=0.0, max_value=1.0, value=0.03)
-        shimmer_db = st.number_input("MDVP:Shimmer(dB)", min_value=0.0, max_value=2.0, value=0.3)
-    
-    with col3:
-        apq3 = st.number_input("Shimmer:APQ3", min_value=0.0, max_value=0.1, value=0.015)
-        apq5 = st.number_input("Shimmer:APQ5", min_value=0.0, max_value=0.1, value=0.017)
-        apq = st.number_input("MDVP:APQ", min_value=0.0, max_value=0.1, value=0.02)
-        dda = st.number_input("Shimmer:DDA", min_value=0.0, max_value=0.3, value=0.045)
-        nhr = st.number_input("NHR", min_value=0.0, max_value=1.0, value=0.025)
-    
-    col4, col5 = st.columns(2)
-    with col4:
-        hnr = st.number_input("HNR", min_value=0.0, max_value=40.0, value=20.0)
-        rpde = st.number_input("RPDE", min_value=0.0, max_value=1.0, value=0.5)
-        dfa = st.number_input("DFA", min_value=0.0, max_value=1.0, value=0.7)
-    
-    with col5:
-        spread1 = st.number_input("spread1", min_value=-10.0, max_value=0.0, value=-5.0)
-        spread2 = st.number_input("spread2", min_value=0.0, max_value=1.0, value=0.2)
-        d2 = st.number_input("D2", min_value=0.0, max_value=5.0, value=2.5)
-        ppe = st.number_input("PPE", min_value=0.0, max_value=1.0, value=0.2)
-    
-    if st.button("Predict Parkinson's Disease"):
-        try:
-            user_input = [fo, fhi, flo, jitter_percent, jitter_abs, rap, ppq, ddp,
-                         shimmer, shimmer_db, apq3, apq5, apq, dda, nhr, hnr,
-                         rpde, dfa, spread1, spread2, d2, ppe]
-            
-            parkinsons_prediction = parkinson_model.predict([user_input])
-            
-            if parkinsons_prediction[0] == 1:
-                st.error(f"{name}, Parkinson's disease indicators detected. Neurological consultation recommended.")
-                image = Image.open('positive.jpg')
-                st.image(image, caption='Positive Indicators')
-                severity = "moderate"
-            else:
-                st.success(f"{name}, no significant Parkinson's indicators detected.")
-                severity = "low"
-            
-            # Get AI recommendations
-            if name:
-                with st.spinner("Generating neurological health recommendations..."):
-                    patient_info = {
-                        "name": name,
-                        "voice_analysis": "completed"
-                    }
+    # Check if model is loaded
+    if "parkinsons_model" not in loaded_models:
+        st.error("⚠️ Parkinson's Disease model not loaded. Please ensure the model file exists.")
+    else:
+        model_data = loaded_models["parkinsons_model"]
+        
+        # Demographic Section
+        st.subheader("📋 Demographics & Lifestyle")
+        col1, col2, col3, col4 = st.columns(4)
+        
+        with col1:
+            age = st.number_input("Age", min_value=50, max_value=90, value=65, 
+                                  help="Patient age (50-90 years)")
+            gender = st.selectbox("Gender", [0, 1], 
+                                  format_func=lambda x: "Male" if x == 0 else "Female")
+        
+        with col2:
+            ethnicity = st.selectbox("Ethnicity", [0, 1, 2, 3],
+                                     format_func=lambda x: {0: "Caucasian", 1: "African American", 
+                                                           2: "Asian", 3: "Other"}[x])
+            education = st.selectbox("Education Level", [0, 1, 2, 3],
+                                     format_func=lambda x: {0: "None", 1: "High School", 
+                                                           2: "Bachelor's", 3: "Higher"}[x])
+        
+        with col3:
+            bmi = st.number_input("BMI", min_value=15.0, max_value=40.0, value=25.0,
+                                  help="Body Mass Index (15-40)")
+            smoking = st.selectbox("Smoking", [0, 1], 
+                                   format_func=lambda x: "No" if x == 0 else "Yes")
+        
+        with col4:
+            alcohol = st.number_input("Alcohol (units/week)", min_value=0.0, max_value=20.0, value=5.0)
+            physical_activity = st.number_input("Physical Activity (hrs/week)", min_value=0.0, max_value=10.0, value=5.0)
+        
+        col5, col6 = st.columns(2)
+        with col5:
+            diet_quality = st.slider("Diet Quality Score", min_value=0, max_value=10, value=6)
+        with col6:
+            sleep_quality = st.slider("Sleep Quality Score", min_value=4, max_value=10, value=7)
+        
+        # Medical History Section
+        st.subheader("🏥 Medical History")
+        col7, col8, col9 = st.columns(3)
+        
+        with col7:
+            family_history = st.selectbox("Family History of Parkinson's", [0, 1],
+                                          format_func=lambda x: "No" if x == 0 else "Yes")
+            tbi = st.selectbox("Traumatic Brain Injury", [0, 1],
+                               format_func=lambda x: "No" if x == 0 else "Yes")
+        
+        with col8:
+            hypertension = st.selectbox("Hypertension", [0, 1],
+                                        format_func=lambda x: "No" if x == 0 else "Yes")
+            diabetes = st.selectbox("Diabetes", [0, 1],
+                                    format_func=lambda x: "No" if x == 0 else "Yes")
+        
+        with col9:
+            depression = st.selectbox("Depression", [0, 1],
+                                      format_func=lambda x: "No" if x == 0 else "Yes")
+            stroke = st.selectbox("History of Stroke", [0, 1],
+                                  format_func=lambda x: "No" if x == 0 else "Yes")
+        
+        # Clinical Measurements Section
+        st.subheader("📊 Clinical Measurements")
+        col10, col11, col12 = st.columns(3)
+        
+        with col10:
+            systolic_bp = st.number_input("Systolic BP (mmHg)", min_value=90, max_value=180, value=120)
+            diastolic_bp = st.number_input("Diastolic BP (mmHg)", min_value=60, max_value=120, value=80)
+        
+        with col11:
+            cholesterol_total = st.number_input("Total Cholesterol (mg/dL)", min_value=150, max_value=300, value=200)
+            cholesterol_ldl = st.number_input("LDL Cholesterol (mg/dL)", min_value=50, max_value=200, value=100)
+        
+        with col12:
+            cholesterol_hdl = st.number_input("HDL Cholesterol (mg/dL)", min_value=20, max_value=100, value=50)
+            cholesterol_trig = st.number_input("Triglycerides (mg/dL)", min_value=50, max_value=400, value=150)
+        
+        # Cognitive and Functional Assessment Section
+        st.subheader("🧠 Cognitive & Functional Assessment")
+        col13, col14, col15 = st.columns(3)
+        
+        with col13:
+            updrs = st.number_input("UPDRS Score", min_value=0, max_value=199, value=30,
+                                    help="Unified Parkinson's Disease Rating Scale (0-199). Higher = more severe")
+        
+        with col14:
+            moca = st.number_input("MoCA Score", min_value=0, max_value=30, value=26,
+                                   help="Montreal Cognitive Assessment (0-30). Lower = more impairment")
+        
+        with col15:
+            functional = st.number_input("Functional Assessment", min_value=0.0, max_value=10.0, value=8.0,
+                                         help="Functional ability score (0-10). Lower = more impairment")
+        
+        # Symptoms Section
+        st.subheader("⚠️ Current Symptoms")
+        col16, col17, col18, col19 = st.columns(4)
+        
+        with col16:
+            tremor = st.selectbox("Tremor", [0, 1], format_func=lambda x: "No" if x == 0 else "Yes")
+            rigidity = st.selectbox("Muscle Rigidity", [0, 1], format_func=lambda x: "No" if x == 0 else "Yes")
+        
+        with col17:
+            bradykinesia = st.selectbox("Bradykinesia", [0, 1], format_func=lambda x: "No" if x == 0 else "Yes",
+                                        help="Slowness of movement")
+            postural_instability = st.selectbox("Postural Instability", [0, 1], 
+                                                format_func=lambda x: "No" if x == 0 else "Yes")
+        
+        with col18:
+            speech_problems = st.selectbox("Speech Problems", [0, 1], 
+                                           format_func=lambda x: "No" if x == 0 else "Yes")
+            sleep_disorders = st.selectbox("Sleep Disorders", [0, 1], 
+                                           format_func=lambda x: "No" if x == 0 else "Yes")
+        
+        with col19:
+            constipation = st.selectbox("Constipation", [0, 1], 
+                                        format_func=lambda x: "No" if x == 0 else "Yes")
+        
+        # Prediction
+        if st.button("🔍 Predict Parkinson's Disease Risk", type="primary"):
+            try:
+                # Build feature array in correct order
+                features = [
+                    age, gender, ethnicity, education,
+                    bmi, smoking, alcohol, physical_activity,
+                    diet_quality, sleep_quality, family_history, tbi,
+                    hypertension, diabetes, depression, stroke,
+                    systolic_bp, diastolic_bp, cholesterol_total, cholesterol_ldl,
+                    cholesterol_hdl, cholesterol_trig, updrs, moca,
+                    functional, tremor, rigidity, bradykinesia,
+                    postural_instability, speech_problems, sleep_disorders, constipation
+                ]
+                
+                # Extract model components
+                model = model_data['model']
+                scaler = model_data['scaler']
+                
+                # Scale and predict
+                import numpy as np
+                features_scaled = scaler.transform([features])
+                prediction = model.predict(features_scaled)[0]
+                probabilities = model.predict_proba(features_scaled)[0]
+                
+                # Display results
+                st.markdown("---")
+                st.subheader("📊 Prediction Results")
+                
+                if prediction == 1:
+                    risk_prob = probabilities[1] * 100
+                    st.error(f"⚠️ **{name if name else 'Patient'}** - Parkinson's Disease Indicators Detected")
                     
-                    recommendations = get_health_recommendations("Parkinson's Disease", severity, patient_info)
-                    if recommendations:
-                        display_recommendations(recommendations)
-                        display_health_tips_dynamic("Parkinson's Disease", severity.lower())
-
-        except:
-            st.error("Error in prediction. Please ensure all vocal parameters are entered.")
+                    col_res1, col_res2 = st.columns(2)
+                    with col_res1:
+                        st.metric("Risk Level", "HIGH", delta=None)
+                    with col_res2:
+                        st.metric("Confidence", f"{risk_prob:.1f}%")
+                    
+                    # Risk stratification
+                    if risk_prob >= 80:
+                        severity = "high"
+                        st.warning("🔴 **Very High Risk** - Immediate neurological evaluation strongly recommended")
+                    elif risk_prob >= 60:
+                        severity = "moderate"
+                        st.warning("🟠 **Elevated Risk** - Schedule comprehensive neurological assessment")
+                    else:
+                        severity = "moderate"
+                        st.info("🟡 **Moderate Risk** - Consider follow-up neurological consultation")
+                    
+                    try:
+                        image = Image.open('positive.jpg')
+                        st.image(image, caption='Positive Indicators Detected', width=200)
+                    except:
+                        pass
+                else:
+                    healthy_prob = probabilities[0] * 100
+                    st.success(f"✅ **{name if name else 'Patient'}** - No Significant Parkinson's Indicators")
+                    
+                    col_res1, col_res2 = st.columns(2)
+                    with col_res1:
+                        st.metric("Risk Level", "LOW", delta=None)
+                    with col_res2:
+                        st.metric("Confidence", f"{healthy_prob:.1f}%")
+                    
+                    severity = "low"
+                    st.info("🟢 Continue regular health monitoring and maintain healthy lifestyle")
+                
+                # Show probability breakdown
+                st.markdown("### Probability Breakdown")
+                prob_col1, prob_col2 = st.columns(2)
+                with prob_col1:
+                    st.progress(probabilities[0], text=f"No Parkinson's: {probabilities[0]*100:.1f}%")
+                with prob_col2:
+                    st.progress(probabilities[1], text=f"Parkinson's: {probabilities[1]*100:.1f}%")
+                
+                # Key Risk Factors Analysis
+                st.markdown("### Key Risk Factors in Your Profile")
+                risk_factors = []
+                protective_factors = []
+                
+                if updrs > 100:
+                    risk_factors.append(f"• High UPDRS Score ({updrs}) - indicates significant motor impairment")
+                if moca < 20:
+                    risk_factors.append(f"• Low MoCA Score ({moca}) - suggests cognitive impairment")
+                if functional < 5:
+                    risk_factors.append(f"• Low Functional Assessment ({functional}) - indicates daily activity limitations")
+                if tremor == 1:
+                    risk_factors.append("• Presence of tremor - cardinal symptom of Parkinson's")
+                if rigidity == 1:
+                    risk_factors.append("• Muscle rigidity detected")
+                if bradykinesia == 1:
+                    risk_factors.append("• Bradykinesia present - slowness of movement")
+                if family_history == 1:
+                    risk_factors.append("• Family history of Parkinson's disease")
+                if tbi == 1:
+                    risk_factors.append("• History of traumatic brain injury")
+                if age > 70:
+                    risk_factors.append(f"• Advanced age ({age}) - higher baseline risk")
+                
+                if physical_activity >= 7:
+                    protective_factors.append(f"• Good physical activity level ({physical_activity} hrs/week)")
+                if diet_quality >= 7:
+                    protective_factors.append(f"• Healthy diet quality score ({diet_quality}/10)")
+                if moca >= 26:
+                    protective_factors.append(f"• Good cognitive function (MoCA: {moca})")
+                if smoking == 0:
+                    protective_factors.append("• Non-smoker status")
+                
+                if risk_factors:
+                    st.error("**Risk Factors Identified:**")
+                    for rf in risk_factors:
+                        st.markdown(rf)
+                
+                if protective_factors:
+                    st.success("**Protective Factors:**")
+                    for pf in protective_factors:
+                        st.markdown(pf)
+                
+                # AI Recommendations
+                if name:
+                    with st.spinner("Generating personalized neurological health recommendations..."):
+                        patient_info = {
+                            "name": name,
+                            "age": age,
+                            "updrs_score": updrs,
+                            "moca_score": moca,
+                            "symptoms": {
+                                "tremor": tremor == 1,
+                                "rigidity": rigidity == 1,
+                                "bradykinesia": bradykinesia == 1,
+                                "postural_instability": postural_instability == 1
+                            }
+                        }
+                        
+                        recommendations = get_health_recommendations("Parkinson's Disease", severity, patient_info)
+                        if recommendations:
+                            display_recommendations(recommendations)
+                            display_health_tips_dynamic("Parkinson's Disease", severity.lower())
+                
+            except Exception as e:
+                st.error(f"Error in prediction: {str(e)}")
+                st.exception(e)
 
 # Lung Cancer Prediction
 if selected == 'Lung Cancer Prediction':
