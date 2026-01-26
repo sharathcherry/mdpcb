@@ -32,10 +32,14 @@ diabetes_model = heart_model = breast_cancer_model = None
 
 # Load each model via declarative mapping to avoid silent mismatches
 # Only keeping the 3 high-accuracy models: Diabetes (90.48%), Heart Disease (89.13%), Breast Cancer (97.37%)
+
+# Get the directory where this script is located (works on cloud and locally)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 MODEL_FILES = {
-    "diabetes_model": "models/diabetes_model.sav",
-    "heart_model": "models/heart_disease_model.sav",
-    "breast_cancer_model": "models/breast_cancer.sav",
+    "diabetes_model": os.path.join(BASE_DIR, "models", "diabetes_model.sav"),
+    "heart_model": os.path.join(BASE_DIR, "models", "heart_disease_model.sav"),
+    "breast_cancer_model": os.path.join(BASE_DIR, "models", "breast_cancer.sav"),
 }
 
 loaded_models = {}
