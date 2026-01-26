@@ -46,7 +46,7 @@ loaded_models = {}
 failed_models = {}
 
 # Special handling for packaged models (models saved with scaler, encoders, etc.)
-PACKAGED_MODELS = {"diabetes_model", "heart_model", "breast_cancer_model"}  # Add more as they get retrained
+PACKAGED_MODELS = {"diabetes_model", "heart_model", "breast_cancer_model", "kidney_disease_model"}  # Add more as they get retrained
 
 for attr_name, model_path in MODEL_FILES.items():
     try:
@@ -1847,99 +1847,255 @@ if selected == 'Breast Cancer Prediction':
 # Kidney Disease Prediction
 if selected == 'Kidney Disease Prediction':
     st.title("🫘 Chronic Kidney Disease Prediction")
-    st.markdown("Assess kidney function and disease risk")
+    st.markdown("Comprehensive kidney disease risk assessment using clinical measurements")
 
     name = st.text_input("Name:")
-
+    
+    # Demographics Section
+    st.subheader("📋 Demographics")
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        age = st.number_input("Age", min_value=20, max_value=90, value=45)
+        gender = st.selectbox("Gender", ["Male", "Female"])
+    with col2:
+        ethnicity = st.selectbox("Ethnicity", ["Caucasian", "African American", "Asian", "Other"])
+        socioeconomic = st.selectbox("Socioeconomic Status", ["Low", "Middle", "High"])
+    with col3:
+        education = st.selectbox("Education Level", ["None", "High School", "Bachelor's", "Higher"])
+        bmi = st.number_input("BMI", min_value=15.0, max_value=40.0, value=25.0, step=0.1)
+    with col4:
+        smoking = st.selectbox("Smoking", ["No", "Yes"])
+        alcohol = st.number_input("Alcohol (units/week)", min_value=0.0, max_value=20.0, value=2.0, step=0.5)
+    
+    # Lifestyle Section
+    st.subheader("🏃 Lifestyle")
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        physical_activity = st.number_input("Physical Activity (hrs/week)", min_value=0.0, max_value=10.0, value=3.0, step=0.5)
+    with col2:
+        diet_quality = st.slider("Diet Quality Score", 0, 10, 6)
+    with col3:
+        sleep_quality = st.slider("Sleep Quality Score", 4, 10, 7)
+    with col4:
+        health_literacy = st.slider("Health Literacy Score", 0, 10, 6)
+    
+    # Medical History Section
+    st.subheader("📜 Medical History")
     col1, col2, col3 = st.columns(3)
     with col1:
-        age = st.number_input("Age", min_value=1, max_value=120, value=48)
-        bp = st.number_input("Blood Pressure (mm/Hg)", min_value=50, max_value=200, value=80)
-        sg = st.selectbox("Specific Gravity", [1.005, 1.010, 1.015, 1.020, 1.025])
-        al = st.selectbox("Albumin", [0, 1, 2, 3, 4, 5])
-
+        family_kidney = st.selectbox("Family History - Kidney Disease", ["No", "Yes"])
+        family_hypertension = st.selectbox("Family History - Hypertension", ["No", "Yes"])
     with col2:
-        su = st.selectbox("Sugar", [0, 1, 2, 3, 4, 5])
-        rbc = st.selectbox("Red Blood Cells", ["Normal", "Abnormal"])
-        pc = st.selectbox("Pus Cell", ["Normal", "Abnormal"])
-        pcc = st.selectbox("Pus Cell Clumps", ["Present", "Not Present"])
-
+        family_diabetes = st.selectbox("Family History - Diabetes", ["No", "Yes"])
+        prev_aki = st.selectbox("Previous Acute Kidney Injury", ["No", "Yes"])
     with col3:
-        ba = st.selectbox("Bacteria", ["Present", "Not Present"])
-        bgr = st.number_input("Blood Glucose Random (mgs/dl)", min_value=0, max_value=500, value=121)
-        bu = st.number_input("Blood Urea (mgs/dl)", min_value=0, max_value=200, value=36)
-        sc = st.number_input("Serum Creatinine (mgs/dl)", min_value=0.0, max_value=20.0, value=1.2)
-
-    col4, col5 = st.columns(2)
+        uti = st.selectbox("Urinary Tract Infections History", ["No", "Yes"])
+    
+    # Clinical Measurements Section
+    st.subheader("🔬 Clinical Measurements")
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        systolic_bp = st.number_input("Systolic BP (mmHg)", min_value=90, max_value=180, value=120)
+        diastolic_bp = st.number_input("Diastolic BP (mmHg)", min_value=60, max_value=120, value=80)
+        fasting_sugar = st.number_input("Fasting Blood Sugar (mg/dL)", min_value=70.0, max_value=200.0, value=100.0, step=1.0)
+        hba1c = st.number_input("HbA1c (%)", min_value=4.0, max_value=10.0, value=5.5, step=0.1)
+    with col2:
+        serum_creatinine = st.number_input("Serum Creatinine (mg/dL)", min_value=0.5, max_value=5.0, value=1.0, step=0.1, help="Normal: 0.7-1.3")
+        bun = st.number_input("BUN Levels (mg/dL)", min_value=5.0, max_value=50.0, value=15.0, step=0.5, help="Normal: 7-20")
+        gfr = st.number_input("GFR (mL/min/1.73m²)", min_value=15.0, max_value=120.0, value=90.0, step=1.0, help="Normal: >90")
+        protein_urine = st.number_input("Protein in Urine (g/day)", min_value=0.0, max_value=5.0, value=0.1, step=0.1)
+    with col3:
+        acr = st.number_input("ACR (mg/g)", min_value=0.0, max_value=300.0, value=20.0, step=5.0, help="Normal: <30")
+        sodium = st.number_input("Serum Sodium (mEq/L)", min_value=135.0, max_value=145.0, value=140.0, step=0.5)
+        potassium = st.number_input("Serum Potassium (mEq/L)", min_value=3.5, max_value=5.5, value=4.0, step=0.1)
+        calcium = st.number_input("Serum Calcium (mg/dL)", min_value=8.5, max_value=10.5, value=9.5, step=0.1)
     with col4:
-        sod = st.number_input("Sodium (mEq/L)", min_value=0, max_value=200, value=137)
-        pot = st.number_input("Potassium (mEq/L)", min_value=0.0, max_value=20.0, value=4.5)
-        hemo = st.number_input("Hemoglobin (gms)", min_value=0.0, max_value=20.0, value=12.0)
-
-    with col5:
-        pcv = st.number_input("Packed Cell Volume", min_value=0, max_value=100, value=38)
-        wc = st.number_input("White Blood Cell Count (cells/cumm)", min_value=0, max_value=30000, value=8000)
-        rc = st.number_input("Red Blood Cell Count (millions/cmm)", min_value=0.0, max_value=10.0, value=4.7)
-
-    col6, col7 = st.columns(2)
-    with col6:
-        htn = st.selectbox("Hypertension", ["Yes", "No"])
-        dm = st.selectbox("Diabetes Mellitus", ["Yes", "No"])
-        cad = st.selectbox("Coronary Artery Disease", ["Yes", "No"])
-
-    with col7:
-        appet = st.selectbox("Appetite", ["Good", "Poor"])
-        pe = st.selectbox("Pedal Edema", ["Yes", "No"])
-        ane = st.selectbox("Anemia", ["Yes", "No"])
-
+        phosphorus = st.number_input("Serum Phosphorus (mg/dL)", min_value=2.5, max_value=4.5, value=3.5, step=0.1)
+        hemoglobin = st.number_input("Hemoglobin (g/dL)", min_value=10.0, max_value=18.0, value=14.0, step=0.1)
+        chol_total = st.number_input("Total Cholesterol (mg/dL)", min_value=150.0, max_value=300.0, value=180.0, step=5.0)
+        chol_ldl = st.number_input("LDL Cholesterol (mg/dL)", min_value=50.0, max_value=200.0, value=100.0, step=5.0)
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        chol_hdl = st.number_input("HDL Cholesterol (mg/dL)", min_value=20.0, max_value=100.0, value=50.0, step=5.0)
+        chol_trig = st.number_input("Triglycerides (mg/dL)", min_value=50.0, max_value=400.0, value=150.0, step=10.0)
+    
+    # Medications Section
+    st.subheader("💊 Medications")
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        ace_inhibitors = st.selectbox("ACE Inhibitors", ["No", "Yes"])
+        diuretics = st.selectbox("Diuretics", ["No", "Yes"])
+    with col2:
+        nsaids_use = st.number_input("NSAIDs Use (times/week)", min_value=0.0, max_value=10.0, value=1.0, step=0.5)
+        statins = st.selectbox("Statins", ["No", "Yes"])
+    with col3:
+        antidiabetic = st.selectbox("Antidiabetic Medications", ["No", "Yes"])
+    
+    # Symptoms Section
+    st.subheader("🩺 Symptoms")
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        edema = st.selectbox("Edema (Swelling)", ["No", "Yes"])
+        fatigue = st.slider("Fatigue Level", 0, 10, 3)
+    with col2:
+        nausea = st.number_input("Nausea/Vomiting (times/week)", min_value=0.0, max_value=7.0, value=0.0, step=0.5)
+        muscle_cramps = st.number_input("Muscle Cramps (times/week)", min_value=0.0, max_value=7.0, value=0.5, step=0.5)
+    with col3:
+        itching = st.slider("Itching Severity", 0, 10, 2)
+        qol_score = st.slider("Quality of Life Score", 0, 100, 75)
+    
+    # Environmental Factors Section
+    st.subheader("🌍 Environmental & Health Behaviors")
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        heavy_metals = st.selectbox("Heavy Metals Exposure", ["No", "Yes"])
+    with col2:
+        chemical_exposure = st.selectbox("Occupational Chemical Exposure", ["No", "Yes"])
+    with col3:
+        water_quality = st.selectbox("Water Quality", ["Good", "Poor"])
+    with col4:
+        checkups_freq = st.number_input("Medical Checkups/Year", min_value=0.0, max_value=4.0, value=2.0, step=0.5)
+        med_adherence = st.slider("Medication Adherence Score", 0, 10, 7)
+    
     if st.button("Predict Kidney Disease"):
         try:
-            rbc_num = 1 if rbc == "Normal" else 0
-            pc_num = 1 if pc == "Normal" else 0
-            pcc_num = 0 if pcc == "Present" else 1
-            ba_num = 0 if ba == "Present" else 1
-            htn_num = 1 if htn == "Yes" else 0
-            dm_num = 1 if dm == "Yes" else 0
-            cad_num = 1 if cad == "Yes" else 0
-            appet_num = 1 if appet == "Good" else 0
-            pe_num = 1 if pe == "Yes" else 0
-            ane_num = 1 if ane == "Yes" else 0
-
-            user_input = [age, bp, sg, al, su, rbc_num, pc_num, pcc_num, ba_num, bgr, bu, 
-                          sc, sod, pot, hemo, pcv, wc, rc, htn_num, dm_num, cad_num, 
-                          appet_num, pe_num, ane_num]
-
-            kidney_prediction = kidney.predict([user_input])
-
-            if kidney_prediction[0] == 1:
-                st.error(f"{name}, chronic kidney disease detected! Immediate nephrology consultation required.")
-                image = Image.open('positive.jpg')
-                st.image(image, caption='CKD Detected')
-                severity = "high"
+            # Encode categorical variables
+            gender_enc = 0 if gender == "Male" else 1
+            ethnicity_enc = {"Caucasian": 0, "African American": 1, "Asian": 2, "Other": 3}[ethnicity]
+            socio_enc = {"Low": 0, "Middle": 1, "High": 2}[socioeconomic]
+            edu_enc = {"None": 0, "High School": 1, "Bachelor's": 2, "Higher": 3}[education]
+            smoking_enc = 1 if smoking == "Yes" else 0
+            family_kidney_enc = 1 if family_kidney == "Yes" else 0
+            family_hyp_enc = 1 if family_hypertension == "Yes" else 0
+            family_diab_enc = 1 if family_diabetes == "Yes" else 0
+            prev_aki_enc = 1 if prev_aki == "Yes" else 0
+            uti_enc = 1 if uti == "Yes" else 0
+            ace_enc = 1 if ace_inhibitors == "Yes" else 0
+            diuretics_enc = 1 if diuretics == "Yes" else 0
+            statins_enc = 1 if statins == "Yes" else 0
+            antidiab_enc = 1 if antidiabetic == "Yes" else 0
+            edema_enc = 1 if edema == "Yes" else 0
+            heavy_metals_enc = 1 if heavy_metals == "Yes" else 0
+            chem_exp_enc = 1 if chemical_exposure == "Yes" else 0
+            water_enc = 0 if water_quality == "Good" else 1
+            
+            # Create feature array in the correct order
+            user_input = [
+                age, gender_enc, ethnicity_enc, socio_enc, edu_enc, bmi, smoking_enc,
+                alcohol, physical_activity, diet_quality, sleep_quality,
+                family_kidney_enc, family_hyp_enc, family_diab_enc, prev_aki_enc, uti_enc,
+                systolic_bp, diastolic_bp, fasting_sugar, hba1c, serum_creatinine,
+                bun, gfr, protein_urine, acr, sodium, potassium, calcium, phosphorus,
+                hemoglobin, chol_total, chol_ldl, chol_hdl, chol_trig,
+                ace_enc, diuretics_enc, nsaids_use, statins_enc, antidiab_enc,
+                edema_enc, fatigue, nausea, muscle_cramps, itching, qol_score,
+                heavy_metals_enc, chem_exp_enc, water_enc, checkups_freq, med_adherence, health_literacy
+            ]
+            
+            # Get model components
+            model_data = models.get('kidney_disease_model')
+            if model_data and isinstance(model_data, dict):
+                kidney_model = model_data['model']
+                kidney_scaler = model_data['scaler']
+                
+                # Scale and predict
+                user_input_scaled = kidney_scaler.transform([user_input])
+                kidney_prediction = kidney_model.predict(user_input_scaled)
+                kidney_probability = kidney_model.predict_proba(user_input_scaled)[0][1]
+                
+                # Display results
+                st.subheader("📊 Prediction Results")
+                
+                # Risk level based on probability
+                if kidney_probability < 0.3:
+                    risk_level = "Low"
+                    severity = "low"
+                    risk_color = "green"
+                elif kidney_probability < 0.6:
+                    risk_level = "Moderate"
+                    severity = "medium"
+                    risk_color = "orange"
+                else:
+                    risk_level = "High"
+                    severity = "high"
+                    risk_color = "red"
+                
+                col1, col2, col3 = st.columns(3)
+                with col1:
+                    st.metric("CKD Risk Score", f"{kidney_probability * 100:.1f}%")
+                with col2:
+                    st.metric("Risk Level", risk_level)
+                with col3:
+                    st.metric("GFR Status", "Normal" if gfr >= 90 else "Reduced" if gfr >= 60 else "Low" if gfr >= 30 else "Very Low")
+                
+                if kidney_prediction[0] == 1 or kidney_probability >= 0.5:
+                    st.error(f"⚠️ {name if name else 'Patient'}, chronic kidney disease risk detected! Please consult a nephrologist.")
+                    
+                    # CKD Stage estimation based on GFR
+                    if gfr >= 90:
+                        ckd_stage = "Stage 1 (Normal GFR with kidney damage)"
+                    elif gfr >= 60:
+                        ckd_stage = "Stage 2 (Mild reduction)"
+                    elif gfr >= 45:
+                        ckd_stage = "Stage 3a (Mild-moderate reduction)"
+                    elif gfr >= 30:
+                        ckd_stage = "Stage 3b (Moderate-severe reduction)"
+                    elif gfr >= 15:
+                        ckd_stage = "Stage 4 (Severe reduction)"
+                    else:
+                        ckd_stage = "Stage 5 (Kidney failure)"
+                    
+                    st.warning(f"Estimated CKD Stage: {ckd_stage}")
+                else:
+                    st.success(f"✅ {name if name else 'Patient'}, no significant kidney disease risk detected. Continue healthy habits!")
+                
+                # Key indicators
+                st.subheader("🔑 Key Kidney Health Indicators")
+                indicators = []
+                if serum_creatinine > 1.3:
+                    indicators.append(f"⚠️ Elevated Serum Creatinine: {serum_creatinine} mg/dL (Normal: 0.7-1.3)")
+                if bun > 20:
+                    indicators.append(f"⚠️ Elevated BUN: {bun} mg/dL (Normal: 7-20)")
+                if gfr < 60:
+                    indicators.append(f"⚠️ Reduced GFR: {gfr} mL/min (Normal: >90)")
+                if acr > 30:
+                    indicators.append(f"⚠️ Elevated ACR: {acr} mg/g (Normal: <30)")
+                if protein_urine > 0.3:
+                    indicators.append(f"⚠️ Proteinuria detected: {protein_urine} g/day")
+                
+                if indicators:
+                    for ind in indicators:
+                        st.write(ind)
+                else:
+                    st.write("✅ All key kidney indicators are within normal range")
+                
+                # Recommendations
+                if name:
+                    with st.spinner("Generating personalized kidney health recommendations..."):
+                        patient_info = {
+                            "name": name,
+                            "age": age,
+                            "creatinine": serum_creatinine,
+                            "bun": bun,
+                            "gfr": gfr,
+                            "blood_pressure": f"{systolic_bp}/{diastolic_bp}",
+                            "diabetes": "Yes" if hba1c > 6.5 else "No",
+                            "hypertension": "Yes" if systolic_bp > 140 or diastolic_bp > 90 else "No",
+                            "risk_probability": kidney_probability
+                        }
+                        
+                        recommendations = get_health_recommendations("Chronic Kidney Disease", severity, patient_info)
+                        if recommendations:
+                            display_recommendations(recommendations)
+                            display_health_tips_dynamic("Chronic Kidney Disease", severity.lower())
             else:
-                st.success(f"{name}, no kidney disease detected. Maintain kidney health!")
-                severity = "low"
-
-            if name:
-                with st.spinner("Generating kidney health recommendations..."):
-                    patient_info = {
-                        "name": name,
-                        "age": age,
-                        "creatinine": sc,
-                        "blood_urea": bu,
-                        "blood_pressure": bp,
-                        "diabetes": dm,
-                        "hypertension": htn
-                    }
-
-                    recommendations = get_health_recommendations("Chronic Kidney Disease", severity, patient_info)
-                    if recommendations:
-                        display_recommendations(recommendations)
-                        display_health_tips_dynamic("Chronic Kidney Disease", severity.lower())
-
-
+                st.error("Kidney disease model not available. Please check model files.")
+                
         except Exception as e:
             st.error(f"Error in prediction: {str(e)}")
+            import traceback
+            st.code(traceback.format_exc())
 
 # Liver Disease Prediction
 if selected == 'Liver Prediction':
