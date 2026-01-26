@@ -10,19 +10,19 @@ from PIL import Image
 from openai import OpenAI
 
 
-# NVIDIA API Configuration for LLM Integration
-NVIDIA_API_KEY = st.secrets.get("NVIDIA_API_KEY") or os.getenv("NVIDIA_API_KEY")
+# NVIDIA API Configuration for LLM Integration (Llama 3.3 70B Instruct)
+NVIDIA_API_KEY = st.secrets.get("NVIDIA_API_KEY") or os.getenv("NVIDIA_API_KEY") or "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"
 
-# Initialize OpenAI client for NVIDIA (if credentials are available)
-if NVIDIA_API_KEY:
+# Initialize OpenAI client for NVIDIA
+try:
     client = OpenAI(
         base_url="https://integrate.api.nvidia.com/v1",
         api_key=NVIDIA_API_KEY
     )
-else:
+except Exception as e:
     client = None
     st.warning(
-        "NVIDIA API key not configured. AI-generated recommendations and tips are currently disabled."
+        f"NVIDIA API initialization failed. AI-generated recommendations are disabled. Error: {e}"
     )
 
 # Predeclare model holders for static analyzers; they are populated dynamically below.
@@ -637,9 +637,9 @@ CRITICAL: Return ONLY valid JSON. Do not include any text before or after the JS
 
     try:
         completion = client.chat.completions.create(
-            model="writer/palmyra-med-70b",
+            model="meta/llama-3.3-70b-instruct",
             messages=[
-                {"role": "system", "content": "You are a medical AI assistant. You MUST return only valid JSON with no additional text."},
+                {"role": "system", "content": "You are a medical AI assistant specializing in health recommendations. You MUST return only valid JSON with no additional text."},
                 {"role": "user", "content": prompt}
             ],
             temperature=0.2,
@@ -699,9 +699,9 @@ CRITICAL: Return ONLY valid JSON. Do not include any text before or after the JS
 
     try:
         completion = client.chat.completions.create(
-            model="writer/palmyra-med-70b",
+            model="meta/llama-3.3-70b-instruct",
             messages=[
-                {"role": "system", "content": "You are a medical AI assistant. You MUST return only valid JSON with no additional text."},
+                {"role": "system", "content": "You are a medical AI assistant specializing in health tips. You MUST return only valid JSON with no additional text."},
                 {"role": "user", "content": prompt}
             ],
             temperature=0.3,
@@ -759,9 +759,9 @@ CRITICAL: Return ONLY valid JSON. Do not include any text before or after the JS
 
     try:
         completion = client.chat.completions.create(
-            model="writer/palmyra-med-70b",
+            model="meta/llama-3.3-70b-instruct",
             messages=[
-                {"role": "system", "content": "You are a medical AI assistant. You MUST return only valid JSON with no additional text."},
+                {"role": "system", "content": "You are a medical AI assistant specializing in disease-specific guidance. You MUST return only valid JSON with no additional text."},
                 {"role": "user", "content": prompt}
             ],
             temperature=0.3,
