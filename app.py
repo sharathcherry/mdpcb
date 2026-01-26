@@ -11,19 +11,21 @@ from openai import OpenAI
 
 
 # NVIDIA API Configuration for LLM Integration (Llama 3.3 70B Instruct)
-NVIDIA_API_KEY = st.secrets.get("NVIDIA_API_KEY") or os.getenv("NVIDIA_API_KEY") or "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"
+# Get a free API key from: https://build.nvidia.com/meta/llama-3_3-70b-instruct
+NVIDIA_API_KEY = st.secrets.get("NVIDIA_API_KEY") or os.getenv("NVIDIA_API_KEY")
 
 # Initialize OpenAI client for NVIDIA
-try:
-    client = OpenAI(
-        base_url="https://integrate.api.nvidia.com/v1",
-        api_key=NVIDIA_API_KEY
-    )
-except Exception as e:
-    client = None
-    st.warning(
-        f"NVIDIA API initialization failed. AI-generated recommendations are disabled. Error: {e}"
-    )
+client = None
+if NVIDIA_API_KEY:
+    try:
+        client = OpenAI(
+            base_url="https://integrate.api.nvidia.com/v1",
+            api_key=NVIDIA_API_KEY
+        )
+    except Exception as e:
+        st.warning(f"NVIDIA API initialization failed: {e}")
+else:
+    st.info("💡 To enable AI recommendations, add NVIDIA_API_KEY to Streamlit secrets. Get a free key at: https://build.nvidia.com")
 
 # Predeclare model holders for static analyzers; they are populated dynamically below.
 diabetes_model = heart_model = parkinson_model = lung_cancer_model = None

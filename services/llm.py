@@ -138,7 +138,7 @@ CRITICAL: Return ONLY valid JSON. Do not include any text before or after the JS
 
     try:
         completion = client.chat.completions.create(
-            model="writer/palmyra-med-70b",
+            model="meta/llama-3.3-70b-instruct",
             messages=[
                 {
                     "role": "system",
@@ -200,7 +200,7 @@ CRITICAL: Return ONLY valid JSON. Do not include any text before or after the JS
 
     try:
         completion = client.chat.completions.create(
-            model="writer/palmyra-med-70b",
+            model="meta/llama-3.3-70b-instruct",
             messages=[
                 {
                     "role": "system",
@@ -256,7 +256,7 @@ CRITICAL: Return ONLY valid JSON. Do not include any text before or after the JS
 
     try:
         completion = client.chat.completions.create(
-            model="writer/palmyra-med-70b",
+            model="meta/llama-3.3-70b-instruct",
             messages=[
                 {
                     "role": "system",
