@@ -44,13 +44,14 @@ MODEL_FILES = {
     "lung_cancer_model": os.path.join(BASE_DIR, "models", "lung_cancer_model.sav"),
     "parkinsons_model": os.path.join(BASE_DIR, "models", "parkinsons_model.sav"),
     "liver_cancer_model": os.path.join(BASE_DIR, "models", "liver_cancer_model.sav"),
+    "hepatitis_c_model": os.path.join(BASE_DIR, "models", "hepatitis_c_model.sav"),
 }
 
 loaded_models = {}
 failed_models = {}
 
 # Special handling for packaged models (models saved with scaler, encoders, etc.)
-PACKAGED_MODELS = {"diabetes_model", "heart_model", "breast_cancer_model", "kidney_disease_model", "lung_cancer_model", "parkinsons_model", "liver_cancer_model"}  # Add more as they get retrained
+PACKAGED_MODELS = {"diabetes_model", "heart_model", "breast_cancer_model", "kidney_disease_model", "lung_cancer_model", "parkinsons_model", "liver_cancer_model", "hepatitis_c_model"}  # Add more as they get retrained
 
 for attr_name, model_path in MODEL_FILES.items():
     try:
@@ -2692,69 +2693,202 @@ if selected == 'Liver Prediction':
         except:
             st.error("Error in prediction. Please check all inputs.")
 
-# Hepatitis Prediction
+# Hepatitis C Prediction
 if selected == 'Hepatitis Prediction':
     st.title("🦠 Hepatitis C Prediction")
-    st.markdown("Assess Hepatitis C risk and disease stage")
+    st.markdown("Assess Hepatitis C risk using laboratory blood test values")
+    st.info("📊 Model Accuracy: 96.75% | Binary Classification | 12 Laboratory Features | UCI ML Repository Data")
     
     name = st.text_input("Name:")
     
-    col1, col2, col3 = st.columns(3)
-    
-    with col1:
-        age = st.number_input("Age", min_value=1, max_value=120, value=45)
-        sex = st.selectbox("Sex", ["Male", "Female"])
-        alb = st.number_input("Albumin (g/L)", min_value=0.0, max_value=100.0, value=38.5)
-        alp = st.number_input("Alkaline Phosphatase (IU/L)", min_value=0, max_value=500, value=52)
-    
-    with col2:
-        alt = st.number_input("ALT (IU/L)", min_value=0, max_value=500, value=22)
-        ast = st.number_input("AST (IU/L)", min_value=0, max_value=500, value=22)
-        bil = st.number_input("Bilirubin (µmol/L)", min_value=0.0, max_value=500.0, value=7.5)
-        che = st.number_input("Cholinesterase (kU/L)", min_value=0.0, max_value=30.0, value=6.9)
-    
-    with col3:
-        chol = st.number_input("Cholesterol (mmol/L)", min_value=0.0, max_value=20.0, value=5.2)
-        crea = st.number_input("Creatinine (µmol/L)", min_value=0, max_value=1000, value=74)
-        ggt = st.number_input("Gamma-GT (IU/L)", min_value=0, max_value=500, value=23)
-        prot = st.number_input("Total Protein (g/L)", min_value=0.0, max_value=150.0, value=72.9)
-    
-    if st.button("Predict Hepatitis Risk"):
-        try:
-            sex_num = 1 if sex == "Male" else 0
-            
-            user_input = [age, sex_num, alb, alp, alt, ast, bil, che, chol, crea, ggt, prot]
-            
-            hepatitis_prediction = hepatitis_model.predict([user_input])
-            
-            if hepatitis_prediction[0] >= 1:
-                stage = ["", "Hepatitis", "Fibrosis", "Cirrhosis"][min(int(hepatitis_prediction[0]), 3)]
-                st.error(f"{name}, {stage} detected! Immediate hepatology consultation required.")
-                image = Image.open('positive.jpg')
-                st.image(image, caption=f'{stage} Detected')
-                severity = "high"
-            else:
-                st.success(f"{name}, no hepatitis indicators detected.")
-                severity = "low"
-            
-            # Get AI recommendations
-            if name:
-                with st.spinner("Generating hepatitis management recommendations..."):
-                    patient_info = {
-                        "name": name,
-                        "age": age,
-                        "alt": alt,
-                        "ast": ast,
-                        "bilirubin": bil
-                    }
+    # Check if model is loaded
+    if "hepatitis_c_model" not in loaded_models:
+        st.error("⚠️ Hepatitis C model not loaded. Please ensure the model file exists.")
+    else:
+        model_data = loaded_models["hepatitis_c_model"]
+        
+        # Demographics Section
+        st.subheader("📋 Demographics")
+        col1, col2 = st.columns(2)
+        with col1:
+            age = st.number_input("Age", min_value=18, max_value=100, value=45, help="Patient age in years")
+        with col2:
+            sex = st.selectbox("Sex", ["Female", "Male"])
+        
+        # Laboratory Values Section
+        st.subheader("🧪 Liver Function Tests")
+        st.markdown("*Enter laboratory blood test values*")
+        
+        col1, col2, col3, col4 = st.columns(4)
+        
+        with col1:
+            alb = st.number_input("Albumin (ALB) g/L", min_value=10.0, max_value=80.0, value=42.0, step=0.1,
+                                  help="Normal range: 35-50 g/L. Low levels may indicate liver disease.")
+            alp = st.number_input("Alkaline Phosphatase (ALP) IU/L", min_value=10.0, max_value=500.0, value=70.0, step=1.0,
+                                  help="Normal range: 40-130 IU/L. Elevated in liver/bone disease.")
+            alt = st.number_input("ALT (SGPT) IU/L", min_value=1.0, max_value=500.0, value=25.0, step=1.0,
+                                  help="Normal range: 7-56 IU/L. Key liver enzyme marker.")
+        
+        with col2:
+            ast = st.number_input("AST (SGOT) IU/L", min_value=1.0, max_value=500.0, value=25.0, step=1.0,
+                                  help="Normal range: 10-40 IU/L. Elevated in liver damage.")
+            bil = st.number_input("Bilirubin (µmol/L)", min_value=0.0, max_value=500.0, value=8.0, step=0.1,
+                                  help="Normal range: 3-17 µmol/L. High levels cause jaundice.")
+            che = st.number_input("Cholinesterase (CHE) kU/L", min_value=1.0, max_value=20.0, value=8.0, step=0.1,
+                                  help="Normal range: 5.3-12.9 kU/L. Low in liver disease.")
+        
+        with col3:
+            chol = st.number_input("Cholesterol (CHOL) mmol/L", min_value=1.0, max_value=15.0, value=5.0, step=0.1,
+                                   help="Normal range: <5.2 mmol/L. Metabolized by liver.")
+            crea = st.number_input("Creatinine (µmol/L)", min_value=20.0, max_value=500.0, value=80.0, step=1.0,
+                                   help="Normal range: 60-110 µmol/L. Kidney function marker.")
+        
+        with col4:
+            ggt = st.number_input("Gamma-GT (GGT) IU/L", min_value=1.0, max_value=500.0, value=30.0, step=1.0,
+                                  help="Normal range: 8-61 IU/L. Sensitive liver enzyme.")
+            prot = st.number_input("Total Protein (PROT) g/L", min_value=40.0, max_value=100.0, value=72.0, step=0.1,
+                                   help="Normal range: 64-83 g/L. Reflects liver synthetic function.")
+        
+        # Show abnormal value warnings
+        warnings = []
+        if alt > 56:
+            warnings.append(f"⚠️ ALT elevated: {alt} IU/L (normal <56)")
+        if ast > 40:
+            warnings.append(f"⚠️ AST elevated: {ast} IU/L (normal <40)")
+        if ggt > 61:
+            warnings.append(f"⚠️ GGT elevated: {ggt} IU/L (normal <61)")
+        if bil > 17:
+            warnings.append(f"⚠️ Bilirubin elevated: {bil} µmol/L (normal <17)")
+        if alb < 35:
+            warnings.append(f"⚠️ Albumin low: {alb} g/L (normal >35)")
+        
+        if warnings:
+            st.warning("**Abnormal Values Detected:**")
+            for w in warnings:
+                st.write(w)
+        
+        if st.button("Predict Hepatitis C Risk"):
+            try:
+                # Encode sex: Female=0, Male=1
+                sex_encoded = 0 if sex == "Female" else 1
+                
+                # Create feature array in correct order:
+                # ['Age', 'Sex', 'ALB', 'ALP', 'ALT', 'AST', 'BIL', 'CHE', 'CHOL', 'CREA', 'GGT', 'PROT']
+                user_input = [age, sex_encoded, alb, alp, alt, ast, bil, che, chol, crea, ggt, prot]
+                
+                # Get model components
+                hep_model = model_data['model']
+                hep_scaler = model_data['scaler']
+                numerical_cols = model_data.get('numerical_columns', 
+                    ['Age', 'ALB', 'ALP', 'ALT', 'AST', 'BIL', 'CHE', 'CHOL', 'CREA', 'GGT', 'PROT'])
+                feature_cols = model_data.get('feature_columns',
+                    ['Age', 'Sex', 'ALB', 'ALP', 'ALT', 'AST', 'BIL', 'CHE', 'CHOL', 'CREA', 'GGT', 'PROT'])
+                
+                # Create DataFrame and scale
+                import pandas as pd
+                input_df = pd.DataFrame([user_input], columns=feature_cols)
+                input_df[numerical_cols] = hep_scaler.transform(input_df[numerical_cols])
+                
+                # Predict
+                prediction = hep_model.predict(input_df)[0]
+                probability = hep_model.predict_proba(input_df)[0]
+                
+                # Display results
+                st.subheader("📊 Prediction Results")
+                
+                col1, col2, col3 = st.columns(3)
+                with col1:
+                    st.metric("Healthy Probability", f"{probability[0]*100:.1f}%")
+                with col2:
+                    st.metric("Hepatitis C Risk", f"{probability[1]*100:.1f}%")
+                with col3:
+                    risk_level = "HIGH" if probability[1] > 0.5 else "MODERATE" if probability[1] > 0.3 else "LOW"
+                    st.metric("Risk Level", risk_level)
+                
+                # Main result
+                if prediction == 1:
+                    st.error(f"⚠️ {name if name else 'Patient'}, HEPATITIS C INDICATORS DETECTED! Immediate hepatology consultation recommended.")
+                    severity = "high"
                     
-                    recommendations = get_health_recommendations("Hepatitis", severity, patient_info)
-                    if recommendations:
-                        display_recommendations(recommendations)
-                        display_health_tips_dynamic("Hepatitis", severity.lower())
-
-        except:
-            st.error("Error in prediction. Please check all inputs.")
+                    st.markdown("""
+                    ### 🏥 Recommended Actions:
+                    1. **Immediate**: Consult a hepatologist or gastroenterologist
+                    2. **Confirmatory Tests**: HCV RNA test, HCV antibody test
+                    3. **Liver Assessment**: FibroScan or liver biopsy if needed
+                    4. **Treatment**: Direct-acting antivirals (DAAs) are highly effective
+                    """)
+                else:
+                    if probability[1] > 0.3:
+                        st.warning(f"⚠️ {name if name else 'Patient'}, some liver function abnormalities detected. Follow-up recommended.")
+                        severity = "medium"
+                    else:
+                        st.success(f"✅ {name if name else 'Patient'}, no Hepatitis C indicators detected. Liver function appears normal.")
+                        severity = "low"
+                
+                # Key markers analysis
+                st.subheader("🔑 Key Liver Markers Analysis")
+                
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                    st.markdown("**Liver Enzymes (Damage Markers):**")
+                    ast_status = "🔴 Elevated" if ast > 40 else "🟢 Normal"
+                    alt_status = "🔴 Elevated" if alt > 56 else "🟢 Normal"
+                    ggt_status = "🔴 Elevated" if ggt > 61 else "🟢 Normal"
+                    st.write(f"- AST: {ast} IU/L - {ast_status}")
+                    st.write(f"- ALT: {alt} IU/L - {alt_status}")
+                    st.write(f"- GGT: {ggt} IU/L - {ggt_status}")
+                    
+                    if ast > 0 and alt > 0:
+                        ast_alt_ratio = ast / alt
+                        st.write(f"- AST/ALT Ratio: {ast_alt_ratio:.2f}")
+                        if ast_alt_ratio > 2:
+                            st.write("  ⚠️ Ratio >2 may suggest alcoholic liver disease")
+                        elif ast_alt_ratio > 1:
+                            st.write("  ⚠️ Ratio >1 may suggest cirrhosis")
+                
+                with col2:
+                    st.markdown("**Liver Synthetic Function:**")
+                    alb_status = "🔴 Low" if alb < 35 else "🟢 Normal"
+                    bil_status = "🔴 Elevated" if bil > 17 else "🟢 Normal"
+                    prot_status = "🔴 Abnormal" if prot < 64 or prot > 83 else "🟢 Normal"
+                    st.write(f"- Albumin: {alb} g/L - {alb_status}")
+                    st.write(f"- Bilirubin: {bil} µmol/L - {bil_status}")
+                    st.write(f"- Total Protein: {prot} g/L - {prot_status}")
+                
+                # Feature importance
+                st.subheader("📈 Top Predictors (Model Feature Importance)")
+                feature_importance = model_data.get('feature_importance', [])
+                if feature_importance:
+                    top_features = sorted(feature_importance, key=lambda x: x['importance'], reverse=True)[:5]
+                    for f in top_features:
+                        feat_name = f['feature']
+                        importance = f['importance'] * 100
+                        st.write(f"- **{feat_name}**: {importance:.1f}%")
+                
+                # AI Recommendations
+                if name:
+                    with st.spinner("Generating hepatitis management recommendations..."):
+                        patient_info = {
+                            "name": name,
+                            "age": age,
+                            "risk_level": risk_level,
+                            "ast": ast,
+                            "alt": alt,
+                            "ggt": ggt,
+                            "bilirubin": bil,
+                            "albumin": alb
+                        }
+                        
+                        recommendations = get_health_recommendations("Hepatitis C", severity, patient_info)
+                        if recommendations:
+                            display_recommendations(recommendations)
+                            display_health_tips_dynamic("Hepatitis C", severity.lower())
+                
+            except Exception as e:
+                st.error(f"Error in prediction: {str(e)}")
+                import traceback
+                st.code(traceback.format_exc())
 
 # General Disease Prediction (Symptom-based)
 if selected == '🔍 General Disease Prediction':
