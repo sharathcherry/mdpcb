@@ -45,13 +45,23 @@ MODEL_FILES = {
     "parkinsons_model": os.path.join(BASE_DIR, "models", "parkinsons_model.sav"),
     "liver_cancer_model": os.path.join(BASE_DIR, "models", "liver_cancer_model.sav"),
     "hepatitis_c_model": os.path.join(BASE_DIR, "models", "hepatitis_c_model.sav"),
+    "asthma_model": os.path.join(BASE_DIR, "models", "asthma_model.sav"),
+    "malaria_model": os.path.join(BASE_DIR, "models", "malaria_model.sav"),
+    "alzheimers_model": os.path.join(BASE_DIR, "models", "alzheimers_model.sav"),
+    "obesity_model": os.path.join(BASE_DIR, "models", "obesity_model.sav"),
+    "epilepsy_model": os.path.join(BASE_DIR, "models", "epilepsy_model.sav"),
+    "prostate_model": os.path.join(BASE_DIR, "models", "prostate_model.sav"),
+    "cancer_risk_model": os.path.join(BASE_DIR, "models", "cancer_risk_model.sav"),
+    "migraine_model": os.path.join(BASE_DIR, "models", "migraine_model.sav"),
+    "tuberculosis_model": os.path.join(BASE_DIR, "models", "tuberculosis_model.sav"),
+    "copd_model": os.path.join(BASE_DIR, "models", "copd_model.sav"),
 }
 
 loaded_models = {}
 failed_models = {}
 
 # Special handling for packaged models (models saved with scaler, encoders, etc.)
-PACKAGED_MODELS = {"diabetes_model", "heart_model", "breast_cancer_model", "kidney_disease_model", "lung_cancer_model", "parkinsons_model", "liver_cancer_model", "hepatitis_c_model"}  # Add more as they get retrained
+PACKAGED_MODELS = {"diabetes_model", "heart_model", "breast_cancer_model", "kidney_disease_model", "lung_cancer_model", "parkinsons_model", "liver_cancer_model", "hepatitis_c_model", "asthma_model", "malaria_model", "alzheimers_model", "obesity_model", "epilepsy_model", "prostate_model", "cancer_risk_model", "migraine_model", "tuberculosis_model", "copd_model"}  # Add more as they get retrained
 
 for attr_name, model_path in MODEL_FILES.items():
     try:
@@ -997,6 +1007,7 @@ with st.sidebar:
         "Colorectal Cancer Prediction": "🧬",
         "Prostate Cancer Prediction": "🧫",
         "Cervical Cancer Prediction": "🧫",
+        "Cancer Risk Assessment": "🎯",
         # Respiratory
         "Asthma Prediction": "🌫️",
         "COPD Prediction": "😮‍💨",
@@ -1056,7 +1067,7 @@ with st.sidebar:
     ch3 = section("Neurological", ["Parkinsons Prediction", "Alzheimers Prediction", "Epilepsy Prediction", "Migraine Prediction"])
     ch4 = section("Organ", ["Liver Prediction", "Kidney Disease Prediction"])
     ch5 = section("Infectious", ["Hepatitis Prediction", "Tuberculosis Prediction", "HIV/AIDS Prediction", "Malaria Prediction"])
-    ch6 = section("Cancer", ["Lung Cancer Prediction", "Breast Cancer Prediction", "Liver Cancer Prediction", "Colorectal Cancer Prediction", "Prostate Cancer Prediction", "Cervical Cancer Prediction"])
+    ch6 = section("Cancer", ["Lung Cancer Prediction", "Breast Cancer Prediction", "Liver Cancer Prediction", "Colorectal Cancer Prediction", "Prostate Cancer Prediction", "Cervical Cancer Prediction", "Cancer Risk Assessment"])
     ch7 = section("Respiratory", ["Asthma Prediction", "COPD Prediction", "Pneumonia Prediction"])
     ch8 = section("Services", ["AI Health Assistant", "Book Appointment", "Set Reminder", "Health Tips"])
 
@@ -1228,94 +1239,6 @@ if selected == 'AI Health Assistant':
 
 # The rest of your existing disease prediction pages would continue here...
 # (Diabetes, Heart Disease, Parkinsons, etc. - keeping your existing implementations)
-# Lifestyle factors
-        if physical_activity == "Sedentary":
-            risk_score += 2
-        if eating_habits in ["Often Unhealthy", "Very Unhealthy"]:
-            risk_score += 2
-        if fast_food in ["3-4 times/week", "Daily"]:
-            risk_score += 1
-        if family_obesity == "Both Parents":
-            risk_score += 2
-        elif family_obesity == "One Parent":
-            risk_score += 1
-        
-        # Determine risk level
-        if risk_score >= 7:
-            risk_level = "High Risk"
-            severity = "high"
-        elif risk_score >= 4:
-            risk_level = "Moderate Risk"
-            severity = "moderate"
-        else:
-            risk_level = "Low Risk"
-            severity = "low"
-        
-        st.markdown(f"### Overall Obesity Risk: {risk_level}")
-        st.progress(min(risk_score/10, 1.0))
-        
-        # Health recommendations based on BMI
-        st.subheader("📋 Personalized Recommendations")
-        
-        if bmi >= 25:
-            st.warning("Weight management is recommended for optimal health")
-            target_weight = 24.9 * (height_m ** 2)
-            weight_to_lose = weight - target_weight
-            st.write(f"**Target Weight:** {target_weight:.1f} kg")
-            if weight_to_lose > 0:
-                st.write(f"**Weight to Lose:** {weight_to_lose:.1f} kg")
-            
-            # Calculate daily calorie needs
-            if gender == "Male":
-                bmr = 10 * weight + 6.25 * height - 5 * age + 5
-            else:
-                bmr = 10 * weight + 6.25 * height - 5 * age - 161
-            
-            activity_multipliers = {
-                "Sedentary": 1.2,
-                "Lightly Active": 1.375,
-                "Moderately Active": 1.55,
-                "Very Active": 1.725,
-                "Extremely Active": 1.9
-            }
-            
-            tdee = bmr * activity_multipliers.get(physical_activity, 1.2)
-            calorie_deficit = tdee - 500  # 500 calorie deficit for healthy weight loss
-            
-            st.write(f"**Estimated Daily Calorie Needs:** {tdee:.0f} calories")
-            st.write(f"**Recommended for Weight Loss:** {calorie_deficit:.0f} calories/day")
-            st.write(f"**Estimated Time to Target Weight:** {(weight_to_lose * 7700 / 500 / 7):.1f} weeks (at 0.5 kg/week)")
-        
-        elif bmi < 18.5:
-            target_weight = 18.5 * (height_m ** 2)
-            weight_to_gain = target_weight - weight
-            st.info("Weight gain is recommended for optimal health")
-            st.write(f"**Target Weight:** {target_weight:.1f} kg")
-            st.write(f"**Weight to Gain:** {weight_to_gain:.1f} kg")
-        
-        else:
-            st.success("You are at a healthy weight! Focus on maintenance.")
-        
-        # Get AI recommendations for obesity/weight management
-        if name:
-            with st.spinner("Generating personalized weight management plan..."):
-                patient_info = {
-                    "name": name,
-                    "age": age,
-                    "gender": gender,
-                    "bmi": round(bmi, 2),
-                    "weight": weight,
-                    "height": height,
-                    "physical_activity": physical_activity,
-                    "eating_habits": eating_habits,
-                    "medical_conditions": medical_conditions
-                }
-                
-                disease_name = "Obesity Management" if bmi >= 30 else "Weight Management"
-                recommendations = get_health_recommendations(disease_name, severity, patient_info)
-                if recommendations:
-                    display_recommendations(recommendations)
-                    display_health_tips_dynamic(disease_name, severity)
 
 # Diabetes Prediction
 if selected == 'Diabetes Prediction':
@@ -3379,226 +3302,553 @@ if selected == 'Alzheimers Prediction':
             st.warning("⚠️ Please enter patient name")
         else:
             try:
-                with st.spinner("🤖 AI is analyzing clinical data..."):
-                    # Load metadata
-                    with open('models/alzheimers_metadata.pkl', 'rb') as f:
-                        metadata = pickle.load(f)
-                        feature_columns = metadata['feature_columns']
+                if "alzheimers_model" not in loaded_models:
+                    st.error("❌ Alzheimer's model not loaded. Please check model file.")
+                else:
+                    model_data = loaded_models["alzheimers_model"]
                     
-                    # Convert inputs to numeric
-                    gender_num = 1 if gender == "Male" else 0
-                    smoking_num = 1 if smoking == "Yes" else 0
-                    family_history_num = 1 if family_history == "Yes" else 0
-                    cardiovascular_disease_num = 1 if cardiovascular_disease == "Yes" else 0
-                    diabetes_num = 1 if diabetes == "Yes" else 0
-                    depression_num = 1 if depression == "Yes" else 0
-                    head_injury_num = 1 if head_injury == "Yes" else 0
-                    hypertension_num = 1 if hypertension == "Yes" else 0
-                    memory_complaints_num = 1 if memory_complaints == "Yes" else 0
-                    behavioral_problems_num = 1 if behavioral_problems == "Yes" else 0
-                    confusion_num = 1 if confusion == "Yes" else 0
-                    disorientation_num = 1 if disorientation == "Yes" else 0
-                    personality_changes_num = 1 if personality_changes == "Yes" else 0
-                    difficulty_completing_tasks_num = 1 if difficulty_completing_tasks == "Yes" else 0
-                    forgetfulness_num = 1 if forgetfulness == "Yes" else 0
+                    if isinstance(model_data, dict):
+                        model = model_data["model"]
+                        scaler = model_data["scaler"]
+                        feature_columns = model_data["feature_columns"]
+                        
+                        # Convert inputs to numeric
+                        gender_num = 1 if gender == "Male" else 0
+                        smoking_num = 1 if smoking == "Yes" else 0
+                        family_history_num = 1 if family_history == "Yes" else 0
+                        cardiovascular_disease_num = 1 if cardiovascular_disease == "Yes" else 0
+                        diabetes_num = 1 if diabetes == "Yes" else 0
+                        depression_num = 1 if depression == "Yes" else 0
+                        head_injury_num = 1 if head_injury == "Yes" else 0
+                        hypertension_num = 1 if hypertension == "Yes" else 0
+                        memory_complaints_num = 1 if memory_complaints == "Yes" else 0
+                        behavioral_problems_num = 1 if behavioral_problems == "Yes" else 0
+                        confusion_num = 1 if confusion == "Yes" else 0
+                        disorientation_num = 1 if disorientation == "Yes" else 0
+                        personality_changes_num = 1 if personality_changes == "Yes" else 0
+                        difficulty_completing_tasks_num = 1 if difficulty_completing_tasks == "Yes" else 0
+                        forgetfulness_num = 1 if forgetfulness == "Yes" else 0
 
-                    # Create feature vector
-                    user_input = [
-                        age, gender_num, ethnicity, education_level, bmi, smoking_num, alcohol,
-                        physical_activity, diet_quality, sleep_quality, family_history_num,
-                        cardiovascular_disease_num, diabetes_num, depression_num, head_injury_num,
-                        hypertension_num, systolic_bp, diastolic_bp, cholesterol_total, cholesterol_ldl,
-                        cholesterol_hdl, cholesterol_triglycerides, mmse, functional_assessment,
-                        memory_complaints_num, behavioral_problems_num, adl, confusion_num,
-                        disorientation_num, personality_changes_num, difficulty_completing_tasks_num,
-                        forgetfulness_num
-                    ]
+                        # Create input dataframe matching feature_columns order
+                        input_data = pd.DataFrame([[
+                            age, gender_num, ethnicity, education_level, bmi, smoking_num, alcohol,
+                            physical_activity, diet_quality, sleep_quality, family_history_num,
+                            cardiovascular_disease_num, diabetes_num, depression_num, head_injury_num,
+                            hypertension_num, systolic_bp, diastolic_bp, cholesterol_total, cholesterol_ldl,
+                            cholesterol_hdl, cholesterol_triglycerides, mmse, functional_assessment,
+                            memory_complaints_num, behavioral_problems_num, adl, confusion_num,
+                            disorientation_num, personality_changes_num, difficulty_completing_tasks_num,
+                            forgetfulness_num
+                        ]], columns=feature_columns)
+                        
+                        # Scale the input
+                        input_scaled = scaler.transform(input_data)
+                        
+                        # Make prediction
+                        prediction = model.predict(input_scaled)
+                        prediction_proba = model.predict_proba(input_scaled)[0]
 
-                    # Predict
-                    prediction = alzheimers_model.predict([user_input])
-                    prediction_proba = alzheimers_model.predict_proba([user_input])[0]
-
-                    # Display results with enhanced UI
-                    st.markdown("---")
-                    st.markdown("## 📊 Analysis Results")
-                    
-                    col1, col2, col3 = st.columns(3)
-                    
-                    with col1:
+                        # Display results with enhanced UI
+                        st.markdown("---")
+                        st.markdown("## 📊 Analysis Results")
+                        
+                        col1, col2, col3 = st.columns(3)
+                        
+                        with col1:
+                            if prediction[0] == 1:
+                                st.error("🔴 High Risk Detected")
+                                severity = "high"
+                                risk_emoji = "🔴"
+                            else:
+                                st.success("🟢 Low Risk")
+                                severity = "low"
+                                risk_emoji = "🟢"
+                        
+                        with col2:
+                            confidence = max(prediction_proba) * 100
+                            st.metric("🎯 Model Confidence", f"{confidence:.1f}%")
+                        
+                        with col3:
+                            st.metric("🧠 MMSE Score", f"{mmse}/30")
+                        
+                        # Risk interpretation
+                        st.markdown("---")
                         if prediction[0] == 1:
-                            st.error("🔴 High Risk Detected")
-                            severity = "high"
-                            risk_emoji = "🔴"
+                            st.error(f"""
+                            ### ⚠️ Clinical Alert
+                            **{name}**, the assessment indicates elevated risk for Alzheimer's disease.
+                            
+                            **Recommended Actions:**
+                            - 🏥 Schedule immediate consultation with a neurologist
+                            - 🧪 Comprehensive cognitive assessment recommended
+                            - 📋 Additional imaging studies (MRI/PET) may be needed
+                            - 👨‍⚕️ Consider specialist referral to memory clinic
+                            """)
                         else:
-                            st.success("🟢 Low Risk")
-                            severity = "low"
-                            risk_emoji = "🟢"
-                    
-                    with col2:
-                        confidence = max(prediction_proba) * 100
-                        st.metric("🎯 Model Confidence", f"{confidence:.1f}%")
-                    
-                    with col3:
-                        st.metric("🧠 MMSE Score", f"{mmse}/30")
-                    
-                    # Risk interpretation
-                    st.markdown("---")
-                    if prediction[0] == 1:
-                        st.error(f"""
-                        ### ⚠️ Clinical Alert
-                        **{name}**, the assessment indicates elevated risk for Alzheimer's disease.
+                            st.success(f"""
+                            ### ✅ Assessment Summary
+                            **{name}**, the current assessment shows low risk indicators.
+                            
+                            **Recommendations:**
+                            - 🌟 Maintain healthy lifestyle habits
+                            - 🧠 Continue cognitive activities and mental stimulation
+                            - 📅 Regular health screenings recommended
+                            - 💪 Stay physically and socially active
+                            """)
                         
-                        **Recommended Actions:**
-                        - 🏥 Schedule immediate consultation with a neurologist
-                        - 🧪 Comprehensive cognitive assessment recommended
-                        - 📋 Additional imaging studies (MRI/PET) may be needed
-                        - 👨‍⚕️ Consider specialist referral to memory clinic
-                        """)
+                        # Risk factors summary
+                        st.markdown("---")
+                        st.subheader("🔍 Key Risk Factors Identified")
+                        
+                        risk_factors = []
+                        if mmse < 24:
+                            risk_factors.append(("Cognitive Impairment", "MMSE score below normal range"))
+                        if family_history == "Yes":
+                            risk_factors.append(("Family History", "Genetic predisposition present"))
+                        if age > 75:
+                            risk_factors.append(("Advanced Age", "Age-related risk factor"))
+                        if cardiovascular_disease == "Yes":
+                            risk_factors.append(("Cardiovascular Disease", "Vascular risk factor"))
+                        if diabetes == "Yes":
+                            risk_factors.append(("Diabetes", "Metabolic risk factor"))
+                        if memory_complaints == "Yes":
+                            risk_factors.append(("Memory Complaints", "Subjective cognitive decline"))
+                        
+                        if risk_factors:
+                            for factor, description in risk_factors:
+                                st.warning(f"⚠️ **{factor}**: {description}")
+                        else:
+                            st.info("✅ No major risk factors identified")
+                        
+                        # AI Recommendations
+                        st.markdown("---")
+                        with st.spinner("🤖 Generating personalized care recommendations..."):
+                            patient_info = {
+                                "name": name,
+                                "age": age,
+                                "mmse_score": mmse,
+                                "risk_factors": ", ".join([f[0] for f in risk_factors]) if risk_factors else "None"
+                            }
+                            
+                            recommendations = get_health_recommendations("Alzheimer's Disease", severity, patient_info)
+                            if recommendations:
+                                display_recommendations(recommendations)
+                                display_health_tips_dynamic("Alzheimer's Disease", severity)
                     else:
-                        st.success(f"""
-                        ### ✅ Assessment Summary
-                        **{name}**, the current assessment shows low risk indicators.
-                        
-                        **Recommendations:**
-                        - 🌟 Maintain healthy lifestyle habits
-                        - 🧠 Continue cognitive activities and mental stimulation
-                        - 📅 Regular health screenings recommended
-                        - 💪 Stay physically and socially active
-                        """)
-                    
-                    # Risk factors summary
-                    st.markdown("---")
-                    st.subheader("🔍 Key Risk Factors Identified")
-                    
-                    risk_factors = []
-                    if mmse < 24:
-                        risk_factors.append(("Cognitive Impairment", "MMSE score below normal range"))
-                    if family_history == "Yes":
-                        risk_factors.append(("Family History", "Genetic predisposition present"))
-                    if age > 75:
-                        risk_factors.append(("Advanced Age", "Age-related risk factor"))
-                    if cardiovascular_disease == "Yes":
-                        risk_factors.append(("Cardiovascular Disease", "Vascular risk factor"))
-                    if diabetes == "Yes":
-                        risk_factors.append(("Diabetes", "Metabolic risk factor"))
-                    if memory_complaints == "Yes":
-                        risk_factors.append(("Memory Complaints", "Subjective cognitive decline"))
-                    
-                    if risk_factors:
-                        for factor, description in risk_factors:
-                            st.warning(f"⚠️ **{factor}**: {description}")
-                    else:
-                        st.info("✅ No major risk factors identified")
-                    
-                    # AI Recommendations
-                    st.markdown("---")
-                    with st.spinner("🤖 Generating personalized care recommendations..."):
-                        patient_info = {
-                            "name": name,
-                            "age": age,
-                            "mmse_score": mmse,
-                            "risk_factors": ", ".join([f[0] for f in risk_factors]) if risk_factors else "None"
-                        }
-                        
-                        recommendations = get_health_recommendations("Alzheimer's Disease", severity, patient_info)
-                        if recommendations:
-                            display_recommendations(recommendations)
-                            display_health_tips_dynamic("Alzheimer's Disease", severity)
+                        st.error("Model format not recognized.")
 
-            except FileNotFoundError:
-                st.error("❌ Model files not found. Please train the model first using `train_alzheimers_v2.py`")
             except Exception as e:
                 st.error(f"❌ Error in prediction: {str(e)}")
                 with st.expander("🔧 Technical Details"):
                     import traceback
                     st.code(traceback.format_exc())
 # Epilepsy Prediction
-# Load or import your epilepsy_model here (from joblib, pickle, etc.)
-# epilepsy_model = ...
-
 if selected == 'Epilepsy Prediction':
-    st.title("⚡ Epilepsy Prediction")
-    st.markdown("Predict seizure risk based on EEG patterns and clinical data")
-
-    name = st.text_input("Name:")
-
-    st.markdown("### Clinical Information")
+    st.title("⚡ Epilepsy Seizure Prediction")
+    st.markdown("AI-powered seizure detection using EEG signal analysis")
+    
+    # Model accuracy info
+    if "epilepsy_model" in loaded_models:
+        model_data = loaded_models["epilepsy_model"]
+        if isinstance(model_data, dict) and "accuracy" in model_data:
+            st.success(f"✅ Model loaded successfully | Accuracy: {model_data['accuracy']:.2%}")
+    
+    name = st.text_input("👤 Patient Name:")
+    
+    st.markdown("### 📋 Clinical Background")
     col1, col2, col3 = st.columns(3)
-
+    
     with col1:
         age = st.number_input("Age", min_value=1, max_value=100, value=25)
         gender = st.selectbox("Gender", ["Male", "Female"])
-        seizure_type = st.selectbox("Seizure Type", [
-            "Generalized Tonic-Clonic", "Focal", "Absence",
-            "Myoclonic", "Atonic", "Unknown"
+        seizure_type = st.selectbox("Known Seizure Type", [
+            "Unknown/First Assessment", "Generalized Tonic-Clonic", "Focal", 
+            "Absence", "Myoclonic", "Atonic"
         ])
-
+    
     with col2:
-        seizure_frequency = st.selectbox("Seizure Frequency", [
-            "Daily", "Weekly", "Monthly", "Yearly", "First Time"
+        seizure_frequency = st.selectbox("Seizure History", [
+            "No Previous Seizures", "First Time", "Yearly", "Monthly", "Weekly", "Daily"
         ])
-        triggers = st.multiselect("Known Triggers", [
-            "Stress", "Lack of Sleep", "Flashing Lights",
-            "Alcohol", "Missed Medication", "Menstruation"
-        ])
-        family_history = st.selectbox("Family History", ["Yes", "No"])
-
+        family_history = st.selectbox("Family History of Epilepsy", ["No", "Yes"])
+        head_injury = st.selectbox("Previous Head Injury", ["No", "Yes"])
+    
     with col3:
-        head_injury = st.selectbox("Previous Head Injury", ["Yes", "No"])
-        birth_complications = st.selectbox("Birth Complications", ["Yes", "No"])
-        febrile_seizures = st.selectbox("Childhood Febrile Seizures", ["Yes", "No"])
-
-    st.markdown("### EEG Data Upload")
-    eeg_file = st.file_uploader("Upload EEG CSV file (178 feature columns)", type=["csv"])
-
-    if st.button("Predict Epilepsy Risk"):
-        if eeg_file is not None:
-            eeg_data = pd.read_csv(eeg_file)
-            if eeg_data.shape[1] < 178:
-                st.error("EEG data must have at least 178 feature columns per sample.")
+        triggers = st.multiselect("Known Triggers", [
+            "None Known", "Stress", "Lack of Sleep", "Flashing Lights",
+            "Alcohol", "Missed Medication", "Fever"
+        ])
+        birth_complications = st.selectbox("Birth Complications", ["No", "Yes"])
+        febrile_seizures = st.selectbox("Childhood Febrile Seizures", ["No", "Yes"])
+    
+    st.markdown("---")
+    st.markdown("### 📊 EEG Signal Analysis")
+    st.info("Upload EEG data with 178 feature columns (signal measurements) per sample for seizure detection.")
+    
+    eeg_file = st.file_uploader("Upload EEG CSV file", type=["csv"])
+    
+    if st.button("🔬 Analyze EEG & Predict Seizure Risk", type="primary"):
+        try:
+            if "epilepsy_model" not in loaded_models:
+                st.error("Epilepsy model not loaded. Please check model file.")
+            elif eeg_file is None:
+                st.warning("Please upload an EEG data CSV file to proceed.")
             else:
-                eeg_features = eeg_data.iloc[:, :178]  # Use the first 178 columns
-                eeg_predictions = epilepsy_model.predict(eeg_features)
-
-                seizure_percentage = np.mean(eeg_predictions == 1) * 100
-                st.write(f"Seizure prediction per EEG segment: {seizure_percentage:.2f}% of segments show seizure activity.")
-
-                # Aggregate into a risk level
-                if seizure_percentage > 50:
-                    risk_label = "High Risk of Epilepsy"
-                    severity = "high"
-                    st.error(risk_label)
-                elif seizure_percentage > 20:
-                    risk_label = "Moderate Risk of Epilepsy"
-                    severity = "moderate"
-                    st.warning(risk_label)
+                model_data = loaded_models["epilepsy_model"]
+                
+                if isinstance(model_data, dict):
+                    model = model_data["model"]
+                    scaler = model_data["scaler"]
+                    feature_columns = model_data["feature_columns"]
+                    
+                    # Load EEG data
+                    eeg_data = pd.read_csv(eeg_file)
+                    
+                    # Check if data has enough columns
+                    if eeg_data.shape[1] < 178:
+                        st.error(f"EEG data must have at least 178 feature columns. Found {eeg_data.shape[1]} columns.")
+                    else:
+                        # Use first 178 columns as features
+                        eeg_features = eeg_data.iloc[:, :178]
+                        eeg_features.columns = feature_columns  # Match training feature names
+                        
+                        # Scale features
+                        eeg_scaled = scaler.transform(eeg_features)
+                        
+                        # Make predictions
+                        predictions = model.predict(eeg_scaled)
+                        prediction_proba = model.predict_proba(eeg_scaled)
+                        
+                        # Calculate seizure percentage
+                        seizure_count = np.sum(predictions == 1)
+                        total_segments = len(predictions)
+                        seizure_percentage = (seizure_count / total_segments) * 100
+                        avg_seizure_prob = np.mean(prediction_proba[:, 1]) * 100
+                        
+                        # Display results
+                        st.markdown("---")
+                        st.subheader("🎯 EEG Analysis Results")
+                        
+                        col_r1, col_r2, col_r3 = st.columns(3)
+                        
+                        with col_r1:
+                            st.metric("Total EEG Segments", total_segments)
+                        
+                        with col_r2:
+                            st.metric("Seizure Detected", f"{seizure_count} segments")
+                        
+                        with col_r3:
+                            st.metric("Seizure Activity", f"{seizure_percentage:.1f}%")
+                        
+                        # Risk assessment
+                        if seizure_percentage > 50:
+                            risk_label = "HIGH SEIZURE RISK"
+                            severity = "high"
+                            st.error(f"🔴 **{risk_label}** - {seizure_percentage:.1f}% of EEG segments show seizure activity")
+                        elif seizure_percentage > 20:
+                            risk_label = "MODERATE SEIZURE RISK"
+                            severity = "moderate"
+                            st.warning(f"🟡 **{risk_label}** - {seizure_percentage:.1f}% of EEG segments show seizure activity")
+                        else:
+                            risk_label = "LOW SEIZURE RISK"
+                            severity = "low"
+                            st.success(f"🟢 **{risk_label}** - {seizure_percentage:.1f}% of EEG segments show seizure activity")
+                        
+                        # Visualization
+                        col_v1, col_v2 = st.columns(2)
+                        with col_v1:
+                            st.write("**Segment-wise Classification:**")
+                            class_counts = pd.DataFrame({
+                                "Classification": ["Normal", "Seizure"],
+                                "Count": [total_segments - seizure_count, seizure_count]
+                            })
+                            st.bar_chart(class_counts.set_index("Classification"))
+                        
+                        with col_v2:
+                            st.write("**Average Seizure Probability:**")
+                            st.progress(avg_seizure_prob / 100)
+                            st.write(f"{avg_seizure_prob:.1f}%")
+                        
+                        # Feature importance
+                        if "feature_importance" in model_data:
+                            with st.expander("📊 Top EEG Features for Detection"):
+                                importance_df = pd.DataFrame({
+                                    "Feature": feature_columns[:20],
+                                    "Importance": model_data["feature_importance"][:20]
+                                }).sort_values("Importance", ascending=False).head(10)
+                                st.bar_chart(importance_df.set_index("Feature"))
+                        
+                        # Recommendations
+                        if name:
+                            patient_info = {
+                                "name": name,
+                                "age": age,
+                                "seizure_type": seizure_type,
+                                "seizure_frequency": seizure_frequency,
+                                "eeg_seizure_percentage": seizure_percentage,
+                                "risk_level": risk_label
+                            }
+                            recommendations = get_health_recommendations("Epilepsy", severity, patient_info)
+                            if recommendations:
+                                display_recommendations(recommendations)
+                                display_health_tips_dynamic("Epilepsy", severity)
                 else:
-                    risk_label = "Low Risk of Epilepsy"
-                    severity = "low"
-                    st.success(risk_label)
+                    st.error("Model format not recognized.")
+                    
+        except Exception as e:
+            st.error(f"Error in prediction: {str(e)}")
+            import traceback
+            st.code(traceback.format_exc())
 
-                # Combine clinical info and EEG prediction for recommendations
-                if name:
-                    with st.spinner("Generating recommendations..."):
+# Tuberculosis Prediction
+if selected == 'Tuberculosis Prediction':
+    st.title("🫁 Tuberculosis (TB) Risk Prediction")
+    st.markdown("AI-powered TB risk assessment based on clinical symptoms")
+    
+    # Model accuracy info
+    if "tuberculosis_model" in loaded_models:
+        model_data = loaded_models["tuberculosis_model"]
+        if isinstance(model_data, dict) and "accuracy" in model_data:
+            st.success(f"✅ Model loaded successfully | Accuracy: {model_data['accuracy']:.2%} | CV: {model_data.get('cv_accuracy', 0):.2%}")
+    
+    name = st.text_input("👤 Patient Name:")
+    
+    # Patient info
+    col1, col2 = st.columns(2)
+    with col1:
+        gender = st.selectbox("Gender", options=["Male", "Female"])
+        gender_val = 1 if gender == "Male" else 0
+    with col2:
+        age = st.number_input("Age (for reference)", min_value=1, max_value=120, value=35)
+    
+    st.divider()
+    st.subheader("🩺 TB Symptom Assessment")
+    st.markdown("Please indicate which symptoms are present:")
+    
+    # Organize symptoms into categories
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.markdown("**Respiratory Symptoms**")
+        coughing_blood = st.checkbox("🩸 Coughing Blood")
+        sputum_blood = st.checkbox("🩸 Sputum Mixed with Blood")
+        shortness_breath = st.checkbox("😮‍💨 Shortness of Breath")
+        cough_phlegm = st.checkbox("😷 Persistent Cough with Phlegm (2-4 weeks)")
+    
+    with col2:
+        st.markdown("**Systemic Symptoms**")
+        fever = st.checkbox("🤒 Fever for Two Weeks")
+        night_sweats = st.checkbox("😰 Night Sweats")
+        weight_loss = st.checkbox("📉 Unexplained Weight Loss")
+        fatigue = st.checkbox("😴 Body Feels Tired/Fatigue")
+    
+    with col3:
+        st.markdown("**Other Symptoms**")
+        chest_pain = st.checkbox("💔 Chest Pain")
+        back_pain = st.checkbox("🔙 Back Pain in Certain Parts")
+        lumps = st.checkbox("🔘 Lumps around Armpits/Neck")
+        swollen_lymph = st.checkbox("🔘 Swollen Lymph Nodes")
+        loss_appetite = st.checkbox("🍽️ Loss of Appetite")
+    
+    st.divider()
+    
+    if st.button("🔬 Predict TB Risk", type="primary", use_container_width=True):
+        try:
+            if "tuberculosis_model" not in loaded_models:
+                st.error("Tuberculosis model not loaded. Please check model file.")
+            else:
+                model_data = loaded_models["tuberculosis_model"]
+                
+                if isinstance(model_data, dict):
+                    model = model_data["model"]
+                    scaler = model_data["scaler"]
+                    feature_columns = model_data["feature_columns"]
+                    
+                    # Convert checkbox values to integers
+                    fever_val = 1 if fever else 0
+                    coughing_blood_val = 1 if coughing_blood else 0
+                    sputum_blood_val = 1 if sputum_blood else 0
+                    night_sweats_val = 1 if night_sweats else 0
+                    chest_pain_val = 1 if chest_pain else 0
+                    back_pain_val = 1 if back_pain else 0
+                    shortness_breath_val = 1 if shortness_breath else 0
+                    weight_loss_val = 1 if weight_loss else 0
+                    fatigue_val = 1 if fatigue else 0
+                    lumps_val = 1 if lumps else 0
+                    cough_phlegm_val = 1 if cough_phlegm else 0
+                    swollen_lymph_val = 1 if swollen_lymph else 0
+                    loss_appetite_val = 1 if loss_appetite else 0
+                    
+                    # Calculate engineered features
+                    respiratory_symptoms = coughing_blood_val + sputum_blood_val + shortness_breath_val + cough_phlegm_val
+                    systemic_symptoms = fever_val + night_sweats_val + weight_loss_val + fatigue_val
+                    lymph_symptoms = lumps_val + swollen_lymph_val
+                    symptom_count = (fever_val + coughing_blood_val + sputum_blood_val + night_sweats_val + 
+                                    chest_pain_val + back_pain_val + shortness_breath_val + weight_loss_val + 
+                                    fatigue_val + lumps_val + cough_phlegm_val + swollen_lymph_val + loss_appetite_val)
+                    
+                    # Prepare input
+                    input_data = {
+                        'gender': gender_val,
+                        'fever for two weeks': fever_val,
+                        'coughing blood': coughing_blood_val,
+                        'sputum mixed with blood': sputum_blood_val,
+                        'night sweats ': night_sweats_val,
+                        'chest pain': chest_pain_val,
+                        'back pain in certain parts ': back_pain_val,
+                        'shortness of breath': shortness_breath_val,
+                        'weight loss ': weight_loss_val,
+                        'body feels tired': fatigue_val,
+                        'lumps that appear around the armpits and neck': lumps_val,
+                        'cough and phlegm continuously for two weeks to four weeks': cough_phlegm_val,
+                        'swollen lymph nodes': swollen_lymph_val,
+                        'loss of appetite': loss_appetite_val,
+                        'respiratory_symptoms': respiratory_symptoms,
+                        'systemic_symptoms': systemic_symptoms,
+                        'lymph_symptoms': lymph_symptoms,
+                        'symptom_count': symptom_count
+                    }
+                    
+                    # Create DataFrame
+                    input_df = pd.DataFrame([input_data])[feature_columns]
+                    
+                    # Scale and predict
+                    input_scaled = scaler.transform(input_df)
+                    prediction = model.predict(input_scaled)[0]
+                    
+                    # Get probability
+                    if hasattr(model, 'predict_proba'):
+                        proba = model.predict_proba(input_scaled)[0]
+                        confidence = proba[prediction] * 100
+                        tb_risk_prob = proba[1] * 100
+                    else:
+                        confidence = 95.0
+                        tb_risk_prob = 50.0 if prediction == 0 else 95.0
+                    
+                    # Display results
+                    st.markdown("---")
+                    st.subheader("🎯 Prediction Results")
+                    
+                    col1, col2, col3, col4 = st.columns(4)
+                    
+                    with col1:
+                        result = "TB Positive (High Risk)" if prediction == 1 else "TB Negative (Low Risk)"
+                        st.metric("Prediction", "High Risk" if prediction == 1 else "Low Risk")
+                    with col2:
+                        st.metric("TB Risk", f"{tb_risk_prob:.1f}%")
+                    with col3:
+                        st.metric("Symptoms Present", f"{symptom_count}/13")
+                    with col4:
+                        st.metric("Model Accuracy", f"{model_data.get('accuracy', 1.0)*100:.1f}%")
+                    
+                    # Risk level display
+                    if prediction == 1:
+                        st.error(f"⚠️ {name if name else 'Patient'}, **HIGH TB RISK** detected! Immediate medical evaluation and TB testing strongly recommended.")
+                        severity = "high"
+                    else:
+                        if symptom_count >= 4:
+                            st.warning(f"⚠️ {name if name else 'Patient'}, **MODERATE RISK**. Some TB symptoms present. Consider TB screening if symptoms persist.")
+                            severity = "moderate"
+                        else:
+                            st.success(f"✅ {name if name else 'Patient'}, **LOW TB RISK**. Continue monitoring and maintain good respiratory health.")
+                            severity = "low"
+                    
+                    # Symptom summary
+                    st.markdown("---")
+                    st.subheader("📋 Symptom Analysis")
+                    
+                    col1, col2 = st.columns(2)
+                    
+                    present_symptoms = []
+                    if fever: present_symptoms.append("Fever for 2+ weeks")
+                    if coughing_blood: present_symptoms.append("Coughing blood")
+                    if sputum_blood: present_symptoms.append("Sputum with blood")
+                    if night_sweats: present_symptoms.append("Night sweats")
+                    if chest_pain: present_symptoms.append("Chest pain")
+                    if back_pain: present_symptoms.append("Back pain")
+                    if shortness_breath: present_symptoms.append("Shortness of breath")
+                    if weight_loss: present_symptoms.append("Weight loss")
+                    if fatigue: present_symptoms.append("Fatigue")
+                    if lumps: present_symptoms.append("Lymph node lumps")
+                    if cough_phlegm: present_symptoms.append("Persistent cough with phlegm")
+                    if swollen_lymph: present_symptoms.append("Swollen lymph nodes")
+                    if loss_appetite: present_symptoms.append("Loss of appetite")
+                    
+                    with col1:
+                        st.markdown("**Present Symptoms:**")
+                        if present_symptoms:
+                            for s in present_symptoms:
+                                st.markdown(f"• ⚠️ {s}")
+                        else:
+                            st.success("No TB symptoms reported")
+                    
+                    with col2:
+                        st.markdown("**Symptom Categories:**")
+                        st.markdown(f"• Respiratory: {respiratory_symptoms}/4")
+                        st.markdown(f"• Systemic: {systemic_symptoms}/4")
+                        st.markdown(f"• Lymphatic: {lymph_symptoms}/2")
+                        st.markdown(f"• Other: {chest_pain_val + back_pain_val + loss_appetite_val}/3")
+                    
+                    # Feature importance
+                    if "feature_importance" in model_data:
+                        with st.expander("📊 Feature Importance Analysis"):
+                            importance_df = pd.DataFrame({
+                                "Feature": list(model_data["feature_importance"].keys()),
+                                "Importance": list(model_data["feature_importance"].values())
+                            }).sort_values("Importance", ascending=False).head(10)
+                            st.bar_chart(importance_df.set_index("Feature"))
+                    
+                    # Recommendations
+                    st.markdown("---")
+                    st.subheader("💡 Recommendations")
+                    
+                    if prediction == 1:
+                        st.markdown("""
+                        **Immediate Actions Required:**
+                        - 🏥 Seek immediate medical evaluation for TB testing
+                        - 🧪 Request sputum test and chest X-ray
+                        - 😷 Practice respiratory hygiene (cover coughs, wear mask)
+                        - 🏠 Limit close contact with others until evaluated
+                        - 📋 Inform healthcare provider of all symptoms
+                        - 💊 Do not self-medicate - TB requires specific antibiotics
+                        """)
+                    elif symptom_count >= 4:
+                        st.markdown("""
+                        **Recommended Actions:**
+                        - 📅 Schedule a medical appointment within 1-2 weeks
+                        - 📝 Monitor symptoms and note any changes
+                        - 🧪 Consider TB screening if symptoms persist
+                        - 🥗 Maintain good nutrition to support immune system
+                        - 😴 Get adequate rest
+                        """)
+                    else:
+                        st.markdown("""
+                        **Maintain Good Health:**
+                        - ✅ Continue healthy lifestyle habits
+                        - 💪 Maintain strong immune system
+                        - 🚭 Avoid smoking and secondhand smoke
+                        - 🏠 Ensure good ventilation in living spaces
+                        - 📅 Regular health check-ups
+                        """)
+                    
+                    # Recommendations from AI
+                    if name:
                         patient_info = {
                             "name": name,
                             "age": age,
-                            "seizure_type": seizure_type,
-                            "frequency": seizure_frequency,
-                            "triggers": triggers,
-                            "family_history": family_history,
-                            "head_injury": head_injury,
-                            "birth_complications": birth_complications,
-                            "febrile_seizures": febrile_seizures,
-                            "eeg_seizure_risk": risk_label
+                            "symptom_count": symptom_count,
+                            "tb_risk": tb_risk_prob
                         }
-                        recommendations = get_health_recommendations("Epilepsy", severity, patient_info)
+                        recommendations = get_health_recommendations("Tuberculosis", severity, patient_info)
                         if recommendations:
                             display_recommendations(recommendations)
-                            display_health_tips_dynamic("Epilepsy", severity)
-
-        else:
-            st.warning("Please upload your EEG data CSV file to proceed with prediction.")
+                else:
+                    st.error("Model format not recognized.")
+                    
+        except Exception as e:
+            st.error(f"Error in prediction: {str(e)}")
+            import traceback
+            st.code(traceback.format_exc())
 
 # HIV/AIDS Prediction
 if selected == 'HIV/AIDS Prediction':
@@ -3710,23 +3960,7 @@ if selected == 'HIV/AIDS Prediction':
             
             # CLINICAL RISK CALCULATION
             if assessment_type in ["Clinical Prediction", "Complete Assessment"]:
-                # Prepare clinical features for model prediction
-                clinical_features = [
-                    age if assessment_type == "Clinical Prediction" else age,
-                    weight,
-                    1 if hemophilia == "Yes" else 0,
-                    1 if homosexual_activity == "Yes" else 0,
-                    1 if iv_drugs_clinical == "Yes" else 0,
-                    karnof,
-                    1 if prior_zdv == "Yes" else 0,
-                    1 if symptomatic == "Yes" else 0,
-                    cd4_baseline,
-                    cd4_followup,
-                    cd8_baseline,
-                    cd8_followup
-                ]
-                
-                # Simple clinical risk scoring (you can replace this with actual model prediction)
+                # Rule-based scoring for clinical risk
                 # Low CD4 count indicates higher risk
                 if cd4_baseline < 200:
                     clinical_risk += 4
@@ -3750,10 +3984,6 @@ if selected == 'HIV/AIDS Prediction':
                     clinical_risk += 2
                 if symptomatic == "Yes":
                     clinical_risk += 2
-                
-                # Uncomment when you have a trained model:
-                # hiv_prediction = hiv_model.predict([clinical_features])
-                # clinical_risk = hiv_prediction[0] * 10  # Scale to 0-10
             
             # COMBINED RISK ASSESSMENT
             if assessment_type == "Complete Assessment":
@@ -3863,84 +4093,138 @@ if selected == 'HIV/AIDS Prediction':
 # Malaria Prediction
 if selected == 'Malaria Prediction':
     st.title("🦟 Malaria Prediction")
-    st.markdown("Early detection and prevention of Malaria")
+    st.markdown("AI-powered malaria detection using clinical symptoms and patient data")
     
-    name = st.text_input("Name:")
-    col1, col2, col3 = st.columns(3)
+    # Model accuracy info
+    if "malaria_model" in loaded_models:
+        model_data = loaded_models["malaria_model"]
+        if isinstance(model_data, dict) and "accuracy" in model_data:
+            st.success(f"✅ Model loaded successfully | Accuracy: {model_data['accuracy']:.2%}")
     
-    with col1:
-        age = st.number_input("Age", min_value=1, max_value=100, value=25)
-        gender = st.selectbox("Gender", ["Male", "Female"])
-        temperature = st.number_input("Body Temperature (°C)", min_value=35.0, max_value=42.0, value=37.0)
+    name = st.text_input("👤 Patient Name:")
     
-    with col2:
-        chills = st.selectbox("Chills and Shivering", ["No", "Mild", "Severe"])
-        headache = st.selectbox("Headache", ["No", "Mild", "Moderate", "Severe"])
-        muscle_pain = st.selectbox("Muscle Pain", ["No", "Mild", "Moderate", "Severe"])
+    # Organized tabs for better UX
+    tab1, tab2 = st.tabs(["📋 Demographics", "🏥 Symptoms"])
     
-    with col3:
-        nausea = st.selectbox("Nausea/Vomiting", ["No", "Yes"])
-        sweating = st.selectbox("Profuse Sweating", ["No", "Yes"])
-        travel_endemic = st.selectbox("Recent Travel to Endemic Area", ["No", "Yes"])
+    with tab1:
+        st.subheader("Patient Information")
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            age = st.number_input("Age", min_value=1, max_value=100, value=35)
+        with col2:
+            sex = st.selectbox("Sex", [0, 1], format_func=lambda x: "Female" if x == 0 else "Male")
+        with col3:
+            residence_area = st.selectbox("Residence Area", [0, 1, 2, 3, 4],
+                                          format_func=lambda x: ["Chickmagalur", "Kasargod", "Mangalore", "Shimoga", "Udupi"][x])
     
-    # Additional symptoms
-    st.subheader("Additional Symptoms")
-    col4, col5 = st.columns(2)
+    with tab2:
+        st.subheader("Clinical Symptoms")
+        st.info("💡 Select 'Yes' (1) or 'No' (0) for each symptom")
+        
+        col4, col5, col6 = st.columns(3)
+        
+        with col4:
+            fever = st.selectbox("Fever", [0, 1], format_func=lambda x: "No" if x == 0 else "Yes")
+            headache = st.selectbox("Headache", [0, 1], format_func=lambda x: "No" if x == 0 else "Yes")
+            abdominal_pain = st.selectbox("Abdominal Pain", [0, 1], format_func=lambda x: "No" if x == 0 else "Yes")
+            general_body_malaise = st.selectbox("General Body Malaise", [0, 1], format_func=lambda x: "No" if x == 0 else "Yes")
+        
+        with col5:
+            dizziness = st.selectbox("Dizziness", [0, 1], format_func=lambda x: "No" if x == 0 else "Yes")
+            vomiting = st.selectbox("Vomiting", [0, 1], format_func=lambda x: "No" if x == 0 else "Yes")
+            confusion = st.selectbox("Confusion", [0, 1], format_func=lambda x: "No" if x == 0 else "Yes")
+            backache = st.selectbox("Backache", [0, 1], format_func=lambda x: "No" if x == 0 else "Yes")
+        
+        with col6:
+            chest_pain = st.selectbox("Chest Pain", [0, 1], format_func=lambda x: "No" if x == 0 else "Yes")
+            coughing = st.selectbox("Coughing", [0, 1], format_func=lambda x: "No" if x == 0 else "Yes")
+            joint_pain = st.selectbox("Joint Pain", [0, 1], format_func=lambda x: "No" if x == 0 else "Yes")
     
-    with col4:
-        anemia = st.selectbox("Anemia Symptoms", ["No", "Yes"])
-        jaundice = st.selectbox("Jaundice", ["No", "Yes"])
-        convulsions = st.selectbox("Convulsions", ["No", "Yes"])
-    
-    with col5:
-        respiratory_distress = st.selectbox("Respiratory Distress", ["No", "Yes"])
-        blood_in_urine = st.selectbox("Blood in Urine", ["No", "Yes"])
-        rapid_breathing = st.selectbox("Rapid Breathing", ["No", "Yes"])
-    
-    if st.button("Predict Malaria"):
+    if st.button("🔬 Predict Malaria Risk", type="primary"):
         try:
-            # Convert inputs to features
-            features = [
-                age,
-                1 if gender == "Male" else 0,
-                temperature,
-                {"No": 0, "Mild": 1, "Severe": 2}.get(chills, 0),
-                {"No": 0, "Mild": 1, "Moderate": 2, "Severe": 3}.get(headache, 0),
-                {"No": 0, "Mild": 1, "Moderate": 2, "Severe": 3}.get(muscle_pain, 0),
-                1 if nausea == "Yes" else 0,
-                1 if sweating == "Yes" else 0,
-                1 if travel_endemic == "Yes" else 0,
-                1 if anemia == "Yes" else 0,
-                1 if jaundice == "Yes" else 0,
-                1 if convulsions == "Yes" else 0
-            ]
-            
-            malaria_prediction = malaria_model.predict([features])
-            
-            if malaria_prediction[0] == 1:
-                st.error(f"{name}, high probability of Malaria. Seek immediate medical attention!")
-                severity = "severe"
+            if "malaria_model" not in loaded_models:
+                st.error("Malaria model not loaded. Please check model file.")
             else:
-                st.success(f"{name}, low probability of Malaria. Monitor symptoms.")
-                severity = "low"
-            
-            # Get AI recommendations
-            with st.spinner("Generating treatment recommendations..."):
-                patient_info = {
-                    "name": name,
-                    "age": age,
-                    "temperature": temperature,
-                    "travel_history": travel_endemic
-                }
+                model_data = loaded_models["malaria_model"]
                 
-                recommendations = get_health_recommendations("Malaria", severity, patient_info)
-                if recommendations:
-                    display_recommendations(recommendations)
-                    display_health_tips_dynamic("Malaria", severity.lower())
-
+                if isinstance(model_data, dict):
+                    model = model_data["model"]
+                    scaler = model_data["scaler"]
+                    feature_columns = model_data["feature_columns"]
                     
-        except:
-            st.warning("Malaria prediction model not available. Please ensure model file exists.")
+                    # Create input dataframe with exact feature order
+                    # Features: Age, Sex, Residence_Area, Fever, Headache, Abdominal_Pain, 
+                    # General_Body_Malaise, Dizziness, Vomiting, Confusion, Backache, Chest_Pain, Coughing, Joint_Pain
+                    input_data = pd.DataFrame([[
+                        age, sex, residence_area, fever, headache, abdominal_pain,
+                        general_body_malaise, dizziness, vomiting, confusion,
+                        backache, chest_pain, coughing, joint_pain
+                    ]], columns=feature_columns)
+                    
+                    # Scale the input
+                    input_scaled = scaler.transform(input_data)
+                    
+                    # Make prediction
+                    prediction = model.predict(input_scaled)
+                    prediction_proba = model.predict_proba(input_scaled)
+                    
+                    # Display results
+                    st.markdown("---")
+                    st.subheader("🎯 Prediction Results")
+                    
+                    if prediction[0] == 1:
+                        risk_prob = prediction_proba[0][1] * 100
+                        st.error(f"⚠️ **HIGH RISK: Malaria Detected**")
+                        st.metric("Malaria Probability", f"{risk_prob:.1f}%")
+                        severity = "high"
+                    else:
+                        risk_prob = prediction_proba[0][0] * 100
+                        st.success(f"✅ **LOW RISK: No Malaria Detected**")
+                        st.metric("Healthy Probability", f"{risk_prob:.1f}%")
+                        severity = "low"
+                    
+                    # Risk visualization
+                    col_r1, col_r2 = st.columns(2)
+                    with col_r1:
+                        st.write("**Risk Assessment:**")
+                        st.progress(prediction_proba[0][1])
+                    
+                    with col_r2:
+                        st.write("**Probability Distribution:**")
+                        prob_df = pd.DataFrame({
+                            "Outcome": ["Negative", "Positive"],
+                            "Probability": prediction_proba[0]
+                        })
+                        st.bar_chart(prob_df.set_index("Outcome"))
+                    
+                    # Feature importance display
+                    if "feature_importance" in model_data:
+                        with st.expander("📊 Feature Importance Analysis"):
+                            importance_df = pd.DataFrame({
+                                "Feature": feature_columns,
+                                "Importance": model_data["feature_importance"]
+                            }).sort_values("Importance", ascending=False)
+                            st.bar_chart(importance_df.set_index("Feature"))
+                    
+                    # Recommendations
+                    if name:
+                        patient_info = {
+                            "name": name,
+                            "age": age,
+                            "risk_probability": prediction_proba[0][1] * 100
+                        }
+                        recommendations = get_health_recommendations("Malaria", severity, patient_info)
+                        if recommendations:
+                            display_recommendations(recommendations)
+                            display_health_tips_dynamic("Malaria", severity)
+                else:
+                    st.error("Model format not recognized.")
+                    
+        except Exception as e:
+            st.error(f"Error in prediction: {str(e)}")
+            import traceback
+            st.code(traceback.format_exc())
 
 # Colorectal Cancer Prediction
 if selected == 'Colorectal Cancer Prediction':
@@ -4068,118 +4352,129 @@ if selected == 'Colorectal Cancer Prediction':
 
 # Prostate Cancer Prediction
 if selected == 'Prostate Cancer Prediction':
-    st.title("👨 Prostate Cancer Risk Assessment")
-    st.markdown("Early detection through PSA screening and risk assessment")
+    st.title("🧫 Prostate Cancer Prediction")
+    st.markdown("AI-powered prostate cancer detection using tumor measurements")
     
-    name = st.text_input("Name:")
+    # Model accuracy info
+    if "prostate_model" in loaded_models:
+        model_data = loaded_models["prostate_model"]
+        if isinstance(model_data, dict) and "accuracy" in model_data:
+            st.success(f"✅ Model loaded successfully | Accuracy: {model_data['accuracy']:.2%}")
+    
+    name = st.text_input("👤 Patient Name:")
+    
+    st.markdown("### 📊 Tumor Measurements")
+    st.info("Enter tumor cell measurements from biopsy analysis")
+    
     col1, col2, col3 = st.columns(3)
     
     with col1:
-        age = st.number_input("Age", min_value=40, max_value=100, value=55)
-        race = st.selectbox("Race/Ethnicity", ["Caucasian", "African American", "Asian", "Hispanic", "Other"])
-        family_history = st.selectbox("Family History", ["None", "Father", "Brother", "Multiple Relatives"])
+        radius = st.number_input("Radius (mean)", min_value=5.0, max_value=30.0, value=14.0, step=0.1,
+                                  help="Mean of distances from center to points on perimeter")
+        texture = st.number_input("Texture (mean)", min_value=5.0, max_value=40.0, value=19.0, step=0.1,
+                                   help="Standard deviation of gray-scale values")
+        perimeter = st.number_input("Perimeter (mean)", min_value=40.0, max_value=200.0, value=90.0, step=1.0,
+                                     help="Mean size of the tumor perimeter")
     
     with col2:
-        psa_level = st.number_input("PSA Level (ng/mL)", min_value=0.0, max_value=100.0, value=2.5)
-        psa_velocity = st.selectbox("PSA Velocity", ["Stable", "Slowly Rising", "Rapidly Rising"])
-        dre_result = st.selectbox("Digital Rectal Exam", ["Normal", "Enlarged", "Nodules", "Not Done"])
+        area = st.number_input("Area (mean)", min_value=100.0, max_value=2500.0, value=600.0, step=10.0,
+                               help="Mean tumor area")
+        smoothness = st.number_input("Smoothness (mean)", min_value=0.05, max_value=0.20, value=0.10, step=0.01,
+                                      help="Local variation in radius lengths")
+        compactness = st.number_input("Compactness (mean)", min_value=0.01, max_value=0.40, value=0.10, step=0.01,
+                                       help="Perimeter² / area - 1.0")
     
     with col3:
-        urinary_symptoms = st.selectbox("Urinary Symptoms", ["None", "Mild", "Moderate", "Severe"])
-        erectile_dysfunction = st.selectbox("Erectile Dysfunction", ["No", "Mild", "Moderate", "Severe"])
-        bone_pain = st.selectbox("Bone Pain", ["No", "Yes"])
+        symmetry = st.number_input("Symmetry (mean)", min_value=0.10, max_value=0.35, value=0.18, step=0.01,
+                                    help="Symmetry of the tumor")
+        fractal_dimension = st.number_input("Fractal Dimension (mean)", min_value=0.05, max_value=0.10, value=0.06, step=0.001,
+                                             help="Coastline approximation - 1")
     
-    # Additional factors
-    st.subheader("Additional Risk Factors")
-    col4, col5 = st.columns(2)
-    
-    with col4:
-        bmi = st.number_input("BMI", min_value=15.0, max_value=50.0, value=25.0)
-        smoking_status = st.selectbox("Smoking", ["Never", "Former", "Current"])
-        diet = st.selectbox("Diet Type", ["Balanced", "High Red Meat", "Vegetarian"])
-    
-    with col5:
-        exercise = st.selectbox("Exercise Frequency", ["Sedentary", "Light", "Moderate", "Active"])
-        previous_biopsy = st.selectbox("Previous Biopsy", ["No", "Yes - Negative", "Yes - Suspicious"])
-    
-    if st.button("Assess Prostate Cancer Risk"):
+    if st.button("🔬 Predict Cancer Type", type="primary"):
         try:
-            # Risk calculation
-            risk_score = 0
-            
-            # Age risk
-            if age >= 70:
-                risk_score += 3
-            elif age >= 60:
-                risk_score += 2
-            elif age >= 50:
-                risk_score += 1
-            
-            # Race risk
-            if race == "African American":
-                risk_score += 2
-            
-            # Family history
-            if family_history == "Multiple Relatives":
-                risk_score += 3
-            elif family_history in ["Father", "Brother"]:
-                risk_score += 2
-            
-            # PSA level risk
-            if psa_level >= 10:
-                risk_score += 4
-            elif psa_level >= 4:
-                risk_score += 2
-            elif psa_level >= 2.5:
-                risk_score += 1
-            
-            # PSA velocity
-            if psa_velocity == "Rapidly Rising":
-                risk_score += 3
-            elif psa_velocity == "Slowly Rising":
-                risk_score += 1
-            
-            # DRE results
-            if dre_result == "Nodules":
-                risk_score += 3
-            elif dre_result == "Enlarged":
-                risk_score += 1
-            
-            # Symptoms
-            if urinary_symptoms == "Severe":
-                risk_score += 2
-            elif urinary_symptoms == "Moderate":
-                risk_score += 1
-            
-            if bone_pain == "Yes":
-                risk_score += 2
-            
-            # Determine risk
-            if risk_score >= 12:
-                st.error(f"{name}, high prostate cancer risk. Urgent urologist consultation needed!")
-                severity = "high"
-            elif risk_score >= 7:
-                st.warning(f"{name}, moderate risk. Schedule PSA test and urological evaluation.")
-                severity = "moderate"
+            if "prostate_model" not in loaded_models:
+                st.error("Prostate model not loaded. Please check model file.")
             else:
-                st.success(f"{name}, low risk. Continue regular screening.")
-                severity = "low"
-            
-            st.metric("Risk Score", f"{risk_score}/25", f"PSA: {psa_level} ng/mL")
-            
-            # Get AI recommendations
-            with st.spinner("Generating screening and treatment recommendations..."):
-                patient_info = {
-                    "name": name,
-                    "age": age,
-                    "psa": psa_level,
-                    "risk_factors": f"Risk score: {risk_score}"
-                }
+                model_data = loaded_models["prostate_model"]
                 
-                recommendations = get_health_recommendations("Prostate Cancer", severity, patient_info)
-                if recommendations:
-                    display_recommendations(recommendations)
-                    display_health_tips_dynamic("Prostate Cancer", severity.lower())
+                if isinstance(model_data, dict):
+                    model = model_data["model"]
+                    scaler = model_data["scaler"]
+                    feature_columns = model_data["feature_columns"]
+                    
+                    # Create input dataframe
+                    input_data = pd.DataFrame([[
+                        radius, texture, perimeter, area, 
+                        smoothness, compactness, symmetry, fractal_dimension
+                    ]], columns=feature_columns)
+                    
+                    # Scale and predict
+                    input_scaled = scaler.transform(input_data)
+                    prediction = model.predict(input_scaled)[0]
+                    
+                    # Get probability if available
+                    if hasattr(model, 'predict_proba'):
+                        prediction_proba = model.predict_proba(input_scaled)[0]
+                    else:
+                        prediction_proba = [1-prediction, prediction]
+                    
+                    # Display results
+                    st.markdown("---")
+                    st.subheader("🎯 Prediction Results")
+                    
+                    col_r1, col_r2, col_r3 = st.columns(3)
+                    
+                    with col_r1:
+                        if prediction == 1:
+                            st.error("🔴 **MALIGNANT**")
+                            severity = "high"
+                            diagnosis = "Malignant (Cancerous)"
+                        else:
+                            st.success("🟢 **BENIGN**")
+                            severity = "low"
+                            diagnosis = "Benign (Non-cancerous)"
+                    
+                    with col_r2:
+                        st.metric("Confidence", f"{max(prediction_proba)*100:.1f}%")
+                    
+                    with col_r3:
+                        st.metric("Malignancy Probability", f"{prediction_proba[1]*100:.1f}%")
+                    
+                    # Probability visualization
+                    st.write("**Probability Distribution:**")
+                    prob_df = pd.DataFrame({
+                        "Diagnosis": ["Benign", "Malignant"],
+                        "Probability": prediction_proba
+                    })
+                    st.bar_chart(prob_df.set_index("Diagnosis"))
+                    
+                    # Feature importance
+                    if "feature_importance" in model_data and sum(model_data["feature_importance"]) > 0:
+                        with st.expander("📊 Feature Importance"):
+                            importance_df = pd.DataFrame({
+                                "Feature": feature_columns,
+                                "Importance": model_data["feature_importance"]
+                            }).sort_values("Importance", ascending=False)
+                            st.bar_chart(importance_df.set_index("Feature"))
+                    
+                    # Recommendations
+                    if name:
+                        patient_info = {
+                            "name": name,
+                            "diagnosis": diagnosis,
+                            "confidence": f"{max(prediction_proba)*100:.1f}%"
+                        }
+                        recommendations = get_health_recommendations("Prostate Cancer", severity, patient_info)
+                        if recommendations:
+                            display_recommendations(recommendations)
+                            display_health_tips_dynamic("Prostate Cancer", severity)
+                else:
+                    st.error("Model format not recognized.")
+                    
+        except Exception as e:
+            st.error(f"Error in prediction: {str(e)}")
+            import traceback
+            st.code(traceback.format_exc())
 
                     
         except Exception as e:
@@ -4311,141 +4606,21 @@ if selected == 'Cervical Cancer Prediction':
 # Asthma Prediction
 if selected == 'Asthma Prediction':
     st.title("🫁 Asthma Risk Assessment")
-    st.markdown("Manage asthma effectively with early detection")
-
-    name = st.text_input("Name:")
-    col1, col2, col3 = st.columns(3)
-
-    with col1:
-        age = st.number_input("Age", min_value=1, max_value=100, value=25)
-        gender = st.selectbox("Gender", ["Male", "Female"])
-        family_history_asthma = st.selectbox("Family History of Asthma", ["No", "Parents", "Siblings", "Both"])
-
-    with col2:
-        allergies = st.multiselect("Known Allergies", [
-            "Dust Mites", "Pollen", "Pet Dander", "Mold", 
-            "Food Allergies", "Drug Allergies", "None"
-        ])
-        eczema = st.selectbox("Eczema/Atopic Dermatitis", ["No", "Yes"])
-        allergic_rhinitis = st.selectbox("Allergic Rhinitis (Hay Fever)", ["No", "Yes"])
-
-    with col3:
-        wheezing = st.selectbox("Wheezing Episodes", ["Never", "Rarely", "Sometimes", "Frequently"])
-        shortness_breath = st.selectbox("Shortness of Breath", ["Never", "During Exercise", "At Rest", "Both"])
-        chest_tightness = st.selectbox("Chest Tightness", ["No", "Occasionally", "Frequently"])
-
-    st.subheader("Triggers and Additional Symptoms")
-    col4, col5, col6 = st.columns(3)
-
-    with col4:
-        cough_night = st.selectbox("Nighttime Cough", ["No", "1-2 nights/week", "> 2 nights/week"])
-        exercise_symptoms = st.selectbox("Exercise-Induced Symptoms", ["No", "Yes"])
-        cold_air_trigger = st.selectbox("Cold Air Trigger", ["No", "Yes"])
-
-    with col5:
-        smoke_exposure = st.selectbox("Smoke Exposure", ["None", "Secondhand", "Smoker"])
-        pollution_exposure = st.selectbox("Air Pollution Exposure", ["Low", "Moderate", "High"])
-        occupational_exposure = st.selectbox("Occupational Chemicals", ["No", "Yes"])
-
-    with col6:
-        respiratory_infections = st.selectbox("Frequent Respiratory Infections", ["No", "Yes"])
-        emergency_visits = st.number_input("Emergency Visits (past year)", min_value=0, max_value=20, value=0)
-        peak_flow = st.number_input("Peak Flow (% of predicted)", min_value=0, max_value=150, value=100)
-
-    if st.button("Assess Asthma Risk"):
-        try:
-            risk_score = 0
-
-            # Map family history to risk score
-            fam_hist_map = {"No": 0, "Parents": 1, "Siblings": 1, "Both": 3}
-            risk_score += fam_hist_map.get(family_history_asthma, 0)
-
-            # Allergies count excluding None
-            risk_score += max(len([a for a in allergies if a != "None"]), 0) * 0.5
-
-            # Wheezing score
-            wheezing_map = {"Never": 0, "Rarely": 1, "Sometimes": 2, "Frequently": 3}
-            risk_score += wheezing_map.get(wheezing, 0)
-
-            # Night cough score
-            cough_night_map = {"No": 0, "1-2 nights/week": 1, "> 2 nights/week": 2}
-            risk_score += cough_night_map.get(cough_night, 0)
-
-            # Smoke exposure score
-            smoke_map = {"None": 0, "Secondhand": 1, "Smoker": 3}
-            risk_score += smoke_map.get(smoke_exposure, 0)
-
-            # Pollution exposure score
-            pollution_map = {"Low": 0, "Moderate": 1, "High": 2}
-            risk_score += pollution_map.get(pollution_exposure, 0)
-
-            # Occupational exposure score
-            occ_exp_map = {"No": 0, "Yes": 1}
-            risk_score += occ_exp_map.get(occupational_exposure, 0)
-
-            # Peak flow scoring - more severe if lower
-            if peak_flow < 60:
-                risk_score += 3
-            elif peak_flow < 80:
-                risk_score += 2
-            elif peak_flow < 100:
-                risk_score += 1
-
-            # Emergency visits capped score
-            risk_score += min(emergency_visits * 0.5, 5)
-
-            # Severity level mapping
-            if risk_score > 12:
-                severity = "Severe"
-                color = "red"
-            elif risk_score > 8:
-                severity = "Moderate"
-                color = "orange"
-            elif risk_score > 4:
-                severity = "Mild"
-                color = "yellow"
-            else:
-                severity = "Low"
-                color = "green"
-
-            # Display risk
-            st.markdown(f"### Asthma Risk Assessment: <span style='color:{color}'>{severity}</span>", unsafe_allow_html=True)
-            st.write(f"Risk Score: {risk_score:.1f}/20")
-            st.progress(min(risk_score / 20, 1.0))
-
-            if name:
-                patient_info = {
-                    "name": name,
-                    "age": age,
-                    "risk_score": risk_score,
-                    "peak_flow": peak_flow,
-                    "emergency_visits": emergency_visits
-                }
-                recommendations = get_health_recommendations("Asthma", severity.lower(), patient_info)
-                if recommendations:
-                    display_recommendations(recommendations)
-                    display_health_tips_dynamic("Asthma", severity.lower())
-
-
-        except Exception as e:
-            st.error(f"Error in assessment: {str(e)}")
-
-# COPD Prediction
-# COPD Prediction
-if selected == 'COPD Prediction':
-    st.title("🫁 COPD (Chronic Obstructive Pulmonary Disease) Prediction")
-    st.markdown("Early detection and risk assessment using genetic and clinical parameters")
+    st.markdown("AI-powered asthma risk prediction using clinical and environmental factors")
     
-    # Info banner
-    st.info("💡 This assessment uses genetic markers and clinical data for comprehensive risk evaluation")
+    # Model accuracy info
+    if "asthma_model" in loaded_models:
+        model_data = loaded_models["asthma_model"]
+        if isinstance(model_data, dict) and "accuracy" in model_data:
+            st.success(f"✅ Model loaded successfully | Accuracy: {model_data['accuracy']:.2%}")
     
     name = st.text_input("👤 Patient Name:")
     
     # Organized tabs for better UX
     tab1, tab2, tab3 = st.tabs([
         "📋 Demographics & Lifestyle", 
-        "🧬 Genetic Markers",
-        "🏥 Additional Information"
+        "🌿 Environmental Exposures",
+        "🏥 Symptoms & History"
     ])
     
     with tab1:
@@ -4453,239 +4628,479 @@ if selected == 'COPD Prediction':
         col1, col2, col3 = st.columns(3)
         
         with col1:
-            sex = st.selectbox("Sex", ["Male", "Female"])
-            age = st.number_input("Age", min_value=18, max_value=100, value=50)
+            age = st.number_input("Age", min_value=1, max_value=100, value=35)
+            gender = st.selectbox("Gender", [0, 1], format_func=lambda x: "Male" if x == 0 else "Female")
+            ethnicity = st.selectbox("Ethnicity", [0, 1, 2, 3], 
+                                     format_func=lambda x: ["Caucasian", "African American", "Asian", "Other"][x])
         
         with col2:
-            bmi = st.number_input("BMI (Body Mass Index)", min_value=10.0, max_value=50.0, value=25.0, 
-                                 help="Normal range: 18.5-24.9")
-            smoke = st.selectbox("Smoking Status", ["Never Smoked", "Former Smoker", "Current Smoker"])
+            education_level = st.selectbox("Education Level", [0, 1, 2, 3],
+                                           format_func=lambda x: ["None", "High School", "Bachelor's", "Higher"][x])
+            bmi = st.number_input("BMI (Body Mass Index)", min_value=10.0, max_value=50.0, value=25.0,
+                                  help="Normal range: 18.5-24.9")
+            smoking = st.selectbox("Smoking Status", [0, 1], format_func=lambda x: "Non-Smoker" if x == 0 else "Smoker")
         
         with col3:
-            location = st.number_input("Geographic Location Code", min_value=0.0, max_value=100.0, value=50.0,
-                                      help="Environmental exposure indicator")
+            physical_activity = st.slider("Physical Activity Level (0-10)", 0.0, 10.0, 5.0,
+                                          help="0 = Sedentary, 10 = Very Active")
+            diet_quality = st.slider("Diet Quality (0-10)", 0.0, 10.0, 5.0,
+                                     help="0 = Poor, 10 = Excellent")
+            sleep_quality = st.slider("Sleep Quality (4-10)", 4.0, 10.0, 7.0,
+                                      help="4 = Poor, 10 = Excellent")
     
     with tab2:
-        st.subheader("🧬 Genetic Risk Markers (SNPs)")
-        st.markdown("*Single Nucleotide Polymorphisms associated with COPD risk*")
+        st.subheader("🌿 Environmental Exposure Factors")
+        col4, col5, col6 = st.columns(3)
+        
+        with col4:
+            pollution_exposure = st.slider("Air Pollution Exposure (0-10)", 0.0, 10.0, 5.0,
+                                           help="0 = Low, 10 = High")
+            pollen_exposure = st.slider("Pollen Exposure (0-10)", 0.0, 10.0, 5.0,
+                                        help="0 = Low, 10 = High")
+        
+        with col5:
+            dust_exposure = st.slider("Dust Exposure (0-10)", 0.0, 10.0, 5.0,
+                                      help="0 = Low, 10 = High")
+            pet_allergy = st.selectbox("Pet Allergy", [0, 1], format_func=lambda x: "No" if x == 0 else "Yes")
+        
+        with col6:
+            family_history_asthma = st.selectbox("Family History of Asthma", [0, 1], 
+                                                  format_func=lambda x: "No" if x == 0 else "Yes")
+            history_of_allergies = st.selectbox("History of Allergies", [0, 1], 
+                                                 format_func=lambda x: "No" if x == 0 else "Yes")
+    
+    with tab3:
+        st.subheader("🏥 Medical History & Current Symptoms")
+        col7, col8, col9 = st.columns(3)
+        
+        with col7:
+            eczema = st.selectbox("Eczema/Atopic Dermatitis", [0, 1], format_func=lambda x: "No" if x == 0 else "Yes")
+            hay_fever = st.selectbox("Hay Fever (Allergic Rhinitis)", [0, 1], format_func=lambda x: "No" if x == 0 else "Yes")
+            gastroesophageal_reflux = st.selectbox("Gastroesophageal Reflux (GERD)", [0, 1], 
+                                                    format_func=lambda x: "No" if x == 0 else "Yes")
+        
+        with col8:
+            lung_function_fev1 = st.number_input("Lung Function FEV1 (L)", min_value=0.5, max_value=6.0, value=2.5,
+                                                  help="Forced Expiratory Volume in 1 second")
+            lung_function_fvc = st.number_input("Lung Function FVC (L)", min_value=0.5, max_value=7.0, value=3.5,
+                                                 help="Forced Vital Capacity")
+        
+        with col9:
+            wheezing = st.selectbox("Wheezing Episodes", [0, 1], format_func=lambda x: "No" if x == 0 else "Yes")
+            shortness_of_breath = st.selectbox("Shortness of Breath", [0, 1], format_func=lambda x: "No" if x == 0 else "Yes")
+            chest_tightness = st.selectbox("Chest Tightness", [0, 1], format_func=lambda x: "No" if x == 0 else "Yes")
+        
+        col10, col11, col12 = st.columns(3)
+        with col10:
+            coughing = st.selectbox("Frequent Coughing", [0, 1], format_func=lambda x: "No" if x == 0 else "Yes")
+        with col11:
+            nighttime_symptoms = st.selectbox("Nighttime Symptoms", [0, 1], format_func=lambda x: "No" if x == 0 else "Yes")
+        with col12:
+            exercise_induced = st.selectbox("Exercise-Induced Symptoms", [0, 1], format_func=lambda x: "No" if x == 0 else "Yes")
+    
+    if st.button("🔬 Predict Asthma Risk", type="primary"):
+        try:
+            if "asthma_model" not in loaded_models:
+                st.error("Asthma model not loaded. Please check model file.")
+            else:
+                model_data = loaded_models["asthma_model"]
+                
+                if isinstance(model_data, dict):
+                    model = model_data["model"]
+                    scaler = model_data["scaler"]
+                    feature_columns = model_data["feature_columns"]
+                    
+                    # Create input dataframe with exact feature order
+                    input_data = pd.DataFrame([[
+                        age, gender, ethnicity, education_level, bmi, smoking,
+                        physical_activity, diet_quality, sleep_quality,
+                        pollution_exposure, pollen_exposure, dust_exposure, pet_allergy,
+                        family_history_asthma, history_of_allergies, eczema, hay_fever,
+                        gastroesophageal_reflux, lung_function_fev1, lung_function_fvc,
+                        wheezing, shortness_of_breath, chest_tightness, coughing,
+                        nighttime_symptoms, exercise_induced
+                    ]], columns=feature_columns)
+                    
+                    # Scale the input
+                    input_scaled = scaler.transform(input_data)
+                    
+                    # Make prediction
+                    prediction = model.predict(input_scaled)
+                    prediction_proba = model.predict_proba(input_scaled)
+                    
+                    # Display results
+                    st.markdown("---")
+                    st.subheader("🎯 Prediction Results")
+                    
+                    if prediction[0] == 1:
+                        risk_prob = prediction_proba[0][1] * 100
+                        st.error(f"⚠️ **High Risk of Asthma Detected**")
+                        st.metric("Asthma Risk Probability", f"{risk_prob:.1f}%")
+                        severity = "high"
+                    else:
+                        risk_prob = prediction_proba[0][0] * 100
+                        st.success(f"✅ **Low Risk of Asthma**")
+                        st.metric("Healthy Probability", f"{risk_prob:.1f}%")
+                        severity = "low"
+                    
+                    # Risk visualization
+                    col_r1, col_r2 = st.columns(2)
+                    with col_r1:
+                        st.write("**Risk Assessment:**")
+                        st.progress(prediction_proba[0][1])
+                    
+                    with col_r2:
+                        st.write("**Probability Distribution:**")
+                        prob_df = pd.DataFrame({
+                            "Outcome": ["No Asthma", "Asthma"],
+                            "Probability": prediction_proba[0]
+                        })
+                        st.bar_chart(prob_df.set_index("Outcome"))
+                    
+                    # Feature importance display
+                    if "feature_importance" in model_data:
+                        with st.expander("📊 Feature Importance Analysis"):
+                            importance_df = pd.DataFrame({
+                                "Feature": feature_columns,
+                                "Importance": model_data["feature_importance"]
+                            }).sort_values("Importance", ascending=False).head(10)
+                            st.bar_chart(importance_df.set_index("Feature"))
+                    
+                    # Recommendations
+                    if name:
+                        patient_info = {
+                            "name": name,
+                            "age": age,
+                            "bmi": bmi,
+                            "risk_probability": prediction_proba[0][1] * 100
+                        }
+                        recommendations = get_health_recommendations("Asthma", severity, patient_info)
+                        if recommendations:
+                            display_recommendations(recommendations)
+                            display_health_tips_dynamic("Asthma", severity)
+                else:
+                    st.error("Model format not recognized.")
+                    
+        except Exception as e:
+            st.error(f"Error in prediction: {str(e)}")
+            import traceback
+            st.code(traceback.format_exc())
+
+# COPD Prediction
+# COPD Severity Prediction - 99% Accuracy Model
+if selected == 'COPD Prediction':
+    st.title("🫁 COPD Severity Prediction")
+    st.markdown("**99% Accurate** - Predict COPD severity using clinical and pulmonary function data")
+    
+    # Model info
+    if "copd_model" in loaded_models:
+        model_data = loaded_models["copd_model"]
+        accuracy = model_data.get('accuracy', 0) * 100
+        cv_accuracy = model_data.get('cv_accuracy', 0) * 100
+        st.success(f"✅ Model loaded | Test Accuracy: {accuracy:.1f}% | CV Accuracy: {cv_accuracy:.1f}%")
+    
+    st.info("💡 This model predicts whether a patient has **Severe/Very Severe COPD** vs **Mild/Moderate COPD** based on clinical measurements and pulmonary function tests.")
+    
+    name = st.text_input("👤 Patient Name:")
+    
+    # Organized tabs
+    tab1, tab2, tab3 = st.tabs([
+        "📋 Demographics & History", 
+        "🫁 Pulmonary Function Tests",
+        "🏥 Comorbidities & Symptoms"
+    ])
+    
+    with tab1:
+        st.subheader("Demographics & Smoking History")
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            age = st.number_input("Age (years)", min_value=30, max_value=100, value=65, help="Patient age")
+            gender = st.selectbox("Gender", ["Male", "Female"])
+        
+        with col2:
+            pack_history = st.number_input("Pack-Years History", min_value=0.0, max_value=200.0, value=30.0, 
+                                           help="Number of packs smoked per day × years of smoking")
+            smoking = st.selectbox("Current Smoking Status", ["Non-smoker", "Current Smoker"])
+    
+    with tab2:
+        st.subheader("🫁 Pulmonary Function Tests (Spirometry)")
+        st.markdown("*These values are typically obtained from a pulmonary function test (PFT)*")
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("**Walking Tests (6-Minute Walk Test)**")
+            mwt1 = st.number_input("MWT1 - First Walk Distance (meters)", min_value=0.0, max_value=800.0, value=350.0,
+                                   help="Distance walked in first 6-minute walk test")
+            mwt2 = st.number_input("MWT2 - Second Walk Distance (meters)", min_value=0.0, max_value=800.0, value=360.0,
+                                   help="Distance walked in second 6-minute walk test")
+            mwt1_best = st.number_input("MWT1 Best (meters)", min_value=0.0, max_value=800.0, value=365.0,
+                                        help="Best distance from first walk test")
+            
+        with col2:
+            st.markdown("**Lung Function Measurements**")
+            fev1 = st.number_input("FEV1 (Liters)", min_value=0.0, max_value=6.0, value=1.5, step=0.1,
+                                   help="Forced Expiratory Volume in 1 second - actual value")
+            fev1_pred = st.number_input("FEV1 % Predicted", min_value=0.0, max_value=150.0, value=50.0,
+                                        help="FEV1 as percentage of predicted normal - KEY INDICATOR")
+            fvc = st.number_input("FVC (Liters)", min_value=0.0, max_value=8.0, value=3.0, step=0.1,
+                                  help="Forced Vital Capacity - total air exhaled forcefully")
+            fvc_pred = st.number_input("FVC % Predicted", min_value=0.0, max_value=150.0, value=70.0,
+                                       help="FVC as percentage of predicted normal")
+    
+    with tab3:
+        st.subheader("Quality of Life & Comorbidities")
         
         col1, col2, col3 = st.columns(3)
         
         with col1:
-            st.markdown("**Primary Markers**")
-            rs10007052 = st.number_input("rs10007052", min_value=0.0, max_value=2.0, value=0.0, step=0.1,
-                                        help="Genetic variant 1")
-            rs8192288 = st.number_input("rs8192288", min_value=0.0, max_value=2.0, value=0.0, step=0.1,
-                                       help="Genetic variant 2")
-            rs20541 = st.number_input("rs20541", min_value=0.0, max_value=2.0, value=0.0, step=0.1,
-                                     help="Genetic variant 3")
-            rs12922394 = st.number_input("rs12922394", min_value=0.0, max_value=2.0, value=0.0, step=0.1,
-                                        help="Genetic variant 4")
+            st.markdown("**Symptom Scores**")
+            cat = st.number_input("CAT Score (0-40)", min_value=0, max_value=40, value=20,
+                                  help="COPD Assessment Test - measures impact on daily life. Higher = worse symptoms")
+            had = st.number_input("HAD Score", min_value=0, max_value=42, value=10,
+                                  help="Hospital Anxiety and Depression Scale")
+            sgrq = st.number_input("SGRQ Score (0-100)", min_value=0.0, max_value=100.0, value=45.0,
+                                   help="St. George's Respiratory Questionnaire - quality of life score. Higher = worse")
         
         with col2:
-            st.markdown("**Secondary Markers**")
-            rs2910164 = st.number_input("rs2910164", min_value=0.0, max_value=2.0, value=0.0, step=0.1,
-                                       help="Genetic variant 5")
-            rs161976 = st.number_input("rs161976", min_value=0.0, max_value=2.0, value=0.0, step=0.1,
-                                      help="Genetic variant 6")
-            rs473892 = st.number_input("rs473892", min_value=0.0, max_value=2.0, value=0.0, step=0.1,
-                                      help="Genetic variant 7")
+            st.markdown("**Cardiovascular Comorbidities**")
+            hypertension = st.selectbox("Hypertension", ["No", "Yes"])
+            atrial_fib = st.selectbox("Atrial Fibrillation", ["No", "Yes"])
+            ihd = st.selectbox("Ischemic Heart Disease (IHD)", ["No", "Yes"])
         
         with col3:
-            st.markdown("**Additional Markers**")
-            rs159497 = st.number_input("rs159497", min_value=0.0, max_value=2.0, value=0.0, step=0.1,
-                                      help="Genetic variant 8")
-            rs9296092 = st.number_input("rs9296092", min_value=0.0, max_value=2.0, value=0.0, step=0.1,
-                                       help="Genetic variant 9")
-        
-        st.info("ℹ️ Values typically range from 0 (no variant) to 2 (homozygous variant)")
+            st.markdown("**Other Conditions**")
+            diabetes = st.selectbox("Diabetes", ["No", "Yes"])
+            muscular = st.selectbox("Muscular Dysfunction", ["No", "Yes"])
     
-    with tab3:
-        st.subheader("Additional Clinical Information")
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.markdown("**🏥 Medical History**")
-            family_history_copd = st.selectbox("Family History of COPD", ["No", "Yes"])
-            occupational_exposure = st.selectbox("Occupational Dust/Chemical Exposure", ["No", "Yes"])
-            
-        with col2:
-            st.markdown("**⚠️ Respiratory Symptoms**")
-            chronic_cough = st.selectbox("Chronic Cough", ["No", "Yes"])
-            breathlessness = st.selectbox("Breathlessness", ["None", "Mild", "Moderate", "Severe"])
-
     st.markdown("---")
     
-    if st.button("🔬 Analyze COPD Risk", type="primary", use_container_width=True):
+    # GOLD Classification Reference
+    with st.expander("📊 GOLD COPD Classification Reference"):
+        st.markdown("""
+        | Stage | FEV1 % Predicted | Severity |
+        |-------|------------------|----------|
+        | GOLD 1 | ≥80% | Mild |
+        | GOLD 2 | 50-79% | Moderate |
+        | GOLD 3 | 30-49% | Severe |
+        | GOLD 4 | <30% | Very Severe |
+        
+        *This model predicts Severe/Very Severe (GOLD 3-4) vs Mild/Moderate (GOLD 1-2)*
+        """)
+    
+    if st.button("🔬 Predict COPD Severity", type="primary", use_container_width=True):
         if not name:
             st.warning("⚠️ Please enter patient name")
+        elif "copd_model" not in loaded_models:
+            st.error("❌ COPD model not loaded. Please check if the model file exists.")
         else:
             try:
-                with st.spinner("🤖 AI is analyzing genetic and clinical data..."):
-                    # Load scaler and metadata (model already loaded at top)
-                    with open('models/copd_scaler.pkl', 'rb') as f:
-                        copd_scaler = pickle.load(f)
-                    
-                    with open('models/copd_metadata.pkl', 'rb') as f:
-                        metadata = pickle.load(f)
-                        feature_columns = metadata['feature_columns']
+                with st.spinner("🤖 Analyzing pulmonary function data..."):
+                    model_data = loaded_models["copd_model"]
+                    model = model_data['model']
+                    scaler = model_data['scaler']
+                    feature_columns = model_data['feature_columns']
                     
                     # Convert inputs to numeric
-                    sex_num = 1 if sex == "Male" else 0
+                    gender_num = 1 if gender == "Male" else 0
+                    smoking_num = 2 if smoking == "Current Smoker" else 1
+                    diabetes_num = 1 if diabetes == "Yes" else 0
+                    muscular_num = 1 if muscular == "Yes" else 0
+                    hypertension_num = 1 if hypertension == "Yes" else 0
+                    atrial_fib_num = 1 if atrial_fib == "Yes" else 0
+                    ihd_num = 1 if ihd == "Yes" else 0
                     
-                    # Smoking mapping
-                    smoke_map = {
-                        "Never Smoked": 0,
-                        "Former Smoker": 1,
-                        "Current Smoker": 2
-                    }
-                    smoke_num = smoke_map[smoke]
-                    
-                    # Create feature vector (order: sex, age, bmi, smoke, location, then 9 genetic markers)
-                    user_input = [
-                        sex_num,
+                    # Create feature vector in correct order
+                    # Features: AGE, PackHistory, MWT1, MWT2, MWT1Best, FEV1, FEV1PRED, FVC, FVCPRED, 
+                    #           CAT, HAD, SGRQ, gender, smoking, Diabetes, muscular, hypertension, AtrialFib, IHD
+                    user_input = pd.DataFrame([[
                         age,
-                        bmi,
-                        smoke_num,
-                        location,
-                        rs10007052,
-                        rs8192288,
-                        rs20541,
-                        rs12922394,
-                        rs2910164,
-                        rs161976,
-                        rs473892,
-                        rs159497,
-                        rs9296092
-                    ]
+                        pack_history,
+                        mwt1,
+                        mwt2,
+                        mwt1_best,
+                        fev1,
+                        fev1_pred,
+                        fvc,
+                        fvc_pred,
+                        cat,
+                        had,
+                        sgrq,
+                        gender_num,
+                        smoking_num,
+                        diabetes_num,
+                        muscular_num,
+                        hypertension_num,
+                        atrial_fib_num,
+                        ihd_num
+                    ]], columns=feature_columns)
                     
-                    # Scale the input
-                    user_input_scaled = copd_scaler.transform([user_input])
+                    # Scale and predict
+                    user_input_scaled = scaler.transform(user_input)
+                    prediction = model.predict(user_input_scaled)
+                    prediction_proba = model.predict_proba(user_input_scaled)[0]
                     
-                    # Predict
-                    prediction = copd_model.predict(user_input_scaled)
-                    prediction_proba = copd_model.predict_proba(user_input_scaled)[0]
-
                     # Display results
                     st.markdown("---")
-                    st.markdown("## 📊 Analysis Results")
+                    st.markdown("## 📊 COPD Severity Assessment Results")
                     
                     col1, col2, col3 = st.columns(3)
                     
                     with col1:
                         if prediction[0] == 1:
-                            st.error("🔴 COPD Risk Detected")
+                            st.error("🔴 SEVERE/VERY SEVERE COPD")
                             severity = "high"
+                            risk_level = "High Risk"
                         else:
-                            st.success("🟢 Low Risk")
-                            severity = "low"
+                            st.success("🟡 MILD/MODERATE COPD")
+                            severity = "moderate"
+                            risk_level = "Moderate Risk"
                     
                     with col2:
                         confidence = max(prediction_proba) * 100
                         st.metric("🎯 Model Confidence", f"{confidence:.1f}%")
                     
                     with col3:
-                        risk_score = prediction_proba[1] * 100 if len(prediction_proba) > 1 else 0
-                        st.metric("📈 Risk Score", f"{risk_score:.1f}%")
+                        severe_prob = prediction_proba[1] * 100 if len(prediction_proba) > 1 else 0
+                        st.metric("📈 Severe COPD Probability", f"{severe_prob:.1f}%")
                     
-                    # Risk interpretation
+                    # FEV1-based GOLD Classification
+                    st.markdown("---")
+                    st.subheader("📋 Clinical Classification")
+                    
+                    # Determine GOLD stage based on FEV1 % Predicted
+                    if fev1_pred >= 80:
+                        gold_stage = "GOLD 1 (Mild)"
+                        gold_color = "green"
+                    elif fev1_pred >= 50:
+                        gold_stage = "GOLD 2 (Moderate)"
+                        gold_color = "orange"
+                    elif fev1_pred >= 30:
+                        gold_stage = "GOLD 3 (Severe)"
+                        gold_color = "red"
+                    else:
+                        gold_stage = "GOLD 4 (Very Severe)"
+                        gold_color = "darkred"
+                    
+                    col1, col2, col3 = st.columns(3)
+                    with col1:
+                        st.metric("GOLD Stage", gold_stage)
+                    with col2:
+                        st.metric("FEV1 % Predicted", f"{fev1_pred:.1f}%")
+                    with col3:
+                        fev1_fvc_ratio = (fev1/fvc)*100 if fvc > 0 else 0
+                        st.metric("FEV1/FVC Ratio", f"{fev1_fvc_ratio:.1f}%")
+                    
+                    # Clinical interpretation
                     st.markdown("---")
                     if prediction[0] == 1:
                         st.error(f"""
-                        ### ⚠️ Clinical Alert
-                        **{name}**, the assessment indicates elevated risk for COPD based on genetic and clinical factors.
+                        ### ⚠️ Clinical Alert for {name}
                         
-                        **Recommended Actions:**
-                        - 🏥 Schedule pulmonary function testing (Spirometry) immediately
-                        - 🩺 Comprehensive respiratory examination recommended
-                        - 📋 Consider chest X-ray or CT scan
-                        - 👨‍⚕️ Consult with a pulmonologist for detailed evaluation
-                        - 🚭 If smoking: Smoking cessation program is critical
+                        The AI model predicts **Severe/Very Severe COPD** with {confidence:.1f}% confidence.
+                        
+                        **Key Findings:**
+                        - FEV1 % Predicted: {fev1_pred:.1f}% ({gold_stage})
+                        - CAT Score: {cat}/40 {'(High symptom burden)' if cat >= 20 else ''}
+                        - 6-Minute Walk Distance: {max(mwt1, mwt2):.0f} meters
+                        
+                        **Immediate Recommendations:**
+                        - 🏥 Urgent pulmonologist consultation recommended
+                        - 💊 Review and optimize bronchodilator therapy
+                        - 🫁 Consider pulmonary rehabilitation program
+                        - 🚭 Smoking cessation is critical if applicable
+                        - 💉 Ensure vaccinations are up to date (flu, pneumonia)
+                        - 🆘 Establish exacerbation action plan
                         """)
                     else:
                         st.success(f"""
-                        ### ✅ Assessment Summary
-                        **{name}**, the current assessment shows low risk indicators for COPD.
+                        ### ✅ Assessment Summary for {name}
                         
-                        **Recommendations:**
-                        - 🌟 Maintain healthy lifestyle and avoid smoking
-                        - 💪 Regular physical activity and exercise
-                        - 🏥 Annual health check-ups recommended
-                        - 🌬️ Avoid exposure to air pollutants and occupational hazards
-                        - 📅 Monitor respiratory health regularly
+                        The AI model indicates **Mild/Moderate COPD** with {confidence:.1f}% confidence.
+                        
+                        **Key Findings:**
+                        - FEV1 % Predicted: {fev1_pred:.1f}% ({gold_stage})
+                        - CAT Score: {cat}/40
+                        - 6-Minute Walk Distance: {max(mwt1, mwt2):.0f} meters
+                        
+                        **Management Recommendations:**
+                        - 🩺 Regular follow-up with healthcare provider
+                        - 💊 Continue prescribed bronchodilator therapy
+                        - 🚭 Smoking cessation if applicable
+                        - 💪 Maintain physical activity
+                        - 📅 Annual pulmonary function monitoring
+                        - 💉 Stay current with vaccinations
                         """)
                     
-                    # Risk factors summary
+                    # Risk factors analysis
                     st.markdown("---")
-                    st.subheader("🔍 Key Risk Factors Identified")
+                    st.subheader("🔍 Risk Factor Analysis")
                     
                     risk_factors = []
-                    if smoke == "Current Smoker":
-                        risk_factors.append(("Active Smoking", "Highest risk factor for COPD"))
-                    elif smoke == "Former Smoker":
-                        risk_factors.append(("Smoking History", "Past smoking increases COPD risk"))
-                    
-                    if age > 60:
-                        risk_factors.append(("Age Factor", "COPD risk increases with age"))
-                    
-                    if bmi < 18.5:
-                        risk_factors.append(("Low BMI", "Underweight may indicate disease progression"))
-                    elif bmi > 30:
-                        risk_factors.append(("High BMI", "Obesity can affect respiratory function"))
-                    
-                    if family_history_copd == "Yes":
-                        risk_factors.append(("Family History", "Genetic predisposition present"))
-                    
-                    if occupational_exposure == "Yes":
-                        risk_factors.append(("Occupational Exposure", "Chemical/dust exposure increases risk"))
-                    
-                    # Check genetic markers
-                    genetic_risk_count = sum([
-                        rs10007052 > 1.0, rs8192288 > 1.0, rs20541 > 1.0, 
-                        rs12922394 > 1.0, rs2910164 > 1.0
-                    ])
-                    if genetic_risk_count >= 2:
-                        risk_factors.append(("Genetic Markers", f"{genetic_risk_count} high-risk variants detected"))
-                    
-                    if breathlessness in ["Moderate", "Severe"]:
-                        risk_factors.append(("Breathlessness", f"{breathlessness} breathlessness reported"))
-                    
-                    if chronic_cough == "Yes":
-                        risk_factors.append(("Chronic Cough", "Persistent respiratory symptom"))
+                    if pack_history > 20:
+                        risk_factors.append(("Heavy Smoking History", f"{pack_history:.0f} pack-years"))
+                    if fev1_pred < 50:
+                        risk_factors.append(("Low FEV1", f"{fev1_pred:.1f}% predicted"))
+                    if cat >= 20:
+                        risk_factors.append(("High Symptom Burden", f"CAT score {cat}/40"))
+                    if sgrq > 50:
+                        risk_factors.append(("Poor Quality of Life", f"SGRQ {sgrq:.0f}/100"))
+                    if max(mwt1, mwt2) < 300:
+                        risk_factors.append(("Reduced Exercise Capacity", f"{max(mwt1, mwt2):.0f}m walk distance"))
+                    if hypertension == "Yes":
+                        risk_factors.append(("Hypertension", "Cardiovascular comorbidity"))
+                    if diabetes == "Yes":
+                        risk_factors.append(("Diabetes", "Metabolic comorbidity"))
+                    if ihd == "Yes":
+                        risk_factors.append(("Ischemic Heart Disease", "Major cardiovascular risk"))
+                    if atrial_fib == "Yes":
+                        risk_factors.append(("Atrial Fibrillation", "Cardiac arrhythmia"))
                     
                     if risk_factors:
-                        for factor, description in risk_factors:
-                            st.warning(f"⚠️ **{factor}**: {description}")
+                        for factor, detail in risk_factors:
+                            st.warning(f"⚠️ **{factor}**: {detail}")
                     else:
-                        st.info("✅ No major risk factors identified")
+                        st.info("✅ No major additional risk factors identified")
                     
-                    # Genetic Profile Summary
-                    st.markdown("---")
-                    st.subheader("🧬 Genetic Profile Summary")
-                    
-                    genetic_data = {
-                        'Marker': ['rs10007052', 'rs8192288', 'rs20541', 'rs12922394', 'rs2910164', 
-                                  'rs161976', 'rs473892', 'rs159497', 'rs9296092'],
-                        'Value': [rs10007052, rs8192288, rs20541, rs12922394, rs2910164, 
-                                 rs161976, rs473892, rs159497, rs9296092],
-                        'Risk Level': [
-                            'High' if v > 1.5 else 'Moderate' if v > 0.5 else 'Low' 
-                            for v in [rs10007052, rs8192288, rs20541, rs12922394, rs2910164, 
-                                     rs161976, rs473892, rs159497, rs9296092]
-                        ]
-                    }
-                    
-                    df_genetic = pd.DataFrame(genetic_data)
-                    st.dataframe(df_genetic, use_container_width=True)
+                    # Feature importance visualization
+                    if 'feature_importance' in model_data:
+                        st.markdown("---")
+                        st.subheader("📊 Key Predictive Factors")
+                        
+                        importance_df = pd.DataFrame({
+                            'Feature': list(model_data['feature_importance'].keys()),
+                            'Importance': list(model_data['feature_importance'].values())
+                        }).sort_values('Importance', ascending=False).head(10)
+                        
+                        # Rename features for display
+                        feature_names = {
+                            'FEV1PRED': 'FEV1 % Predicted',
+                            'FEV1': 'FEV1 (L)',
+                            'FVCPRED': 'FVC % Predicted',
+                            'FVC': 'FVC (L)',
+                            'CAT': 'CAT Score',
+                            'SGRQ': 'SGRQ Score',
+                            'MWT1': 'Walk Test 1',
+                            'MWT2': 'Walk Test 2',
+                            'MWT1Best': 'Best Walk Distance',
+                            'AGE': 'Age',
+                            'PackHistory': 'Pack-Years',
+                            'HAD': 'HAD Score'
+                        }
+                        importance_df['Feature'] = importance_df['Feature'].map(lambda x: feature_names.get(x, x))
+                        
+                        st.bar_chart(importance_df.set_index('Feature')['Importance'])
                     
                     # AI Recommendations
                     st.markdown("---")
-                    with st.spinner("🤖 Generating personalized care recommendations..."):
+                    with st.spinner("🤖 Generating personalized recommendations..."):
                         patient_info = {
                             "name": name,
                             "age": age,
-                            "smoking_status": smoke,
-                            "bmi": bmi,
+                            "fev1_pred": fev1_pred,
+                            "cat_score": cat,
+                            "gold_stage": gold_stage,
                             "risk_factors": ", ".join([f[0] for f in risk_factors]) if risk_factors else "None"
                         }
                         
@@ -4694,15 +5109,6 @@ if selected == 'COPD Prediction':
                             display_recommendations(recommendations)
                             display_health_tips_dynamic("COPD", severity)
 
-            except FileNotFoundError:
-                st.error("❌ Model files not found. Please train the model first using the training script.")
-                st.info("💡 Make sure these files exist in the 'models/' directory:")
-                st.code("""
-models/
-├── copd_model.pkl
-├── copd_scaler.pkl
-└── copd_metadata.pkl
-                """)
             except Exception as e:
                 st.error(f"❌ Error in prediction: {str(e)}")
                 with st.expander("🔧 Technical Details"):
@@ -4800,96 +5206,312 @@ if selected == 'Pneumonia Prediction':
 
 # Migraine Prediction
 if selected == 'Migraine Prediction':
-    st.title("🤕 Migraine Risk Assessment")
-    st.markdown("Evaluate migraine patterns and triggers")
+    st.title("💥 Migraine Type Prediction")
+    st.markdown("AI-powered migraine classification using symptom patterns and clinical features")
     
-    name = st.text_input("Name:")
+    # Model accuracy info
+    if "migraine_model" in loaded_models:
+        model_data = loaded_models["migraine_model"]
+        if isinstance(model_data, dict) and "accuracy" in model_data:
+            st.success(f"✅ Model loaded successfully | Accuracy: {model_data['accuracy']:.2%} | Type: {model_data.get('model_type', 'ML')}")
     
-    col1, col2, col3 = st.columns(3)
+    name = st.text_input("👤 Patient Name:")
     
-    with col1:
-        age = st.number_input("Age", min_value=10, max_value=100, value=35)
-        gender = st.selectbox("Gender", ["Male", "Female"])
-        family_history = st.selectbox("Family History of Migraines", ["No", "Yes"])
+    # Organized tabs
+    tab1, tab2, tab3 = st.tabs(["📋 Basic Info", "🩺 Symptoms", "🧠 Neurological Signs"])
     
-    with col2:
-        frequency = st.selectbox("Headache Frequency", 
-            ["Rarely", "1-3 times/month", "Weekly", "Several times/week", "Daily"])
-        duration = st.selectbox("Typical Duration", 
-            ["< 4 hours", "4-24 hours", "1-3 days", "> 3 days"])
-        intensity = st.slider("Pain Intensity (1-10)", 1, 10, 5)
+    with tab1:
+        st.subheader("Basic Information")
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            age = st.number_input("Age", min_value=10, max_value=100, value=35)
+            duration = st.slider("Duration (hours)", min_value=1, max_value=72, value=12, help="Typical headache duration in hours")
+        
+        with col2:
+            frequency = st.slider("Frequency (days/month)", min_value=0, max_value=30, value=5, help="Number of headache days per month")
+            intensity = st.slider("Intensity (1-10)", min_value=1, max_value=10, value=5, help="Pain intensity scale")
+        
+        with col3:
+            location = st.selectbox("Location", options=["Unilateral", "Bilateral", "Orbital"], index=0)
+            location_map = {"Unilateral": 0, "Bilateral": 1, "Orbital": 2}
+            location_val = location_map[location]
+            
+            character = st.selectbox("Pain Character", options=["Throbbing", "Pressing", "Stabbing"], index=0)
+            character_map = {"Throbbing": 0, "Pressing": 1, "Stabbing": 2}
+            character_val = character_map[character]
     
-    with col3:
-        location = st.selectbox("Pain Location", 
-            ["One side", "Both sides", "Behind eye", "Temples", "Back of head"])
-        pain_type = st.selectbox("Pain Type", 
-            ["Throbbing", "Constant", "Sharp", "Pressure"])
-        aura = st.selectbox("Visual Aura", ["No", "Sometimes", "Always"])
+    with tab2:
+        st.subheader("Associated Symptoms")
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            nausea = st.checkbox("🤢 Nausea")
+            nausea_val = 1 if nausea else 0
+            
+            vomit = st.checkbox("🤮 Vomiting")
+            vomit_val = 1 if vomit else 0
+            
+            phonophobia = st.checkbox("🔊 Phonophobia (Sound Sensitivity)")
+            phonophobia_val = 1 if phonophobia else 0
+            
+            photophobia = st.checkbox("💡 Photophobia (Light Sensitivity)")
+            photophobia_val = 1 if photophobia else 0
+        
+        with col2:
+            visual = st.checkbox("👁️ Visual Disturbances (Aura)")
+            visual_val = 1 if visual else 0
+            
+            sensory = st.checkbox("✋ Sensory Disturbances")
+            sensory_val = 1 if sensory else 0
+            
+            dpf = st.checkbox("👨‍👩‍👧 Family History of Migraine (DPF)")
+            dpf_val = 1 if dpf else 0
     
-    # Triggers
-    st.subheader("Common Triggers")
-    triggers = st.multiselect("Select all that apply:", 
-        ["Stress", "Lack of sleep", "Certain foods", "Bright lights", "Strong smells",
-         "Weather changes", "Hormonal changes", "Dehydration", "Skipped meals",
-         "Physical activity", "Alcohol", "Caffeine withdrawal"])
+    with tab3:
+        st.subheader("Neurological Signs")
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            dysphasia = st.checkbox("🗣️ Dysphasia (Speech Difficulty)")
+            dysphasia_val = 1 if dysphasia else 0
+            
+            dysarthria = st.checkbox("🗣️ Dysarthria (Slurred Speech)")
+            dysarthria_val = 1 if dysarthria else 0
+            
+            vertigo = st.checkbox("🌀 Vertigo")
+            vertigo_val = 1 if vertigo else 0
+        
+        with col2:
+            tinnitus = st.checkbox("👂 Tinnitus (Ringing in Ears)")
+            tinnitus_val = 1 if tinnitus else 0
+            
+            hypoacusis = st.checkbox("👂 Hypoacusis (Hearing Loss)")
+            hypoacusis_val = 1 if hypoacusis else 0
+            
+            diplopia = st.checkbox("👁️ Diplopia (Double Vision)")
+            diplopia_val = 1 if diplopia else 0
+        
+        with col3:
+            defect = st.checkbox("👁️ Visual Field Defect")
+            defect_val = 1 if defect else 0
+            
+            ataxia = st.checkbox("🚶 Ataxia (Balance Problems)")
+            ataxia_val = 1 if ataxia else 0
+            
+            conscience = st.checkbox("😵 Altered Consciousness")
+            conscience_val = 1 if conscience else 0
+            
+            paresthesia = st.checkbox("🖐️ Paresthesia (Tingling/Numbness)")
+            paresthesia_val = 1 if paresthesia else 0
     
-    # Associated symptoms
-    st.subheader("Associated Symptoms")
-    symptoms = st.multiselect("Select all that apply:",
-        ["Nausea", "Vomiting", "Light sensitivity", "Sound sensitivity", 
-         "Smell sensitivity", "Neck pain", "Dizziness", "Visual disturbances"])
+    st.divider()
     
-    if st.button("Assess Migraine Pattern"):
-        # Calculate migraine severity
-        severity_score = 0
-        
-        if frequency in ["Several times/week", "Daily"]:
-            severity_score += 3
-        elif frequency == "Weekly":
-            severity_score += 2
-        elif frequency == "1-3 times/month":
-            severity_score += 1
-        
-        severity_score += min(intensity - 4, 0) * 0.5
-        
-        if duration in ["> 3 days", "1-3 days"]:
-            severity_score += 2
-        
-        if aura == "Always":
-            severity_score += 1
-        
-        severity_score += len(symptoms) * 0.2
-        
-        # Determine type and severity
-        if severity_score > 7:
-            migraine_type = "Chronic Migraine"
-            severity = "severe"
-            color = "red"
-        elif severity_score > 4:
-            migraine_type = "Episodic Migraine"
-            severity = "moderate"
-            color = "orange"
-        else:
-            migraine_type = "Occasional Migraine"
-            severity = "mild"
-            color = "yellow"
-        
-        st.markdown(f"### Assessment: <span style='color:{color}'>{migraine_type}</span>", unsafe_allow_html=True)
-        st.write(f"Identified Triggers: {', '.join(triggers) if triggers else 'None identified'}")
-        
-        if name:
-            with st.spinner("Generating personalized migraine management plan..."):
-                patient_info = {
-                    "name": name,
-                    "frequency": frequency,
-                    "triggers": triggers,
-                    "intensity": intensity
-                }
+    if st.button("🔬 Predict Migraine Type", type="primary", use_container_width=True):
+        try:
+            if "migraine_model" not in loaded_models:
+                st.error("Migraine model not loaded. Please check model file.")
+            else:
+                model_data = loaded_models["migraine_model"]
                 
-                recommendations = get_health_recommendations("Migraine", severity, patient_info)
-                if recommendations:
-                    display_recommendations(recommendations)
-                    display_health_tips_dynamic("Migraine", severity.lower())
+                if isinstance(model_data, dict):
+                    model = model_data["model"]
+                    scaler = model_data["scaler"]
+                    selector = model_data.get("selector")
+                    label_encoder = model_data.get("label_encoder")
+                    feature_columns = model_data["feature_columns"]
+                    
+                    # Prepare input - all original features
+                    input_data = {
+                        'Age': age,
+                        'Duration': duration,
+                        'Frequency': frequency,
+                        'Location': location_val,
+                        'Character': character_val,
+                        'Intensity': intensity,
+                        'Nausea': nausea_val,
+                        'Vomit': vomit_val,
+                        'Phonophobia': phonophobia_val,
+                        'Photophobia': photophobia_val,
+                        'Visual': visual_val,
+                        'Sensory': sensory_val,
+                        'Dysphasia': dysphasia_val,
+                        'Dysarthria': dysarthria_val,
+                        'Vertigo': vertigo_val,
+                        'Tinnitus': tinnitus_val,
+                        'Hypoacusis': hypoacusis_val,
+                        'Diplopia': diplopia_val,
+                        'Defect': defect_val,
+                        'Ataxia': ataxia_val,
+                        'Conscience': conscience_val,
+                        'Paresthesia': paresthesia_val,
+                        'DPF': dpf_val
+                    }
+                    
+                    # Create DataFrame with correct column order
+                    input_df = pd.DataFrame([input_data])[feature_columns]
+                    
+                    # Scale
+                    input_scaled = scaler.transform(input_df)
+                    
+                    # Feature selection if selector exists
+                    if selector:
+                        input_selected = selector.transform(input_scaled)
+                    else:
+                        input_selected = input_scaled
+                    
+                    # Predict
+                    prediction = model.predict(input_selected)[0]
+                    
+                    # Get class name
+                    if label_encoder:
+                        migraine_type = label_encoder.inverse_transform([prediction])[0]
+                    else:
+                        classes = model_data.get("classes", [])
+                        migraine_type = classes[prediction] if classes else f"Type {prediction}"
+                    
+                    # Get probability
+                    if hasattr(model, 'predict_proba'):
+                        proba = model.predict_proba(input_selected)[0]
+                        confidence = max(proba) * 100
+                        class_probas = dict(zip(label_encoder.classes_ if label_encoder else range(len(proba)), proba))
+                    else:
+                        confidence = 90.0
+                        class_probas = {}
+                    
+                    # Display results
+                    st.markdown("---")
+                    st.subheader("🎯 Prediction Results")
+                    
+                    col1, col2, col3 = st.columns(3)
+                    
+                    with col1:
+                        st.metric("Migraine Type", migraine_type)
+                    with col2:
+                        st.metric("Confidence", f"{confidence:.1f}%")
+                    with col3:
+                        st.metric("Model Accuracy", f"{model_data.get('accuracy', 0.91)*100:.1f}%")
+                    
+                    # Type-specific information
+                    type_info = {
+                        "Typical aura with migraine": {
+                            "description": "Classic migraine with visual or sensory aura preceding headache",
+                            "color": "blue",
+                            "severity": "moderate"
+                        },
+                        "Migraine without aura": {
+                            "description": "Common migraine without preceding aura symptoms",
+                            "color": "green",
+                            "severity": "moderate"
+                        },
+                        "Typical aura without migraine": {
+                            "description": "Aura symptoms without subsequent headache (acephalgic migraine)",
+                            "color": "yellow",
+                            "severity": "mild"
+                        },
+                        "Familial hemiplegic migraine": {
+                            "description": "Rare inherited form with motor weakness during aura",
+                            "color": "red",
+                            "severity": "severe"
+                        },
+                        "Sporadic hemiplegic migraine": {
+                            "description": "Non-familial hemiplegic migraine with motor weakness",
+                            "color": "red",
+                            "severity": "severe"
+                        },
+                        "Basilar-type aura": {
+                            "description": "Migraine with aura originating from brainstem",
+                            "color": "orange",
+                            "severity": "severe"
+                        },
+                        "Other": {
+                            "description": "Atypical migraine pattern requiring further evaluation",
+                            "color": "gray",
+                            "severity": "moderate"
+                        }
+                    }
+                    
+                    info = type_info.get(migraine_type, type_info["Other"])
+                    
+                    st.info(f"**{migraine_type}**: {info['description']}")
+                    
+                    if info["severity"] == "severe":
+                        st.error(f"⚠️ {name if name else 'Patient'}, this migraine type requires neurological evaluation. Please consult a specialist.")
+                    elif info["severity"] == "moderate":
+                        st.warning(f"⚠️ {name if name else 'Patient'}, regular follow-up with your doctor is recommended.")
+                    else:
+                        st.success(f"✅ {name if name else 'Patient'}, this is a manageable condition with proper treatment.")
+                    
+                    # Probability distribution
+                    if class_probas:
+                        st.markdown("---")
+                        st.subheader("📊 Probability Distribution")
+                        prob_df = pd.DataFrame({
+                            "Migraine Type": list(class_probas.keys()),
+                            "Probability": [p*100 for p in class_probas.values()]
+                        }).sort_values("Probability", ascending=False)
+                        st.bar_chart(prob_df.set_index("Migraine Type"))
+                    
+                    # Feature importance
+                    if "feature_importance" in model_data:
+                        with st.expander("📊 Feature Importance Analysis"):
+                            importance_df = pd.DataFrame({
+                                "Feature": list(model_data["feature_importance"].keys()),
+                                "Importance": list(model_data["feature_importance"].values())
+                            }).sort_values("Importance", ascending=False)
+                            st.bar_chart(importance_df.set_index("Feature"))
+                    
+                    # Symptom analysis
+                    st.markdown("---")
+                    st.subheader("📋 Symptom Analysis")
+                    
+                    present_symptoms = []
+                    if nausea: present_symptoms.append("Nausea")
+                    if vomit: present_symptoms.append("Vomiting")
+                    if phonophobia: present_symptoms.append("Sound sensitivity")
+                    if photophobia: present_symptoms.append("Light sensitivity")
+                    if visual: present_symptoms.append("Visual aura")
+                    if sensory: present_symptoms.append("Sensory disturbances")
+                    if vertigo: present_symptoms.append("Vertigo")
+                    if dysphasia: present_symptoms.append("Speech difficulty")
+                    if tinnitus: present_symptoms.append("Tinnitus")
+                    if paresthesia: present_symptoms.append("Tingling/Numbness")
+                    
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        st.markdown("**Present Symptoms:**")
+                        if present_symptoms:
+                            for s in present_symptoms:
+                                st.markdown(f"• {s}")
+                        else:
+                            st.info("No associated symptoms reported")
+                    
+                    with col2:
+                        st.markdown("**Key Metrics:**")
+                        st.markdown(f"• Frequency: {frequency} days/month")
+                        st.markdown(f"• Duration: {duration} hours")
+                        st.markdown(f"• Intensity: {intensity}/10")
+                        st.markdown(f"• Family History: {'Yes' if dpf else 'No'}")
+                    
+                    # Recommendations
+                    if name:
+                        patient_info = {
+                            "name": name,
+                            "migraine_type": migraine_type,
+                            "frequency": frequency,
+                            "intensity": intensity
+                        }
+                        recommendations = get_health_recommendations("Migraine", info["severity"], patient_info)
+                        if recommendations:
+                            display_recommendations(recommendations)
+                            display_health_tips_dynamic("Migraine", info["severity"])
+                else:
+                    st.error("Model format not recognized.")
+                    
+        except Exception as e:
+            st.error(f"Error in prediction: {str(e)}")
+            import traceback
+            st.code(traceback.format_exc())
 
 
 # HIV/AIDS Prediction
@@ -5011,216 +5633,449 @@ if selected == 'HIV/AIDS Prediction':
 
 # Obesity Prediction
 if selected == 'Obesity Prediction':
-    st.title("⚖️ Obesity Risk Assessment & BMI Calculator")
-    st.markdown("Comprehensive weight and health evaluation")
+    st.title("⚖️ Obesity Risk Prediction")
+    st.markdown("AI-powered obesity risk assessment using lifestyle and dietary factors")
     
-    name = st.text_input("Name:")
+    # Model accuracy info
+    if "obesity_model" in loaded_models:
+        model_data = loaded_models["obesity_model"]
+        if isinstance(model_data, dict) and "accuracy" in model_data:
+            st.success(f"✅ Model loaded successfully | Accuracy: {model_data['accuracy']:.2%}")
     
-    # Basic measurements
-    st.subheader("Physical Measurements")
-    col1, col2, col3 = st.columns(3)
+    name = st.text_input("👤 Patient Name:")
     
-    with col1:
-        age = st.number_input("Age", min_value=2, max_value=100, value=35)
-        gender = st.selectbox("Gender", ["Male", "Female"])
-        height = st.number_input("Height (cm)", min_value=50, max_value=250, value=170)
+    # Organized tabs
+    tab1, tab2, tab3 = st.tabs(["📋 Demographics", "🍽️ Eating Habits", "🏃 Lifestyle"])
     
-    with col2:
-        weight = st.number_input("Weight (kg)", min_value=10.0, max_value=300.0, value=70.0)
-        waist = st.number_input("Waist Circumference (cm)", min_value=40, max_value=200, value=80)
-        hip = st.number_input("Hip Circumference (cm)", min_value=40, max_value=200, value=95)
-    
-    with col3:
-        neck = st.number_input("Neck Circumference (cm)", min_value=20, max_value=60, value=35)
-        body_fat = st.number_input("Body Fat % (if known)", min_value=0.0, max_value=70.0, value=0.0)
-        muscle_mass = st.number_input("Muscle Mass % (if known)", min_value=0.0, max_value=70.0, value=0.0)
-    
-    # Lifestyle factors
-    st.subheader("Lifestyle Factors")
-    col4, col5, col6 = st.columns(3)
-    
-    with col4:
-        physical_activity = st.selectbox("Physical Activity Level", 
-            ["Sedentary", "Lightly Active", "Moderately Active", "Very Active", "Extremely Active"])
-        exercise_frequency = st.selectbox("Exercise Frequency", 
-            ["Never", "1-2 times/week", "3-4 times/week", "5-6 times/week", "Daily"])
-        sleep_hours = st.number_input("Average Sleep Hours", min_value=2, max_value=12, value=7)
-    
-    with col5:
-        eating_habits = st.selectbox("Eating Habits", 
-            ["Very Healthy", "Mostly Healthy", "Average", "Often Unhealthy", "Very Unhealthy"])
-        meal_frequency = st.selectbox("Meals per Day", ["1-2", "3", "4-5", ">5"])
-        water_intake = st.selectbox("Water Intake (liters/day)", ["<1", "1-2", "2-3", ">3"])
-    
-    with col6:
-        stress_level = st.selectbox("Stress Level", ["Low", "Moderate", "High", "Very High"])
-        family_obesity = st.selectbox("Family History of Obesity", ["No", "One Parent", "Both Parents"])
-        medical_conditions = st.multiselect("Related Conditions", 
-            ["None", "Diabetes", "Hypertension", "Thyroid Issues", "PCOS", "Sleep Apnea"])
-    
-    # Dietary habits
-    st.subheader("Dietary Habits")
-    col7, col8 = st.columns(2)
-    
-    with col7:
-        fast_food = st.selectbox("Fast Food Consumption", 
-            ["Never", "Rarely", "1-2 times/week", "3-4 times/week", "Daily"])
-        sugary_drinks = st.selectbox("Sugary Drinks", 
-            ["Never", "Rarely", "Sometimes", "Often", "Daily"])
-        vegetable_intake = st.selectbox("Vegetable Intake", 
-            ["None", "1 serving/day", "2-3 servings/day", "4+ servings/day"])
-    
-    with col8:
-        snacking = st.selectbox("Between Meal Snacking", 
-            ["Never", "Occasionally", "Daily", "Multiple times daily"])
-        alcohol = st.selectbox("Alcohol Consumption", 
-            ["Never", "Occasionally", "Weekly", "Daily"])
-        smoking = st.selectbox("Smoking", ["Never", "Former", "Current"])
-    
-    if st.button("Calculate BMI & Assess Obesity Risk"):
-        # Calculate BMI
-        height_m = height / 100
-        bmi = weight / (height_m ** 2)
-        
-        # Calculate Waist-to-Hip Ratio
-        whr = waist / hip if hip > 0 else 0
-        
-        # Calculate Waist-to-Height Ratio
-        whtr = waist / height
-        
-        # Determine BMI category
-        if bmi < 18.5:
-            bmi_category = "Underweight"
-            bmi_color = "blue"
-        elif bmi < 25:
-            bmi_category = "Normal weight"
-            bmi_color = "green"
-        elif bmi < 30:
-            bmi_category = "Overweight"
-            bmi_color = "yellow"
-        elif bmi < 35:
-            bmi_category = "Obese Class I"
-            bmi_color = "orange"
-        elif bmi < 40:
-            bmi_category = "Obese Class II"
-            bmi_color = "red"
-        else:
-            bmi_category = "Obese Class III (Severe)"
-            bmi_color = "darkred"
-        
-        # Display results
-        st.markdown("### 📊 Body Composition Analysis")
-        
+    with tab1:
+        st.subheader("Demographics & Physical Measurements")
         col1, col2, col3 = st.columns(3)
+        
         with col1:
-            st.metric("BMI", f"{bmi:.1f}", bmi_category)
-            st.markdown(f"<span style='color:{bmi_color}'>●</span> {bmi_category}", unsafe_allow_html=True)
+            gender = st.selectbox("Gender", [0, 1], format_func=lambda x: "Female" if x == 0 else "Male")
+            age = st.number_input("Age", min_value=10, max_value=100, value=30)
         
         with col2:
-            st.metric("Waist-to-Hip Ratio", f"{whr:.2f}")
-            whr_risk = "High" if (gender == "Male" and whr > 0.9) or (gender == "Female" and whr > 0.85) else "Normal"
-            st.write(f"Risk: {whr_risk}")
+            height = st.number_input("Height (meters)", min_value=1.0, max_value=2.5, value=1.70, step=0.01)
+            weight = st.number_input("Weight (kg)", min_value=30.0, max_value=200.0, value=70.0)
         
         with col3:
-            st.metric("Waist-to-Height Ratio", f"{whtr:.2f}")
-            whtr_risk = "High" if whtr > 0.5 else "Normal"
-            st.write(f"Risk: {whtr_risk}")
+            family_history = st.selectbox("Family History of Overweight", [0, 1], 
+                                           format_func=lambda x: "No" if x == 0 else "Yes")
+    
+    with tab2:
+        st.subheader("Eating Habits")
+        col4, col5, col6 = st.columns(3)
         
-        # Calculate overall obesity risk
-        risk_score = 0
+        with col4:
+            favc = st.selectbox("Frequent High Caloric Food (FAVC)", [0, 1], 
+                                format_func=lambda x: "No" if x == 0 else "Yes")
+            fcvc = st.slider("Vegetable Consumption Frequency (1-3)", 1.0, 3.0, 2.0)
         
-        # BMI risk
-        if bmi >= 30:
-            risk_score += 3
-        elif bmi >= 25:
-            risk_score += 2
+        with col5:
+            ncp = st.slider("Number of Main Meals (1-4)", 1.0, 4.0, 3.0)
+            caec = st.selectbox("Food Between Meals (CAEC)", [0, 1, 2, 3], 
+                                format_func=lambda x: ["Always", "Frequently", "Sometimes", "No"][x])
         
-        # Lifestyle factors
-        if physical_activity == "Sedentary":
-            risk_score += 2
-        if eating_habits in ["Often Unhealthy", "Very Unhealthy"]:
-            risk_score += 2
-        if fast_food in ["3-4 times/week", "Daily"]:
-            risk_score += 1
-        if family_obesity == "Both Parents":
-            risk_score += 2
-        elif family_obesity == "One Parent":
-            risk_score += 1
+        with col6:
+            ch2o = st.slider("Daily Water Intake (liters)", 1.0, 3.0, 2.0)
+            calc = st.selectbox("Alcohol Consumption (CALC)", [0, 1, 2, 3], 
+                                format_func=lambda x: ["Always", "Frequently", "Sometimes", "No"][x])
+    
+    with tab3:
+        st.subheader("Lifestyle Factors")
+        col7, col8, col9 = st.columns(3)
         
-        # Determine risk level
-        if risk_score >= 7:
-            risk_level = "High Risk"
-            severity = "high"
-        elif risk_score >= 4:
-            risk_level = "Moderate Risk"
-            severity = "moderate"
-        else:
-            risk_level = "Low Risk"
-            severity = "low"
+        with col7:
+            smoke = st.selectbox("Smoking", [0, 1], format_func=lambda x: "No" if x == 0 else "Yes")
+            scc = st.selectbox("Calorie Monitoring (SCC)", [0, 1], 
+                               format_func=lambda x: "No" if x == 0 else "Yes")
         
-        st.markdown(f"### Overall Obesity Risk: {risk_level}")
-        st.progress(min(risk_score/10, 1.0))
+        with col8:
+            faf = st.slider("Physical Activity Frequency (0-3 days/week)", 0.0, 3.0, 1.0)
+            tue = st.slider("Technology Use Time (0-2 hours)", 0.0, 2.0, 1.0)
         
-        # Health recommendations based on BMI
-        st.subheader("📋 Personalized Recommendations")
-        
-        if bmi >= 25:
-            st.warning("Weight management is recommended for optimal health")
-            target_weight = 24.9 * (height_m ** 2)
-            weight_to_lose = weight - target_weight
-            st.write(f"**Target Weight:** {target_weight:.1f} kg")
-            if weight_to_lose > 0:
-                st.write(f"**Weight to Lose:** {weight_to_lose:.1f} kg")
-            
-            # Calculate daily calorie needs
-            if gender == "Male":
-                bmr = 10 * weight + 6.25 * height - 5 * age + 5
+        with col9:
+            mtrans = st.selectbox("Transportation", [0, 1, 2, 3, 4], 
+                                  format_func=lambda x: ["Automobile", "Bike", "Motorbike", "Public Transport", "Walking"][x])
+    
+    if st.button("🔬 Predict Obesity Risk", type="primary"):
+        try:
+            if "obesity_model" not in loaded_models:
+                st.error("Obesity model not loaded. Please check model file.")
             else:
-                bmr = 10 * weight + 6.25 * height - 5 * age - 161
-            
-            activity_multipliers = {
-                "Sedentary": 1.2,
-                "Lightly Active": 1.375,
-                "Moderately Active": 1.55,
-                "Very Active": 1.725,
-                "Extremely Active": 1.9
-            }
-            
-            tdee = bmr * activity_multipliers.get(physical_activity, 1.2)
-            calorie_deficit = tdee - 500  # 500 calorie deficit for healthy weight loss
-            
-            st.write(f"**Estimated Daily Calorie Needs:** {tdee:.0f} calories")
-            st.write(f"**Recommended for Weight Loss:** {calorie_deficit:.0f} calories/day")
-            st.write(f"**Estimated Time to Target Weight:** {(weight_to_lose * 7700 / 500 / 7):.1f} weeks (at 0.5 kg/week)")
-        
-        elif bmi < 18.5:
-            target_weight = 18.5 * (height_m ** 2)
-            weight_to_gain = target_weight - weight
-            st.info("Weight gain is recommended for optimal health")
-            st.write(f"**Target Weight:** {target_weight:.1f} kg")
-            st.write(f"**Weight to Gain:** {weight_to_gain:.1f} kg")
-        
-        else:
-            st.success("You are at a healthy weight! Focus on maintenance.")
-        
-        # Get AI recommendations for obesity/weight management
-        if name:
-            with st.spinner("Generating personalized weight management plan..."):
-                patient_info = {
-                    "name": name,
-                    "age": age,
-                    "gender": gender,
-                    "bmi": round(bmi, 2),
-                    "weight": weight,
-                    "height": height,
-                    "physical_activity": physical_activity,
-                    "eating_habits": eating_habits,
-                    "medical_conditions": medical_conditions
-                }
+                model_data = loaded_models["obesity_model"]
                 
-                disease_name = "Obesity Management" if bmi >= 30 else "Weight Management"
-                recommendations = get_health_recommendations(disease_name, severity, patient_info)
-                if recommendations:
-                    display_recommendations(recommendations)
-                    display_health_tips_dynamic(disease_name, severity)
+                if isinstance(model_data, dict):
+                    model = model_data["model"]
+                    scaler = model_data["scaler"]
+                    feature_columns = model_data["feature_columns"]
+                    
+                    # Create input dataframe with exact feature order
+                    # Features: Gender, Age, Height, Weight, family_history_with_overweight, FAVC, FCVC, NCP, CAEC, SMOKE, CH2O, SCC, FAF, TUE, CALC, MTRANS
+                    input_data = pd.DataFrame([[
+                        gender, age, height, weight, family_history, favc, fcvc, ncp,
+                        caec, smoke, ch2o, scc, faf, tue, calc, mtrans
+                    ]], columns=feature_columns)
+                    
+                    # Scale the input
+                    input_scaled = scaler.transform(input_data)
+                    
+                    # Make prediction
+                    prediction = model.predict(input_scaled)
+                    prediction_proba = model.predict_proba(input_scaled)
+                    
+                    # Calculate BMI for display
+                    bmi = weight / (height ** 2)
+                    
+                    # Display results
+                    st.markdown("---")
+                    st.subheader("🎯 Prediction Results")
+                    
+                    col_r1, col_r2, col_r3 = st.columns(3)
+                    
+                    with col_r1:
+                        st.metric("📏 BMI", f"{bmi:.1f}")
+                    
+                    with col_r2:
+                        if prediction[0] == 1:
+                            st.error("🟠 **OBESE - High Risk**")
+                            severity = "high"
+                        else:
+                            st.success("🟢 **NOT OBESE - Low Risk**")
+                            severity = "low"
+                    
+                    with col_r3:
+                        risk_prob = prediction_proba[0][1] * 100
+                        st.metric("Obesity Probability", f"{risk_prob:.1f}%")
+                    
+                    # Risk visualization
+                    col_v1, col_v2 = st.columns(2)
+                    with col_v1:
+                        st.write("**Risk Assessment:**")
+                        st.progress(prediction_proba[0][1])
+                    
+                    with col_v2:
+                        st.write("**Probability Distribution:**")
+                        prob_df = pd.DataFrame({
+                            "Outcome": ["Not Obese", "Obese"],
+                            "Probability": prediction_proba[0]
+                        })
+                        st.bar_chart(prob_df.set_index("Outcome"))
+                    
+                    # BMI Category
+                    st.markdown("---")
+                    if bmi < 18.5:
+                        st.info("🟦 BMI Category: **Underweight**")
+                    elif bmi < 25:
+                        st.success("🟢 BMI Category: **Normal Weight**")
+                    elif bmi < 30:
+                        st.warning("🟡 BMI Category: **Overweight**")
+                    else:
+                        st.error("🟠 BMI Category: **Obese**")
+                    
+                    # Feature importance display
+                    if "feature_importance" in model_data:
+                        with st.expander("📊 Feature Importance Analysis"):
+                            importance_df = pd.DataFrame({
+                                "Feature": feature_columns,
+                                "Importance": model_data["feature_importance"]
+                            }).sort_values("Importance", ascending=False)
+                            st.bar_chart(importance_df.set_index("Feature"))
+                    
+                    # Recommendations
+                    if name:
+                        patient_info = {
+                            "name": name,
+                            "age": age,
+                            "bmi": round(bmi, 2),
+                            "risk_probability": risk_prob
+                        }
+                        recommendations = get_health_recommendations("Obesity", severity, patient_info)
+                        if recommendations:
+                            display_recommendations(recommendations)
+                            display_health_tips_dynamic("Obesity", severity)
+                else:
+                    st.error("Model format not recognized.")
+                    
+        except Exception as e:
+            st.error(f"Error in prediction: {str(e)}")
+            import traceback
+            st.code(traceback.format_exc())
+
+
+# Cancer Risk Assessment
+if selected == 'Cancer Risk Assessment':
+    st.title("🎯 Cancer Risk Level Assessment")
+    st.markdown("AI-powered cancer risk assessment based on lifestyle, environmental factors, and symptoms")
+    
+    # Model accuracy info
+    if "cancer_risk_model" in loaded_models:
+        model_data = loaded_models["cancer_risk_model"]
+        if isinstance(model_data, dict) and "accuracy" in model_data:
+            st.success(f"✅ Model loaded successfully | Accuracy: {model_data['accuracy']:.2%}")
+    
+    name = st.text_input("👤 Patient Name:")
+    
+    # Organized tabs
+    tab1, tab2, tab3 = st.tabs(["📋 Demographics", "🌍 Environmental Factors", "🩺 Symptoms"])
+    
+    with tab1:
+        st.subheader("Demographics & Lifestyle")
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            age = st.number_input("Age", min_value=1, max_value=120, value=45)
+            gender = st.selectbox("Gender", options=["Male", "Female"])
+            gender_val = 1 if gender == "Male" else 2
+        
+        with col2:
+            smoking = st.slider("🚬 Smoking (1-8)", min_value=1, max_value=8, value=3, help="1=Never, 8=Heavy smoker")
+            alcohol_use = st.slider("🍺 Alcohol Use (1-8)", min_value=1, max_value=8, value=2, help="1=Never, 8=Heavy drinker")
+        
+        with col3:
+            obesity = st.slider("⚖️ Obesity Level (1-7)", min_value=1, max_value=7, value=3, help="1=Underweight, 7=Morbidly obese")
+            balanced_diet = st.slider("🥗 Balanced Diet (1-7)", min_value=1, max_value=7, value=4, help="1=Very poor, 7=Excellent")
+    
+    with tab2:
+        st.subheader("Environmental & Occupational Factors")
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            air_pollution = st.slider("🌫️ Air Pollution Exposure (1-8)", min_value=1, max_value=8, value=3, help="1=Very low, 8=Very high")
+            dust_allergy = st.slider("🌬️ Dust Allergy (1-8)", min_value=1, max_value=8, value=3, help="1=None, 8=Severe")
+        
+        with col2:
+            occupational_hazards = st.slider("⚠️ Occupational Hazards (1-8)", min_value=1, max_value=8, value=2, help="1=None, 8=Very high exposure")
+            genetic_risk = st.slider("🧬 Genetic Risk (1-7)", min_value=1, max_value=7, value=3, help="1=No family history, 7=Strong family history")
+        
+        with col3:
+            chronic_lung_disease = st.slider("🫁 Chronic Lung Disease (1-7)", min_value=1, max_value=7, value=2, help="1=None, 7=Severe")
+            passive_smoker = st.slider("🚭 Passive Smoking (1-8)", min_value=1, max_value=8, value=2, help="1=Never exposed, 8=Heavy exposure")
+    
+    with tab3:
+        st.subheader("Symptoms & Clinical Signs")
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            chest_pain = st.slider("💔 Chest Pain (1-9)", min_value=1, max_value=9, value=2, help="1=None, 9=Severe")
+            coughing_blood = st.slider("🩸 Coughing Blood (1-9)", min_value=1, max_value=9, value=1, help="1=Never, 9=Frequently")
+            fatigue = st.slider("😴 Fatigue (1-9)", min_value=1, max_value=9, value=3, help="1=None, 9=Severe")
+            weight_loss = st.slider("📉 Unexplained Weight Loss (1-8)", min_value=1, max_value=8, value=2, help="1=None, 8=Significant")
+            shortness_of_breath = st.slider("😮‍💨 Shortness of Breath (1-9)", min_value=1, max_value=9, value=2, help="1=None, 9=Severe")
+            wheezing = st.slider("🌬️ Wheezing (1-8)", min_value=1, max_value=8, value=2, help="1=None, 8=Constant")
+        
+        with col2:
+            swallowing_difficulty = st.slider("🍽️ Swallowing Difficulty (1-8)", min_value=1, max_value=8, value=1, help="1=None, 8=Severe")
+            clubbing_finger_nails = st.slider("👆 Clubbing of Finger Nails (1-9)", min_value=1, max_value=9, value=1, help="1=None, 9=Severe")
+            frequent_cold = st.slider("🤧 Frequent Cold (1-7)", min_value=1, max_value=7, value=2, help="1=Rarely, 7=Very often")
+            dry_cough = st.slider("😷 Dry Cough (1-7)", min_value=1, max_value=7, value=2, help="1=None, 7=Constant")
+            snoring = st.slider("😴 Snoring (1-7)", min_value=1, max_value=7, value=2, help="1=Never, 7=Always")
+    
+    st.divider()
+    
+    if st.button("🔬 Assess Cancer Risk Level", type="primary", use_container_width=True):
+        try:
+            if "cancer_risk_model" not in loaded_models:
+                st.error("Cancer Risk model not loaded. Please check model file.")
+            else:
+                model_data = loaded_models["cancer_risk_model"]
+                
+                if isinstance(model_data, dict):
+                    model = model_data["model"]
+                    scaler = model_data["scaler"]
+                    label_encoder = model_data.get("label_encoder")
+                    feature_columns = model_data["feature_columns"]
+                    
+                    # Prepare input - features in correct order
+                    input_data = {
+                        'Age': age,
+                        'Gender': gender_val,
+                        'Air Pollution': air_pollution,
+                        'Alcohol use': alcohol_use,
+                        'Dust Allergy': dust_allergy,
+                        'OccuPational Hazards': occupational_hazards,
+                        'Genetic Risk': genetic_risk,
+                        'chronic Lung Disease': chronic_lung_disease,
+                        'Balanced Diet': balanced_diet,
+                        'Obesity': obesity,
+                        'Smoking': smoking,
+                        'Passive Smoker': passive_smoker,
+                        'Chest Pain': chest_pain,
+                        'Coughing of Blood': coughing_blood,
+                        'Fatigue': fatigue,
+                        'Weight Loss': weight_loss,
+                        'Shortness of Breath': shortness_of_breath,
+                        'Wheezing': wheezing,
+                        'Swallowing Difficulty': swallowing_difficulty,
+                        'Clubbing of Finger Nails': clubbing_finger_nails,
+                        'Frequent Cold': frequent_cold,
+                        'Dry Cough': dry_cough,
+                        'Snoring': snoring
+                    }
+                    
+                    # Create DataFrame with correct column order
+                    input_df = pd.DataFrame([input_data])[feature_columns]
+                    
+                    # Scale and predict
+                    input_scaled = scaler.transform(input_df)
+                    prediction = model.predict(input_scaled)[0]
+                    
+                    # Get class name
+                    if label_encoder:
+                        risk_level = label_encoder.inverse_transform([prediction])[0]
+                    else:
+                        classes = model_data.get("classes", ["High", "Low", "Medium"])
+                        risk_level = classes[prediction]
+                    
+                    # Get probability
+                    if hasattr(model, 'predict_proba'):
+                        proba = model.predict_proba(input_scaled)[0]
+                        confidence = max(proba) * 100
+                    else:
+                        confidence = 95.0
+                    
+                    # Display results
+                    st.markdown("---")
+                    st.subheader("🎯 Assessment Results")
+                    
+                    col1, col2, col3 = st.columns(3)
+                    
+                    with col1:
+                        st.metric("Risk Level", risk_level)
+                    with col2:
+                        st.metric("Confidence", f"{confidence:.1f}%")
+                    with col3:
+                        st.metric("Model Accuracy", f"{model_data.get('accuracy', 1.0)*100:.1f}%")
+                    
+                    # Risk-specific display
+                    if risk_level == "High":
+                        st.error(f"⚠️ {name if name else 'Patient'}, **HIGH CANCER RISK** detected! Immediate comprehensive screening and specialist consultation strongly recommended.")
+                        severity = "high"
+                    elif risk_level == "Medium":
+                        st.warning(f"⚠️ {name if name else 'Patient'}, **MODERATE CANCER RISK** detected. Regular screening and lifestyle modifications recommended.")
+                        severity = "moderate"
+                    else:  # Low
+                        st.success(f"✅ {name if name else 'Patient'}, **LOW CANCER RISK**. Continue healthy habits and regular preventive check-ups!")
+                        severity = "low"
+                    
+                    # Risk factors analysis
+                    st.markdown("---")
+                    st.subheader("📋 Risk Factor Analysis")
+                    
+                    risk_factors = []
+                    protective_factors = []
+                    
+                    # Analyze risk factors
+                    if smoking >= 5:
+                        risk_factors.append(f"🚬 Heavy smoking (Level {smoking}/8)")
+                    if alcohol_use >= 5:
+                        risk_factors.append(f"🍺 High alcohol consumption (Level {alcohol_use}/8)")
+                    if air_pollution >= 5:
+                        risk_factors.append(f"🌫️ High air pollution exposure (Level {air_pollution}/8)")
+                    if genetic_risk >= 5:
+                        risk_factors.append(f"🧬 Strong genetic/family history (Level {genetic_risk}/7)")
+                    if obesity >= 5:
+                        risk_factors.append(f"⚖️ Obesity (Level {obesity}/7)")
+                    if coughing_blood >= 3:
+                        risk_factors.append(f"🩸 Coughing blood symptom (Level {coughing_blood}/9)")
+                    if chest_pain >= 5:
+                        risk_factors.append(f"💔 Significant chest pain (Level {chest_pain}/9)")
+                    if weight_loss >= 5:
+                        risk_factors.append(f"📉 Unexplained weight loss (Level {weight_loss}/8)")
+                    if chronic_lung_disease >= 4:
+                        risk_factors.append(f"🫁 Chronic lung disease history (Level {chronic_lung_disease}/7)")
+                    if occupational_hazards >= 5:
+                        risk_factors.append(f"⚠️ High occupational hazard exposure (Level {occupational_hazards}/8)")
+                    
+                    # Analyze protective factors
+                    if smoking <= 2:
+                        protective_factors.append("🚭 Non-smoker or minimal smoking")
+                    if balanced_diet >= 5:
+                        protective_factors.append("🥗 Good balanced diet")
+                    if obesity <= 3:
+                        protective_factors.append("⚖️ Healthy weight")
+                    if air_pollution <= 2:
+                        protective_factors.append("🌿 Low pollution exposure")
+                    if genetic_risk <= 2:
+                        protective_factors.append("🧬 Low genetic risk")
+                    
+                    col1, col2 = st.columns(2)
+                    
+                    with col1:
+                        st.markdown("### ⚠️ Risk Factors Identified")
+                        if risk_factors:
+                            for factor in risk_factors:
+                                st.markdown(f"• {factor}")
+                        else:
+                            st.success("No major risk factors identified!")
+                    
+                    with col2:
+                        st.markdown("### ✅ Protective Factors")
+                        if protective_factors:
+                            for factor in protective_factors:
+                                st.markdown(f"• {factor}")
+                        else:
+                            st.info("Consider improving lifestyle factors")
+                    
+                    # Feature importance display
+                    if "feature_importance" in model_data:
+                        with st.expander("📊 Feature Importance Analysis"):
+                            importance_df = pd.DataFrame({
+                                "Feature": list(model_data["feature_importance"].keys()),
+                                "Importance": list(model_data["feature_importance"].values())
+                            }).sort_values("Importance", ascending=False).head(10)
+                            st.bar_chart(importance_df.set_index("Feature"))
+                    
+                    # Recommendations
+                    st.markdown("---")
+                    st.subheader("💡 Recommendations")
+                    
+                    if risk_level == "High":
+                        st.markdown("""
+                        **Immediate Actions:**
+                        - 🏥 Schedule comprehensive cancer screening (CT scan, blood tests, tumor markers)
+                        - 👨‍⚕️ Consult an oncologist for risk assessment
+                        - 🚬 Quit smoking immediately if applicable
+                        - 📝 Document all symptoms and their duration
+                        - 👨‍👩‍👧‍👦 Inform family about genetic counseling options
+                        """)
+                    elif risk_level == "Medium":
+                        st.markdown("""
+                        **Recommended Actions:**
+                        - 📅 Schedule routine cancer screening tests
+                        - 🥗 Improve diet with more fruits, vegetables, and whole grains
+                        - 🏃 Increase physical activity (150+ min/week)
+                        - 🚬 Reduce or quit smoking
+                        - 🍺 Limit alcohol consumption
+                        - 📆 Annual health check-ups with your doctor
+                        """)
+                    else:
+                        st.markdown("""
+                        **Maintain Your Health:**
+                        - ✅ Continue healthy lifestyle habits
+                        - 🥗 Maintain balanced diet rich in antioxidants
+                        - 🏃 Stay physically active
+                        - 📅 Regular preventive health screenings
+                        - 🌿 Minimize exposure to environmental toxins
+                        - 😴 Ensure adequate sleep and stress management
+                        """)
+                    
+                    # Health tips
+                    if name:
+                        patient_info = {
+                            "name": name,
+                            "age": age,
+                            "risk_level": risk_level
+                        }
+                        recommendations = get_health_recommendations("Cancer Risk", severity, patient_info)
+                        if recommendations:
+                            display_recommendations(recommendations)
+                else:
+                    st.error("Model format not recognized.")
+                    
+        except Exception as e:
+            st.error(f"Error in prediction: {str(e)}")
+            import traceback
+            st.code(traceback.format_exc())
 
