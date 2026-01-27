@@ -40,13 +40,17 @@ MODEL_FILES = {
     "diabetes_model": os.path.join(BASE_DIR, "models", "diabetes_model.sav"),
     "heart_model": os.path.join(BASE_DIR, "models", "heart_disease_model.sav"),
     "breast_cancer_model": os.path.join(BASE_DIR, "models", "breast_cancer.sav"),
+    "kidney_disease_model": os.path.join(BASE_DIR, "models", "kidney_disease_model.sav"),
+    "lung_cancer_model": os.path.join(BASE_DIR, "models", "lung_cancer_model.sav"),
+    "parkinsons_model": os.path.join(BASE_DIR, "models", "parkinsons_model.sav"),
+    "liver_cancer_model": os.path.join(BASE_DIR, "models", "liver_cancer_model.sav"),
 }
 
 loaded_models = {}
 failed_models = {}
 
 # Special handling for packaged models (models saved with scaler, encoders, etc.)
-PACKAGED_MODELS = {"diabetes_model", "heart_model", "breast_cancer_model", "kidney_disease_model", "lung_cancer_model", "parkinsons_model"}  # Add more as they get retrained
+PACKAGED_MODELS = {"diabetes_model", "heart_model", "breast_cancer_model", "kidney_disease_model", "lung_cancer_model", "parkinsons_model", "liver_cancer_model"}  # Add more as they get retrained
 
 for attr_name, model_path in MODEL_FILES.items():
     try:
@@ -988,6 +992,7 @@ with st.sidebar:
         # Cancer
         "Lung Cancer Prediction": "🌬️",
         "Breast Cancer Prediction": "🎗️",
+        "Liver Cancer Prediction": "🔬",
         "Colorectal Cancer Prediction": "🧬",
         "Prostate Cancer Prediction": "🧫",
         "Cervical Cancer Prediction": "🧫",
@@ -1050,7 +1055,7 @@ with st.sidebar:
     ch3 = section("Neurological", ["Parkinsons Prediction", "Alzheimers Prediction", "Epilepsy Prediction", "Migraine Prediction"])
     ch4 = section("Organ", ["Liver Prediction", "Kidney Disease Prediction"])
     ch5 = section("Infectious", ["Hepatitis Prediction", "Tuberculosis Prediction", "HIV/AIDS Prediction", "Malaria Prediction"])
-    ch6 = section("Cancer", ["Lung Cancer Prediction", "Breast Cancer Prediction", "Colorectal Cancer Prediction", "Prostate Cancer Prediction", "Cervical Cancer Prediction"])
+    ch6 = section("Cancer", ["Lung Cancer Prediction", "Breast Cancer Prediction", "Liver Cancer Prediction", "Colorectal Cancer Prediction", "Prostate Cancer Prediction", "Cervical Cancer Prediction"])
     ch7 = section("Respiratory", ["Asthma Prediction", "COPD Prediction", "Pneumonia Prediction"])
     ch8 = section("Services", ["AI Health Assistant", "Book Appointment", "Set Reminder", "Health Tips"])
 
@@ -2118,6 +2123,259 @@ if selected == 'Breast Cancer Prediction':
         except Exception as e:
             st.error(f"Error in prediction: {str(e)}")
             st.exception(e)
+
+# Liver Cancer Prediction
+if selected == 'Liver Cancer Prediction':
+    st.title("🔬 Liver Cancer Risk Prediction")
+    st.markdown("Comprehensive liver cancer risk assessment based on clinical and lifestyle factors")
+    st.info("📊 Model Accuracy: 94.30% | Binary Classification | 13 Risk Factors | 5,000 Patients Dataset")
+    
+    name = st.text_input("Name:")
+    
+    # Check if model is loaded
+    if "liver_cancer_model" not in loaded_models:
+        st.error("⚠️ Liver Cancer model not loaded. Please ensure the model file exists.")
+    else:
+        model_data = loaded_models["liver_cancer_model"]
+        
+        # Demographics Section
+        st.subheader("📋 Demographics")
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            age = st.number_input("Age", min_value=18, max_value=100, value=55, 
+                                  help="Patient age in years")
+        with col2:
+            gender = st.selectbox("Gender", ["Female", "Male"])
+        with col3:
+            bmi = st.number_input("BMI", min_value=10.0, max_value=50.0, value=25.0, step=0.1,
+                                  help="Body Mass Index (kg/m²)")
+        
+        # Risk Factors Section
+        st.subheader("🚨 Risk Factors")
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            alcohol_consumption = st.selectbox("Alcohol Consumption", 
+                                               ["Never", "Occasional", "Regular"],
+                                               help="Frequency of alcohol consumption")
+            smoking_status = st.selectbox("Smoking Status", 
+                                          ["Never", "Former", "Current"],
+                                          help="Current or past smoking history")
+            diabetes = st.selectbox("Diabetes", [0, 1], 
+                                    format_func=lambda x: "Yes" if x == 1 else "No",
+                                    help="History of diabetes")
+        
+        with col2:
+            hepatitis_b = st.selectbox("Hepatitis B", [0, 1], 
+                                       format_func=lambda x: "Positive" if x == 1 else "Negative",
+                                       help="Hepatitis B virus infection status")
+            hepatitis_c = st.selectbox("Hepatitis C", [0, 1], 
+                                       format_func=lambda x: "Positive" if x == 1 else "Negative",
+                                       help="Hepatitis C virus infection status")
+            cirrhosis_history = st.selectbox("Cirrhosis History", [0, 1], 
+                                             format_func=lambda x: "Yes" if x == 1 else "No",
+                                             help="History of liver cirrhosis")
+        
+        # Clinical Measurements Section
+        st.subheader("🔬 Clinical Measurements")
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            liver_function_score = st.number_input("Liver Function Score", 
+                                                   min_value=0.0, max_value=100.0, value=50.0, step=0.1,
+                                                   help="Composite liver function test score (0-100)")
+            alpha_fetoprotein = st.number_input("Alpha-Fetoprotein (AFP) Level (ng/mL)", 
+                                                min_value=0.0, max_value=500.0, value=10.0, step=0.1,
+                                                help="Tumor marker - elevated levels may indicate liver cancer")
+        
+        with col2:
+            family_history = st.selectbox("Family History of Cancer", [0, 1], 
+                                          format_func=lambda x: "Yes" if x == 1 else "No",
+                                          help="Cancer history in close relatives")
+            physical_activity = st.selectbox("Physical Activity Level", 
+                                             ["Low", "Moderate", "High"],
+                                             help="Regular exercise frequency")
+        
+        # AFP level warning
+        if alpha_fetoprotein > 20:
+            st.warning("⚠️ Elevated AFP levels detected. AFP > 20 ng/mL may warrant further investigation.")
+        if alpha_fetoprotein > 400:
+            st.error("🚨 Very high AFP levels. Immediate medical consultation recommended.")
+        
+        if st.button("Predict Liver Cancer Risk"):
+            try:
+                # Encode categorical variables according to model training
+                # gender: Female=0, Male=1
+                gender_encoded = 0 if gender == "Female" else 1
+                
+                # alcohol_consumption: Never=0, Occasional=1, Regular=2
+                alcohol_map = {"Never": 0, "Occasional": 1, "Regular": 2}
+                alcohol_encoded = alcohol_map[alcohol_consumption]
+                
+                # smoking_status: Current=0, Former=1, Never=2
+                smoking_map = {"Current": 0, "Former": 1, "Never": 2}
+                smoking_encoded = smoking_map[smoking_status]
+                
+                # physical_activity_level: High=0, Low=1, Moderate=2
+                activity_map = {"High": 0, "Low": 1, "Moderate": 2}
+                activity_encoded = activity_map[physical_activity]
+                
+                # Create feature array in correct order
+                # ['age', 'gender', 'bmi', 'alcohol_consumption', 'smoking_status', 
+                #  'hepatitis_b', 'hepatitis_c', 'liver_function_score', 'alpha_fetoprotein_level', 
+                #  'cirrhosis_history', 'family_history_cancer', 'physical_activity_level', 'diabetes']
+                user_input = [
+                    age, gender_encoded, bmi, alcohol_encoded, smoking_encoded,
+                    hepatitis_b, hepatitis_c, liver_function_score, alpha_fetoprotein,
+                    cirrhosis_history, family_history, activity_encoded, diabetes
+                ]
+                
+                # Get model components
+                liver_cancer_clf = model_data['model']
+                liver_scaler = model_data['scaler']
+                numerical_cols = model_data.get('numerical_columns', 
+                    ['age', 'bmi', 'hepatitis_b', 'hepatitis_c', 'liver_function_score', 
+                     'alpha_fetoprotein_level', 'cirrhosis_history', 'family_history_cancer', 'diabetes'])
+                
+                # Scale numerical features (create DataFrame for proper column handling)
+                import pandas as pd
+                feature_cols = model_data.get('feature_columns', 
+                    ['age', 'gender', 'bmi', 'alcohol_consumption', 'smoking_status', 
+                     'hepatitis_b', 'hepatitis_c', 'liver_function_score', 'alpha_fetoprotein_level', 
+                     'cirrhosis_history', 'family_history_cancer', 'physical_activity_level', 'diabetes'])
+                
+                input_df = pd.DataFrame([user_input], columns=feature_cols)
+                input_df[numerical_cols] = liver_scaler.transform(input_df[numerical_cols])
+                
+                # Predict
+                prediction = liver_cancer_clf.predict(input_df)[0]
+                probability = liver_cancer_clf.predict_proba(input_df)[0]
+                
+                # Display results
+                st.subheader("📊 Prediction Results")
+                
+                col1, col2, col3 = st.columns(3)
+                with col1:
+                    st.metric("No Cancer Probability", f"{probability[0]*100:.1f}%")
+                with col2:
+                    st.metric("Cancer Risk", f"{probability[1]*100:.1f}%")
+                with col3:
+                    risk_level = "HIGH" if probability[1] > 0.5 else "MODERATE" if probability[1] > 0.3 else "LOW"
+                    st.metric("Risk Level", risk_level)
+                
+                # Display main result
+                if prediction == 1:
+                    st.error(f"⚠️ {name if name else 'Patient'}, HIGH liver cancer risk detected! Immediate hepatology consultation and imaging studies recommended.")
+                    severity = "high"
+                    
+                    st.markdown("""
+                    ### 🏥 Recommended Actions:
+                    1. **Immediate**: Consult a hepatologist or oncologist
+                    2. **Imaging**: Ultrasound, CT scan, or MRI of the liver
+                    3. **Lab Tests**: Complete liver panel, additional tumor markers
+                    4. **Biopsy**: May be recommended based on imaging results
+                    """)
+                else:
+                    if probability[1] > 0.3:
+                        st.warning(f"⚠️ {name if name else 'Patient'}, MODERATE liver cancer risk. Regular monitoring recommended.")
+                        severity = "medium"
+                    else:
+                        st.success(f"✅ {name if name else 'Patient'}, LOW liver cancer risk. Continue healthy habits and regular check-ups!")
+                        severity = "low"
+                
+                # Risk factor analysis
+                st.subheader("🔑 Risk Factor Analysis")
+                
+                risk_factors = []
+                protective_factors = []
+                
+                if hepatitis_b == 1:
+                    risk_factors.append("🦠 Hepatitis B positive - Major risk factor for liver cancer")
+                if hepatitis_c == 1:
+                    risk_factors.append("🦠 Hepatitis C positive - Significant risk factor")
+                if cirrhosis_history == 1:
+                    risk_factors.append("🔴 Cirrhosis history - Strong predictor of liver cancer")
+                if alpha_fetoprotein > 20:
+                    risk_factors.append(f"📈 Elevated AFP: {alpha_fetoprotein} ng/mL")
+                if alcohol_consumption == "Regular":
+                    risk_factors.append("🍺 Regular alcohol consumption")
+                if smoking_status == "Current":
+                    risk_factors.append("🚬 Current smoker")
+                if diabetes == 1:
+                    risk_factors.append("💉 Diabetes - Associated with increased liver cancer risk")
+                if family_history == 1:
+                    risk_factors.append("👨‍👩‍👧 Family history of cancer")
+                if bmi > 30:
+                    risk_factors.append(f"⚖️ Obesity (BMI: {bmi:.1f})")
+                
+                if smoking_status == "Never":
+                    protective_factors.append("✅ Non-smoker")
+                if alcohol_consumption == "Never":
+                    protective_factors.append("✅ No alcohol consumption")
+                if physical_activity == "High":
+                    protective_factors.append("✅ High physical activity level")
+                if hepatitis_b == 0 and hepatitis_c == 0:
+                    protective_factors.append("✅ No viral hepatitis")
+                if 18.5 <= bmi <= 24.9:
+                    protective_factors.append("✅ Healthy BMI")
+                
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.markdown("**Risk Factors:**")
+                    if risk_factors:
+                        for rf in risk_factors:
+                            st.write(rf)
+                    else:
+                        st.write("No major risk factors identified")
+                
+                with col2:
+                    st.markdown("**Protective Factors:**")
+                    if protective_factors:
+                        for pf in protective_factors:
+                            st.write(pf)
+                    else:
+                        st.write("Consider lifestyle modifications")
+                
+                # Feature importance visualization
+                st.subheader("📈 Key Predictors (Model Feature Importance)")
+                
+                feature_importance = model_data.get('feature_importance', [])
+                if feature_importance:
+                    top_features = sorted(feature_importance, key=lambda x: x['importance'], reverse=True)[:5]
+                    
+                    feature_names = [f['feature'].replace('_', ' ').title() for f in top_features]
+                    importances = [f['importance']*100 for f in top_features]
+                    
+                    import pandas as pd
+                    fi_df = pd.DataFrame({
+                        'Feature': feature_names,
+                        'Importance (%)': importances
+                    })
+                    st.bar_chart(fi_df.set_index('Feature'))
+                
+                # AI Recommendations
+                if name:
+                    with st.spinner("Generating personalized liver health recommendations..."):
+                        patient_info = {
+                            "name": name,
+                            "age": age,
+                            "risk_level": risk_level,
+                            "afp_level": alpha_fetoprotein,
+                            "hepatitis_status": "HBV+" if hepatitis_b else ("HCV+" if hepatitis_c else "Negative"),
+                            "cirrhosis": "Yes" if cirrhosis_history else "No",
+                            "risk_factors": risk_factors
+                        }
+                        
+                        recommendations = get_health_recommendations("Liver Cancer", severity, patient_info)
+                        if recommendations:
+                            display_recommendations(recommendations)
+                            display_health_tips_dynamic("Liver Cancer", severity.lower())
+                
+            except Exception as e:
+                st.error(f"Error in prediction: {str(e)}")
+                import traceback
+                st.code(traceback.format_exc())
 
 # Kidney Disease Prediction
 if selected == 'Kidney Disease Prediction':
