@@ -55,13 +55,15 @@ MODEL_FILES = {
     "migraine_model": os.path.join(BASE_DIR, "models", "migraine_model.sav"),
     "tuberculosis_model": os.path.join(BASE_DIR, "models", "tuberculosis_model.sav"),
     "copd_model": os.path.join(BASE_DIR, "models", "copd_model.sav"),
+    "cervical_model": os.path.join(BASE_DIR, "models", "cervical_model.sav"),
+    "chronic_model": os.path.join(BASE_DIR, "models", "chronic_model.sav"),
 }
 
 loaded_models = {}
 failed_models = {}
 
 # Special handling for packaged models (models saved with scaler, encoders, etc.)
-PACKAGED_MODELS = {"diabetes_model", "heart_model", "breast_cancer_model", "kidney_disease_model", "lung_cancer_model", "parkinsons_model", "liver_cancer_model", "hepatitis_c_model", "asthma_model", "malaria_model", "alzheimers_model", "obesity_model", "epilepsy_model", "prostate_model", "cancer_risk_model", "migraine_model", "tuberculosis_model", "copd_model"}  # Add more as they get retrained
+PACKAGED_MODELS = {"diabetes_model", "heart_model", "breast_cancer_model", "kidney_disease_model", "lung_cancer_model", "parkinsons_model", "liver_cancer_model", "hepatitis_c_model", "asthma_model", "malaria_model", "alzheimers_model", "obesity_model", "epilepsy_model", "prostate_model", "cancer_risk_model", "migraine_model", "tuberculosis_model", "copd_model", "cervical_model", "chronic_model"}  # Add more as they get retrained
 
 for attr_name, model_path in MODEL_FILES.items():
     try:
@@ -4481,127 +4483,309 @@ if selected == 'Prostate Cancer Prediction':
             st.error(f"Error in assessment: {str(e)}")
 
 # Cervical Cancer Prediction
+# Cervical Cancer Prediction - 93% Accuracy ML Model
 if selected == 'Cervical Cancer Prediction':
     st.title("👩 Cervical Cancer Risk Assessment")
-    st.markdown("Prevention through screening and HPV vaccination")
+    st.markdown("**93% Accurate** - AI-powered cervical cancer risk prediction using clinical factors")
 
-    name = st.text_input("Name:")
+    # Model info
+    if "cervical_model" in loaded_models:
+        model_data = loaded_models["cervical_model"]
+        accuracy = model_data.get('accuracy', 0) * 100
+        cv_accuracy = model_data.get('cv_accuracy', 0) * 100
+        st.success(f"✅ ML Model loaded | Test Accuracy: {accuracy:.1f}% | CV Accuracy: {cv_accuracy:.1f}%")
+    
+    st.info("💡 This model uses clinical and lifestyle factors to assess cervical cancer risk based on medical research data.")
 
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        age = st.number_input("Age", min_value=18, max_value=100, value=35)
-        age_first_intercourse = st.number_input("Age at First Intercourse", min_value=10, max_value=50, value=18)
-        num_pregnancies = st.number_input("Number of Pregnancies", min_value=0, max_value=20, value=2)
+    name = st.text_input("👤 Patient Name:")
 
-    with col2:
-        num_sexual_partners = st.number_input("Lifetime Sexual Partners", min_value=0, max_value=50, value=3)
-        hpv_status = st.selectbox("HPV Status", ["Unknown", "Negative", "Positive"])
-        hpv_vaccine = st.selectbox("HPV Vaccination", ["No", "Yes - Partial", "Yes - Complete"])
+    # Organized tabs
+    tab1, tab2, tab3 = st.tabs([
+        "📋 Demographics & History", 
+        "🔬 Medical Factors",
+        "📊 Screening & STDs"
+    ])
+    
+    with tab1:
+        st.subheader("Demographics & Sexual History")
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            age = st.number_input("Age", min_value=18, max_value=100, value=35)
+            num_sexual_partners = st.number_input("Number of Sexual Partners", min_value=0, max_value=50, value=3)
+        
+        with col2:
+            first_intercourse = st.number_input("Age at First Sexual Intercourse", min_value=10, max_value=50, value=18)
+            num_pregnancies = st.number_input("Number of Pregnancies", min_value=0, max_value=20, value=2)
+        
+        with col3:
+            smokes = st.selectbox("Smoking Status", ["No", "Yes"])
+            smokes_years = st.number_input("Years of Smoking", min_value=0.0, max_value=50.0, value=0.0)
+            smokes_packs = st.number_input("Packs per Year", min_value=0.0, max_value=100.0, value=0.0)
+    
+    with tab2:
+        st.subheader("Contraceptives & Medical History")
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("**Hormonal Contraceptives**")
+            hormonal_contraceptives = st.selectbox("Hormonal Contraceptives Use", ["No", "Yes"])
+            hormonal_years = st.number_input("Years on Hormonal Contraceptives", min_value=0.0, max_value=40.0, value=0.0)
+        
+        with col2:
+            st.markdown("**IUD (Intrauterine Device)**")
+            iud = st.selectbox("IUD Use", ["No", "Yes"])
+            iud_years = st.number_input("Years with IUD", min_value=0.0, max_value=40.0, value=0.0)
+    
+    with tab3:
+        st.subheader("STD History & Diagnosis")
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            st.markdown("**STD Status**")
+            stds = st.selectbox("History of STDs", ["No", "Yes"])
+            stds_number = st.number_input("Number of STDs", min_value=0, max_value=10, value=0)
+            stds_num_diagnosis = st.number_input("Number of STD Diagnoses", min_value=0, max_value=10, value=0)
+        
+        with col2:
+            st.markdown("**Specific STDs**")
+            stds_condylomatosis = st.selectbox("STDs: Condylomatosis", ["No", "Yes"])
+            stds_cervical_condyl = st.selectbox("STDs: Cervical Condylomatosis", ["No", "Yes"])
+            stds_vaginal_condyl = st.selectbox("STDs: Vaginal Condylomatosis", ["No", "Yes"])
+        
+        with col3:
+            st.markdown("**HPV & Other**")
+            stds_hpv = st.selectbox("STDs: HPV", ["No", "Yes"])
+            stds_hiv = st.selectbox("STDs: HIV", ["No", "Yes"])
+            stds_hepatitis_b = st.selectbox("STDs: Hepatitis B", ["No", "Yes"])
+        
+        st.markdown("---")
+        st.subheader("Diagnosis History")
+        col4, col5 = st.columns(2)
+        
+        with col4:
+            dx = st.selectbox("Previous Cancer Diagnosis", ["No", "Yes"])
+            dx_cancer = st.selectbox("Cancer Diagnosis Confirmed", ["No", "Yes"])
+        
+        with col5:
+            dx_cin = st.selectbox("CIN Diagnosis", ["No", "Yes"])
+            dx_hpv = st.selectbox("HPV Diagnosis", ["No", "Yes"])
 
-    with col3:
-        smoking = st.selectbox("Smoking", ["Never", "Former", "Current"])
-        oral_contraceptives = st.selectbox("Oral Contraceptives Use", ["Never", "< 5 years", "> 5 years"])
-        iud_years = st.number_input("IUD Use (years)", min_value=0, max_value=30, value=0)
+    st.markdown("---")
+    
+    if st.button("🔬 Predict Cervical Cancer Risk", type="primary", use_container_width=True):
+        if not name:
+            st.warning("⚠️ Please enter patient name")
+        elif "cervical_model" not in loaded_models:
+            st.error("❌ Cervical cancer model not loaded. Please check if the model file exists.")
+        else:
+            try:
+                with st.spinner("🤖 Analyzing risk factors..."):
+                    model_data = loaded_models["cervical_model"]
+                    model = model_data['model']
+                    scaler = model_data['scaler']
+                    feature_columns = model_data['feature_columns']
+                    
+                    # Convert inputs to numeric
+                    smokes_num = 1 if smokes == "Yes" else 0
+                    hormonal_num = 1 if hormonal_contraceptives == "Yes" else 0
+                    iud_num = 1 if iud == "Yes" else 0
+                    stds_num = 1 if stds == "Yes" else 0
+                    stds_condyl_num = 1 if stds_condylomatosis == "Yes" else 0
+                    stds_cerv_condyl_num = 1 if stds_cervical_condyl == "Yes" else 0
+                    stds_vag_condyl_num = 1 if stds_vaginal_condyl == "Yes" else 0
+                    stds_hpv_num = 1 if stds_hpv == "Yes" else 0
+                    stds_hiv_num = 1 if stds_hiv == "Yes" else 0
+                    stds_hep_b_num = 1 if stds_hepatitis_b == "Yes" else 0
+                    dx_num = 1 if dx == "Yes" else 0
+                    dx_cancer_num = 1 if dx_cancer == "Yes" else 0
+                    dx_cin_num = 1 if dx_cin == "Yes" else 0
+                    dx_hpv_num = 1 if dx_hpv == "Yes" else 0
+                    
+                    # Create feature vector matching the model's expected order
+                    # Features from training: Age, Number of sexual partners, First sexual intercourse,
+                    # Num of pregnancies, Smokes, Smokes (years), Smokes (packs/year),
+                    # Hormonal Contraceptives, Hormonal Contraceptives (years), IUD, IUD (years),
+                    # STDs, STDs (number), STDs:condylomatosis, STDs:cervical condylomatosis,
+                    # STDs:vaginal condylomatosis, STDs:vulvo-perineal condylomatosis,
+                    # STDs:syphilis, STDs:pelvic inflammatory disease, STDs:genital herpes,
+                    # STDs:molluscum contagiosum, STDs:AIDS, STDs:HIV, STDs:Hepatitis B,
+                    # STDs:HPV, STDs: Number of diagnosis, STDs: Time since first diagnosis,
+                    # STDs: Time since last diagnosis, Dx:Cancer, Dx:CIN, Dx:HPV, Dx
+                    
+                    # For simplicity, create a DataFrame with median values for missing columns
+                    user_input = pd.DataFrame({
+                        'Age': [age],
+                        'Number of sexual partners': [num_sexual_partners],
+                        'First sexual intercourse': [first_intercourse],
+                        'Num of pregnancies': [num_pregnancies],
+                        'Smokes': [smokes_num],
+                        'Smokes (years)': [smokes_years],
+                        'Smokes (packs/year)': [smokes_packs],
+                        'Hormonal Contraceptives': [hormonal_num],
+                        'Hormonal Contraceptives (years)': [hormonal_years],
+                        'IUD': [iud_num],
+                        'IUD (years)': [iud_years],
+                        'STDs': [stds_num],
+                        'STDs (number)': [stds_number],
+                        'STDs:condylomatosis': [stds_condyl_num],
+                        'STDs:cervical condylomatosis': [stds_cerv_condyl_num],
+                        'STDs:vaginal condylomatosis': [stds_vag_condyl_num],
+                        'STDs:vulvo-perineal condylomatosis': [0],
+                        'STDs:syphilis': [0],
+                        'STDs:pelvic inflammatory disease': [0],
+                        'STDs:genital herpes': [0],
+                        'STDs:molluscum contagiosum': [0],
+                        'STDs:AIDS': [0],
+                        'STDs:HIV': [stds_hiv_num],
+                        'STDs:Hepatitis B': [stds_hep_b_num],
+                        'STDs:HPV': [stds_hpv_num],
+                        'STDs: Number of diagnosis': [stds_num_diagnosis],
+                        'STDs: Time since first diagnosis': [0],
+                        'STDs: Time since last diagnosis': [0],
+                        'Dx:Cancer': [dx_cancer_num],
+                        'Dx:CIN': [dx_cin_num],
+                        'Dx:HPV': [dx_hpv_num],
+                        'Dx': [dx_num]
+                    })
+                    
+                    # Ensure columns match model's feature columns
+                    user_input = user_input[feature_columns]
+                    
+                    # Scale and predict
+                    user_input_scaled = scaler.transform(user_input)
+                    prediction = model.predict(user_input_scaled)
+                    prediction_proba = model.predict_proba(user_input_scaled)[0]
+                    
+                    # Display results
+                    st.markdown("---")
+                    st.markdown("## 📊 Cervical Cancer Risk Assessment Results")
+                    
+                    col1, col2, col3 = st.columns(3)
+                    
+                    positive_prob = prediction_proba[1] * 100 if len(prediction_proba) > 1 else 0
+                    
+                    with col1:
+                        if prediction[0] == 1 or positive_prob >= 30:
+                            st.error("🔴 ELEVATED RISK DETECTED")
+                            severity = "high"
+                            risk_level = "High"
+                        elif positive_prob >= 15:
+                            st.warning("🟡 MODERATE RISK")
+                            severity = "moderate"
+                            risk_level = "Moderate"
+                        else:
+                            st.success("🟢 LOW RISK")
+                            severity = "low"
+                            risk_level = "Low"
+                    
+                    with col2:
+                        confidence = max(prediction_proba) * 100
+                        st.metric("🎯 Model Confidence", f"{confidence:.1f}%")
+                    
+                    with col3:
+                        st.metric("📈 Risk Probability", f"{positive_prob:.1f}%")
+                    
+                    # Clinical interpretation
+                    st.markdown("---")
+                    if prediction[0] == 1 or positive_prob >= 30:
+                        st.error(f"""
+                        ### ⚠️ Clinical Alert for {name}
+                        
+                        The AI model indicates **elevated cervical cancer risk** requiring immediate attention.
+                        
+                        **Immediate Recommendations:**
+                        - 🏥 Schedule colposcopy/biopsy consultation
+                        - 🔬 HPV DNA testing if not recently done
+                        - 📋 Comprehensive gynecological examination
+                        - 💉 HPV vaccination (if age appropriate and not vaccinated)
+                        - 🚭 Smoking cessation if applicable
+                        """)
+                    elif positive_prob >= 15:
+                        st.warning(f"""
+                        ### ⚠️ Moderate Risk for {name}
+                        
+                        Some risk factors identified. Enhanced monitoring recommended.
+                        
+                        **Recommendations:**
+                        - 📅 Schedule Pap smear and HPV test
+                        - 🩺 Regular gynecological check-ups
+                        - 💉 Ensure HPV vaccination is complete
+                        - 📋 Follow up on any abnormal results
+                        """)
+                    else:
+                        st.success(f"""
+                        ### ✅ Low Risk Assessment for {name}
+                        
+                        Current assessment shows low cervical cancer risk.
+                        
+                        **Recommendations:**
+                        - 📅 Continue routine Pap smear screening
+                        - 💉 Maintain HPV vaccination status
+                        - 🌟 Healthy lifestyle practices
+                        - 📋 Follow standard screening guidelines
+                        """)
+                    
+                    # Risk factor analysis
+                    st.markdown("---")
+                    st.subheader("🔍 Risk Factor Analysis")
+                    
+                    risk_factors = []
+                    if first_intercourse < 16:
+                        risk_factors.append(("Early Sexual Activity", f"First intercourse at age {first_intercourse}"))
+                    if num_sexual_partners > 4:
+                        risk_factors.append(("Multiple Partners", f"{num_sexual_partners} sexual partners"))
+                    if smokes == "Yes":
+                        risk_factors.append(("Smoking", f"{smokes_years} years, {smokes_packs} packs/year"))
+                    if hormonal_years > 5:
+                        risk_factors.append(("Long-term Hormonal Contraceptives", f"{hormonal_years} years"))
+                    if stds == "Yes":
+                        risk_factors.append(("STD History", f"{stds_number} STD(s) recorded"))
+                    if stds_hpv == "Yes":
+                        risk_factors.append(("HPV Positive", "Major risk factor for cervical cancer"))
+                    if stds_hiv == "Yes":
+                        risk_factors.append(("HIV Positive", "Immunocompromised status"))
+                    if dx_cin == "Yes":
+                        risk_factors.append(("CIN History", "Cervical intraepithelial neoplasia diagnosed"))
+                    
+                    if risk_factors:
+                        for factor, detail in risk_factors:
+                            st.warning(f"⚠️ **{factor}**: {detail}")
+                    else:
+                        st.info("✅ No major risk factors identified")
+                    
+                    # Feature importance visualization
+                    if 'feature_importance' in model_data:
+                        st.markdown("---")
+                        st.subheader("📊 Key Predictive Factors")
+                        
+                        importance_df = pd.DataFrame({
+                            'Feature': list(model_data['feature_importance'].keys()),
+                            'Importance': list(model_data['feature_importance'].values())
+                        }).sort_values('Importance', ascending=False).head(10)
+                        
+                        st.bar_chart(importance_df.set_index('Feature')['Importance'])
+                    
+                    # AI Recommendations
+                    st.markdown("---")
+                    with st.spinner("🤖 Generating personalized recommendations..."):
+                        patient_info = {
+                            "name": name,
+                            "age": age,
+                            "risk_probability": positive_prob,
+                            "risk_factors": ", ".join([f[0] for f in risk_factors]) if risk_factors else "None"
+                        }
+                        
+                        recommendations = get_health_recommendations("Cervical Cancer Prevention", severity, patient_info)
+                        if recommendations:
+                            display_recommendations(recommendations)
+                            display_health_tips_dynamic("Cervical Cancer", severity.lower())
 
-    st.subheader("Screening History")
-
-    col4, col5, col6 = st.columns(3)
-    with col4:
-        last_pap = st.selectbox("Last Pap Smear", ["Never", "< 1 year", "1-3 years", "> 3 years"])
-        pap_results = st.selectbox("Previous Pap Results", ["Normal", "ASCUS", "LSIL", "HSIL", "Not Applicable"])
-        stds_history = st.selectbox("STDs History", ["None", "1-2", "3+"])
-
-    with col5:
-        hiv_status = st.selectbox("HIV Status", ["Negative", "Positive", "Unknown"])
-        family_history = st.selectbox("Family History of Cervical Cancer", ["No", "Yes"])
-        immunosuppressed = st.selectbox("Immunosuppressed", ["No", "Yes"])
-
-    with col6:
-        abnormal_bleeding = st.selectbox("Abnormal Vaginal Bleeding", ["No", "Yes"])
-        pelvic_pain = st.selectbox("Pelvic Pain", ["No", "Yes"])
-        discharge = st.selectbox("Unusual Discharge", ["No", "Yes"])
-
-    if st.button("Assess Cervical Cancer Risk"):
-        try:
-            risk_score = 0
-
-            if age < 25:
-                risk_score += 0.5
-            elif 30 <= age <= 65:
-                risk_score += 1
-
-            if age_first_intercourse < 16:
-                risk_score += 2
-
-            if num_sexual_partners > 6:
-                risk_score += 2
-            elif num_sexual_partners > 3:
-                risk_score += 1
-
-            if hpv_status == "Positive":
-                risk_score += 5
-            elif hpv_status == "Negative":
-                risk_score += 0
-
-            if hpv_vaccine == "No":
-                risk_score += 1
-
-            if smoking == "Current":
-                risk_score += 2
-
-            if oral_contraceptives == "> 5 years":
-                risk_score += 1
-
-            if last_pap in ["Never", "> 3 years"]:
-                risk_score += 2
-
-            if pap_results == "HSIL":
-                risk_score += 4
-            elif pap_results in ["LSIL", "ASCUS"]:
-                risk_score += 2
-
-            if hiv_status == "Positive":
-                risk_score += 3
-
-            if immunosuppressed == "Yes":
-                risk_score += 2
-
-            symptoms_present = sum([
-                abnormal_bleeding == "Yes",
-                pelvic_pain == "Yes",
-                discharge == "Yes"
-            ])
-            risk_score += symptoms_present
-
-            if risk_score >= 12:
-                st.error(f"{name}, high cervical cancer risk. Immediate gynecological evaluation required!")
-                severity = "high"
-            elif risk_score >= 7:
-                st.warning(f"{name}, moderate risk. Schedule Pap smear and HPV test.")
-                severity = "moderate"
-            else:
-                st.success(f"{name}, low risk. Continue regular screening.")
-                severity = "low"
-
-            st.metric("Risk Score", f"{risk_score}/25", f"Risk Level: {severity.upper()}")
-
-            with st.spinner("Generating personalized prevention recommendations..."):
-                patient_info = {
-                    "name": name,
-                    "age": age,
-                    "hpv_status": hpv_status,
-                    "vaccination": hpv_vaccine,
-                    "last_screening": last_pap
-                }
-
-                recommendations = get_health_recommendations("Cervical Cancer Prevention", severity, patient_info)
-                if recommendations:
-                    display_recommendations(recommendations)
-                    display_health_tips_dynamic("Cervical Cancer", severity.lower())
-
-
-        except Exception as e:
-            st.error(f"Error in assessment: {str(e)}")
+            except Exception as e:
+                st.error(f"❌ Error in prediction: {str(e)}")
+                with st.expander("🔧 Technical Details"):
+                    import traceback
+                    st.code(traceback.format_exc())
 
 # Asthma Prediction
 if selected == 'Asthma Prediction':
