@@ -2821,11 +2821,100 @@ if selected == '🔍 General Disease Prediction':
     st.title("🔍 General Disease Prediction")
     st.markdown("AI-powered disease prediction based on symptoms - **41 diseases, 132 symptoms**")
     
-    # Model accuracy info
+    # Model accuracy info and metrics display
     if "general_disease_model" in loaded_models:
         model_data = loaded_models["general_disease_model"]
         if isinstance(model_data, dict) and "accuracy" in model_data:
             st.success(f"✅ Model loaded successfully | Accuracy: {model_data['accuracy']:.2%}")
+            
+            # Model Performance Metrics Section
+            with st.expander("📊 **Model Performance Metrics & Features**", expanded=False):
+                # Metrics columns
+                col_m1, col_m2, col_m3 = st.columns(3)
+                
+                with col_m1:
+                    st.markdown("##### 🎯 Classification Metrics")
+                    metrics_df = pd.DataFrame({
+                        'Metric': ['Accuracy', 'Precision', 'Recall', 'F1-Score', 'ROC-AUC'],
+                        'Score': [
+                            f"{model_data.get('accuracy', 0)*100:.2f}%",
+                            f"{model_data.get('precision_weighted', 0)*100:.2f}%",
+                            f"{model_data.get('recall_weighted', 0)*100:.2f}%",
+                            f"{model_data.get('f1_weighted', 0)*100:.2f}%",
+                            f"{model_data.get('roc_auc_weighted', 0)*100:.2f}%"
+                        ]
+                    })
+                    st.dataframe(metrics_df, hide_index=True, use_container_width=True)
+                
+                with col_m2:
+                    st.markdown("##### 🔧 Model Configuration")
+                    config_df = pd.DataFrame({
+                        'Parameter': ['Model Type', 'Estimators', 'Features', 'Classes', 'CV Score'],
+                        'Value': [
+                            model_data.get('model_type', 'Random Forest'),
+                            str(model_data.get('n_estimators', 200)),
+                            str(model_data.get('n_features', 132)),
+                            str(model_data.get('n_classes', 41)),
+                            f"{model_data.get('cv_score', 0)*100:.2f}%"
+                        ]
+                    })
+                    st.dataframe(config_df, hide_index=True, use_container_width=True)
+                
+                with col_m3:
+                    st.markdown("##### 📈 Additional Metrics")
+                    add_df = pd.DataFrame({
+                        'Metric': ['Precision (Macro)', 'Recall (Macro)', 'F1 (Macro)', 'ROC-AUC (Macro)'],
+                        'Score': [
+                            f"{model_data.get('precision_macro', 0)*100:.2f}%",
+                            f"{model_data.get('recall_macro', 0)*100:.2f}%",
+                            f"{model_data.get('f1_macro', 0)*100:.2f}%",
+                            f"{model_data.get('roc_auc_macro', 0)*100:.2f}%"
+                        ]
+                    })
+                    st.dataframe(add_df, hide_index=True, use_container_width=True)
+                
+                st.markdown("---")
+                
+                # Top Features Section
+                st.markdown("##### 🏆 Top 20 Most Important Symptoms (Features)")
+                top_features = model_data.get('feature_importance', [])
+                if top_features:
+                    # Create two columns for features
+                    feat_col1, feat_col2 = st.columns(2)
+                    
+                    with feat_col1:
+                        features_df1 = pd.DataFrame(top_features[:10])
+                        features_df1['symptom'] = features_df1['symptom'].str.replace('_', ' ').str.title()
+                        features_df1['importance'] = features_df1['importance'].apply(lambda x: f"{x*100:.2f}%")
+                        features_df1.columns = ['Symptom', 'Importance']
+                        features_df1.index = range(1, 11)
+                        st.dataframe(features_df1, use_container_width=True)
+                    
+                    with feat_col2:
+                        features_df2 = pd.DataFrame(top_features[10:20])
+                        features_df2['symptom'] = features_df2['symptom'].str.replace('_', ' ').str.title()
+                        features_df2['importance'] = features_df2['importance'].apply(lambda x: f"{x*100:.2f}%")
+                        features_df2.columns = ['Symptom', 'Importance']
+                        features_df2.index = range(11, 21)
+                        st.dataframe(features_df2, use_container_width=True)
+                    
+                    # Feature importance bar chart
+                    st.markdown("##### 📊 Feature Importance Visualization")
+                    chart_data = pd.DataFrame(top_features[:10])
+                    chart_data['symptom'] = chart_data['symptom'].str.replace('_', ' ').str.title()
+                    st.bar_chart(chart_data.set_index('symptom')['importance'])
+                
+                st.markdown("---")
+                
+                # Diseases covered
+                st.markdown("##### 🏥 Diseases Covered (41 conditions)")
+                diseases = model_data.get('diseases', [])
+                if diseases:
+                    # Display in 4 columns
+                    d_cols = st.columns(4)
+                    for i, disease in enumerate(diseases):
+                        with d_cols[i % 4]:
+                            st.write(f"• {disease}")
     
     st.info("💡 Select your symptoms from the list below. The AI will predict possible diseases based on your symptoms.")
     
