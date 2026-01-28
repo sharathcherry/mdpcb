@@ -1020,6 +1020,8 @@ with st.sidebar:
         "Book Appointment": "📅",
         "Set Reminder": "⏰",
         "Health Tips": "💡",
+        # Analytics
+        "Model Metrics": "📈",
     }
 
     def section(label, options):
@@ -1136,6 +1138,262 @@ if selected == 'Home':
     
     st.markdown("---")
     st.info("💡 **Tip:** Start with the General Disease Prediction for symptom-based analysis or choose a specific disease category from the menu.")
+
+# Model Metrics Page
+if selected == 'Model Metrics':
+    st.title("📈 Model Performance Metrics")
+    st.markdown("Comprehensive performance analysis of all disease prediction models")
+    
+    # Model name mappings for display
+    MODEL_DISPLAY_NAMES = {
+        "diabetes_model": "🩸 Diabetes Prediction",
+        "heart_model": "❤️ Heart Disease Prediction",
+        "breast_cancer_model": "🎗️ Breast Cancer Prediction",
+        "kidney_disease_model": "🫘 Kidney Disease Prediction",
+        "lung_cancer_model": "🌬️ Lung Cancer Prediction",
+        "parkinsons_model": "🧠 Parkinson's Prediction",
+        "liver_cancer_model": "🔬 Liver Cancer Prediction",
+        "hepatitis_c_model": "🧪 Hepatitis Prediction",
+        "asthma_model": "🌫️ Asthma Prediction",
+        "malaria_model": "🦟 Malaria Prediction",
+        "alzheimers_model": "🧩 Alzheimer's Prediction",
+        "obesity_model": "⚖️ Obesity Prediction",
+        "epilepsy_model": "⚡ Epilepsy Prediction",
+        "prostate_model": "🧫 Prostate Cancer Prediction",
+        "cancer_risk_model": "🎯 Cancer Risk Assessment",
+        "migraine_model": "💥 Migraine Prediction",
+        "tuberculosis_model": "🫁 Tuberculosis Prediction",
+        "copd_model": "😮‍💨 COPD Prediction",
+        "cervical_model": "🧫 Cervical Cancer Prediction",
+        "chronic_model": "🫘 Chronic Kidney Disease",
+        "liver_disease_model": "🧪 Liver Disease Prediction",
+        "pneumonia_model": "🫁 Pneumonia Prediction",
+        "general_disease_model": "🔍 General Disease Prediction"
+    }
+    
+    # Summary statistics
+    total_models = len(loaded_models)
+    models_with_accuracy = sum(1 for m in loaded_models.values() if isinstance(m, dict) and 'accuracy' in m)
+    
+    col_sum1, col_sum2, col_sum3, col_sum4 = st.columns(4)
+    with col_sum1:
+        st.metric("Total Models", total_models)
+    with col_sum2:
+        st.metric("Models with Metrics", models_with_accuracy)
+    with col_sum3:
+        avg_accuracy = np.mean([m.get('accuracy', 0) for m in loaded_models.values() if isinstance(m, dict) and 'accuracy' in m]) if models_with_accuracy > 0 else 0
+        st.metric("Avg Accuracy", f"{avg_accuracy*100:.1f}%")
+    with col_sum4:
+        st.metric("Failed Models", len(failed_models))
+    
+    st.markdown("---")
+    
+    # Model selector
+    model_options = list(loaded_models.keys())
+    selected_model = st.selectbox(
+        "Select a model to view detailed metrics:",
+        model_options,
+        format_func=lambda x: MODEL_DISPLAY_NAMES.get(x, x.replace('_', ' ').title())
+    )
+    
+    if selected_model and selected_model in loaded_models:
+        model_data = loaded_models[selected_model]
+        display_name = MODEL_DISPLAY_NAMES.get(selected_model, selected_model.replace('_', ' ').title())
+        
+        st.subheader(f"{display_name}")
+        
+        if isinstance(model_data, dict):
+            # Check what metrics are available
+            has_detailed_metrics = 'precision_weighted' in model_data
+            
+            # Main metrics
+            col_m1, col_m2 = st.columns(2)
+            
+            with col_m1:
+                st.markdown("#### 🎯 Classification Metrics")
+                
+                if has_detailed_metrics:
+                    metrics_data = {
+                        'Metric': ['Accuracy', 'Precision (Weighted)', 'Recall (Weighted)', 'F1-Score (Weighted)', 'ROC-AUC (Weighted)'],
+                        'Score': [
+                            f"{model_data.get('accuracy', 0)*100:.2f}%",
+                            f"{model_data.get('precision_weighted', 0)*100:.2f}%",
+                            f"{model_data.get('recall_weighted', 0)*100:.2f}%",
+                            f"{model_data.get('f1_weighted', 0)*100:.2f}%",
+                            f"{model_data.get('roc_auc_weighted', 0)*100:.2f}%"
+                        ]
+                    }
+                else:
+                    # Basic metrics for models without detailed metrics
+                    metrics_data = {
+                        'Metric': ['Accuracy', 'CV Score'],
+                        'Score': [
+                            f"{model_data.get('accuracy', 0)*100:.2f}%" if model_data.get('accuracy') else "N/A",
+                            f"{model_data.get('cv_score', 0)*100:.2f}%" if model_data.get('cv_score') else "N/A"
+                        ]
+                    }
+                
+                st.dataframe(pd.DataFrame(metrics_data), hide_index=True, use_container_width=True)
+                
+                # Additional macro metrics if available
+                if has_detailed_metrics:
+                    st.markdown("#### 📊 Macro Metrics")
+                    macro_data = {
+                        'Metric': ['Precision (Macro)', 'Recall (Macro)', 'F1-Score (Macro)', 'ROC-AUC (Macro)'],
+                        'Score': [
+                            f"{model_data.get('precision_macro', 0)*100:.2f}%",
+                            f"{model_data.get('recall_macro', 0)*100:.2f}%",
+                            f"{model_data.get('f1_macro', 0)*100:.2f}%",
+                            f"{model_data.get('roc_auc_macro', 0)*100:.2f}%"
+                        ]
+                    }
+                    st.dataframe(pd.DataFrame(macro_data), hide_index=True, use_container_width=True)
+            
+            with col_m2:
+                st.markdown("#### 🔧 Model Configuration")
+                config_data = {
+                    'Parameter': [],
+                    'Value': []
+                }
+                
+                if model_data.get('model_type'):
+                    config_data['Parameter'].append('Model Type')
+                    config_data['Value'].append(model_data.get('model_type'))
+                if model_data.get('n_estimators'):
+                    config_data['Parameter'].append('Estimators')
+                    config_data['Value'].append(str(model_data.get('n_estimators')))
+                if model_data.get('n_features'):
+                    config_data['Parameter'].append('Features')
+                    config_data['Value'].append(str(model_data.get('n_features')))
+                if model_data.get('n_classes'):
+                    config_data['Parameter'].append('Classes')
+                    config_data['Value'].append(str(model_data.get('n_classes')))
+                if model_data.get('cv_score'):
+                    config_data['Parameter'].append('CV Score')
+                    config_data['Value'].append(f"{model_data.get('cv_score')*100:.2f}%")
+                if model_data.get('description'):
+                    config_data['Parameter'].append('Description')
+                    config_data['Value'].append(model_data.get('description'))
+                
+                if config_data['Parameter']:
+                    st.dataframe(pd.DataFrame(config_data), hide_index=True, use_container_width=True)
+                else:
+                    st.info("Model configuration details not available.")
+                
+                # Feature columns info
+                if 'feature_columns' in model_data or 'symptom_columns' in model_data:
+                    feature_cols = model_data.get('feature_columns') or model_data.get('symptom_columns', [])
+                    st.markdown(f"#### 📝 Total Features: {len(feature_cols)}")
+            
+            st.markdown("---")
+            
+            # Feature Importance Section
+            st.markdown("#### 🏆 Feature Importance")
+            
+            feature_importance = model_data.get('feature_importance', [])
+            
+            if feature_importance and isinstance(feature_importance, list) and len(feature_importance) > 0:
+                # Check if it's the new format (list of dicts) or old format
+                if isinstance(feature_importance[0], dict):
+                    # New format
+                    feat_col1, feat_col2 = st.columns(2)
+                    
+                    with feat_col1:
+                        st.markdown("**Top 10 Features**")
+                        top_10 = feature_importance[:10]
+                        feat_df1 = pd.DataFrame(top_10)
+                        if 'symptom' in feat_df1.columns:
+                            feat_df1['symptom'] = feat_df1['symptom'].str.replace('_', ' ').str.title()
+                            feat_df1.columns = ['Feature', 'Importance']
+                        elif 'feature' in feat_df1.columns:
+                            feat_df1['feature'] = feat_df1['feature'].str.replace('_', ' ').str.title()
+                            feat_df1.columns = ['Feature', 'Importance']
+                        feat_df1['Importance'] = feat_df1['Importance'].apply(lambda x: f"{x*100:.2f}%" if isinstance(x, (int, float)) else x)
+                        feat_df1.index = range(1, len(feat_df1) + 1)
+                        st.dataframe(feat_df1, use_container_width=True)
+                    
+                    with feat_col2:
+                        if len(feature_importance) > 10:
+                            st.markdown("**Features 11-20**")
+                            top_20 = feature_importance[10:20]
+                            feat_df2 = pd.DataFrame(top_20)
+                            if 'symptom' in feat_df2.columns:
+                                feat_df2['symptom'] = feat_df2['symptom'].str.replace('_', ' ').str.title()
+                                feat_df2.columns = ['Feature', 'Importance']
+                            elif 'feature' in feat_df2.columns:
+                                feat_df2['feature'] = feat_df2['feature'].str.replace('_', ' ').str.title()
+                                feat_df2.columns = ['Feature', 'Importance']
+                            feat_df2['Importance'] = feat_df2['Importance'].apply(lambda x: f"{x*100:.2f}%" if isinstance(x, (int, float)) else x)
+                            feat_df2.index = range(11, 11 + len(feat_df2))
+                            st.dataframe(feat_df2, use_container_width=True)
+                    
+                    # Bar chart visualization
+                    st.markdown("**Feature Importance Visualization**")
+                    chart_df = pd.DataFrame(feature_importance[:10])
+                    if 'symptom' in chart_df.columns:
+                        chart_df['symptom'] = chart_df['symptom'].str.replace('_', ' ').str.title()
+                        chart_df = chart_df.rename(columns={'symptom': 'Feature', 'importance': 'Importance'})
+                    elif 'feature' in chart_df.columns:
+                        chart_df['feature'] = chart_df['feature'].str.replace('_', ' ').str.title()
+                        chart_df = chart_df.rename(columns={'feature': 'Feature', 'importance': 'Importance'})
+                    st.bar_chart(chart_df.set_index('Feature')['Importance'])
+                    
+                else:
+                    # Old format (just importance values)
+                    feature_cols = model_data.get('feature_columns') or model_data.get('symptom_columns', [])
+                    if len(feature_cols) == len(feature_importance):
+                        feat_df = pd.DataFrame({
+                            'Feature': [f.replace('_', ' ').title() for f in feature_cols[:20]],
+                            'Importance': [f"{imp*100:.2f}%" for imp in feature_importance[:20]]
+                        })
+                        feat_df.index = range(1, len(feat_df) + 1)
+                        st.dataframe(feat_df, use_container_width=True)
+            else:
+                st.info("Feature importance data not available for this model.")
+            
+            # Classes/Diseases covered
+            if 'diseases' in model_data or 'classes' in model_data:
+                st.markdown("---")
+                classes = model_data.get('diseases') or model_data.get('classes', [])
+                st.markdown(f"#### 🏥 Classes/Diseases Covered ({len(classes)})")
+                
+                if classes:
+                    num_cols = min(4, len(classes))
+                    d_cols = st.columns(num_cols)
+                    for i, cls in enumerate(classes):
+                        with d_cols[i % num_cols]:
+                            st.write(f"• {cls}")
+        else:
+            st.warning("This model does not have detailed metrics available. Consider retraining with metrics enabled.")
+    
+    st.markdown("---")
+    
+    # All Models Overview Table
+    st.subheader("📊 All Models Overview")
+    
+    overview_data = []
+    for model_name, model_data in loaded_models.items():
+        if isinstance(model_data, dict):
+            overview_data.append({
+                'Model': MODEL_DISPLAY_NAMES.get(model_name, model_name.replace('_', ' ').title()),
+                'Accuracy': f"{model_data.get('accuracy', 0)*100:.1f}%" if model_data.get('accuracy') else "N/A",
+                'Precision': f"{model_data.get('precision_weighted', 0)*100:.1f}%" if model_data.get('precision_weighted') else "N/A",
+                'Recall': f"{model_data.get('recall_weighted', 0)*100:.1f}%" if model_data.get('recall_weighted') else "N/A",
+                'F1-Score': f"{model_data.get('f1_weighted', 0)*100:.1f}%" if model_data.get('f1_weighted') else "N/A",
+                'ROC-AUC': f"{model_data.get('roc_auc_weighted', 0)*100:.1f}%" if model_data.get('roc_auc_weighted') else "N/A",
+                'Features': model_data.get('n_features') or len(model_data.get('feature_columns', model_data.get('symptom_columns', []))) or "N/A"
+            })
+    
+    if overview_data:
+        overview_df = pd.DataFrame(overview_data)
+        st.dataframe(overview_df, hide_index=True, use_container_width=True)
+    
+    # Failed models section
+    if failed_models:
+        st.markdown("---")
+        st.subheader("⚠️ Failed Models")
+        for model_name, reason in failed_models.items():
+            st.error(f"**{MODEL_DISPLAY_NAMES.get(model_name, model_name)}**: {reason}")
 
 # AI Health Assistant
 if selected == 'AI Health Assistant':
