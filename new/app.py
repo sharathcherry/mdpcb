@@ -1287,69 +1287,47 @@ if selected == 'Model Metrics':
             
             st.markdown("---")
             
-            # Feature Importance Section
-            st.markdown("#### 🏆 Feature Importance")
-            
+            # Feature Importance Section - Collapsible with all features
             feature_importance = model_data.get('feature_importance', [])
+            feature_cols = model_data.get('feature_columns') or model_data.get('symptom_columns', [])
+            total_features = len(feature_cols) if feature_cols else len(feature_importance)
             
-            if feature_importance and isinstance(feature_importance, list) and len(feature_importance) > 0:
-                # Check if it's the new format (list of dicts) or old format
-                if isinstance(feature_importance[0], dict):
-                    # New format
-                    feat_col1, feat_col2 = st.columns(2)
-                    
-                    with feat_col1:
-                        st.markdown("**Top 10 Features**")
-                        top_10 = feature_importance[:10]
-                        feat_df1 = pd.DataFrame(top_10)
-                        if 'symptom' in feat_df1.columns:
-                            feat_df1['symptom'] = feat_df1['symptom'].str.replace('_', ' ').str.title()
-                            feat_df1.columns = ['Feature', 'Importance']
-                        elif 'feature' in feat_df1.columns:
-                            feat_df1['feature'] = feat_df1['feature'].str.replace('_', ' ').str.title()
-                            feat_df1.columns = ['Feature', 'Importance']
-                        feat_df1['Importance'] = feat_df1['Importance'].apply(lambda x: f"{x*100:.2f}%" if isinstance(x, (int, float)) else x)
-                        feat_df1.index = range(1, len(feat_df1) + 1)
-                        st.dataframe(feat_df1, use_container_width=True)
-                    
-                    with feat_col2:
-                        if len(feature_importance) > 10:
-                            st.markdown("**Features 11-20**")
-                            top_20 = feature_importance[10:20]
-                            feat_df2 = pd.DataFrame(top_20)
-                            if 'symptom' in feat_df2.columns:
-                                feat_df2['symptom'] = feat_df2['symptom'].str.replace('_', ' ').str.title()
-                                feat_df2.columns = ['Feature', 'Importance']
-                            elif 'feature' in feat_df2.columns:
-                                feat_df2['feature'] = feat_df2['feature'].str.replace('_', ' ').str.title()
-                                feat_df2.columns = ['Feature', 'Importance']
-                            feat_df2['Importance'] = feat_df2['Importance'].apply(lambda x: f"{x*100:.2f}%" if isinstance(x, (int, float)) else x)
-                            feat_df2.index = range(11, 11 + len(feat_df2))
-                            st.dataframe(feat_df2, use_container_width=True)
-                    
-                    # Bar chart visualization
-                    st.markdown("**Feature Importance Visualization**")
-                    chart_df = pd.DataFrame(feature_importance[:10])
-                    if 'symptom' in chart_df.columns:
-                        chart_df['symptom'] = chart_df['symptom'].str.replace('_', ' ').str.title()
-                        chart_df = chart_df.rename(columns={'symptom': 'Feature', 'importance': 'Importance'})
-                    elif 'feature' in chart_df.columns:
-                        chart_df['feature'] = chart_df['feature'].str.replace('_', ' ').str.title()
-                        chart_df = chart_df.rename(columns={'feature': 'Feature', 'importance': 'Importance'})
-                    st.bar_chart(chart_df.set_index('Feature')['Importance'])
-                    
+            with st.expander(f"🏆 **View All Model Features** ({total_features} features)", expanded=False):
+                if feature_importance and isinstance(feature_importance, list) and len(feature_importance) > 0:
+                    # Check if it's the new format (list of dicts) or old format
+                    if isinstance(feature_importance[0], dict):
+                        # New format - show all features
+                        all_features_df = pd.DataFrame(feature_importance)
+                        if 'symptom' in all_features_df.columns:
+                            all_features_df['symptom'] = all_features_df['symptom'].str.replace('_', ' ').str.title()
+                            all_features_df.columns = ['Feature', 'Importance']
+                        elif 'feature' in all_features_df.columns:
+                            all_features_df['feature'] = all_features_df['feature'].str.replace('_', ' ').str.title()
+                            all_features_df.columns = ['Feature', 'Importance']
+                        all_features_df['Importance'] = all_features_df['Importance'].apply(lambda x: f"{x*100:.4f}%" if isinstance(x, (int, float)) else x)
+                        all_features_df.index = range(1, len(all_features_df) + 1)
+                        all_features_df.index.name = 'Rank'
+                        st.dataframe(all_features_df, use_container_width=True, height=400)
+                    else:
+                        # Old format (just importance values)
+                        if len(feature_cols) == len(feature_importance):
+                            all_feat_df = pd.DataFrame({
+                                'Feature': [f.replace('_', ' ').title() for f in feature_cols],
+                                'Importance': [f"{imp*100:.4f}%" for imp in feature_importance]
+                            })
+                            all_feat_df.index = range(1, len(all_feat_df) + 1)
+                            all_feat_df.index.name = 'Rank'
+                            st.dataframe(all_feat_df, use_container_width=True, height=400)
+                elif feature_cols:
+                    # No importance data but have feature columns - just list them
+                    feat_list_df = pd.DataFrame({
+                        'Feature': [f.replace('_', ' ').title() for f in feature_cols]
+                    })
+                    feat_list_df.index = range(1, len(feat_list_df) + 1)
+                    feat_list_df.index.name = '#'
+                    st.dataframe(feat_list_df, use_container_width=True, height=400)
                 else:
-                    # Old format (just importance values)
-                    feature_cols = model_data.get('feature_columns') or model_data.get('symptom_columns', [])
-                    if len(feature_cols) == len(feature_importance):
-                        feat_df = pd.DataFrame({
-                            'Feature': [f.replace('_', ' ').title() for f in feature_cols[:20]],
-                            'Importance': [f"{imp*100:.2f}%" for imp in feature_importance[:20]]
-                        })
-                        feat_df.index = range(1, len(feat_df) + 1)
-                        st.dataframe(feat_df, use_container_width=True)
-            else:
-                st.info("Feature importance data not available for this model.")
+                    st.info("Feature data not available for this model.")
             
             # Classes/Diseases covered
             if 'diseases' in model_data or 'classes' in model_data:
