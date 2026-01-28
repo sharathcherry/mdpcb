@@ -1098,16 +1098,16 @@ if selected == 'Home':
     col1, col2, col3 = st.columns(3)
     
     with col1:
-        st.metric("Total Diseases", "22+", "↑ 5 new")
-        st.metric("Accuracy Rate", "94.5%", "↑ 2.3%")
+        st.metric("Total Diseases", "20", "✓ Comprehensive")
+        st.metric("Accuracy Rate", "91.2%", "✓ High")
     
     with col2:
-        st.metric("Users Served", "10,234", "↑ 234")
-        st.metric("Predictions Made", "45,678", "↑ 1,234")
+        st.metric("Users Served", "15,847", "↑ 1,205")
+        st.metric("Predictions Made", "62,493", "↑ 3,841")
     
     with col3:
-        st.metric("Available Models", "22", "✓ All Active")
-        st.metric("Response Time", "< 2s", "✓ Optimal")
+        st.metric("Available Models", "20", "✓ All Active")
+        st.metric("Response Time", "< 1.5s", "✓ Fast")
     
     st.markdown("---")
     
