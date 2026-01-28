@@ -1206,15 +1206,15 @@ if selected == 'Model Metrics':
             # Check what metrics are available
             has_detailed_metrics = 'precision_weighted' in model_data
             
-            # Main metrics
-            col_m1, col_m2 = st.columns(2)
+            # Main metrics - 3 columns layout
+            col_m1, col_m2, col_m3 = st.columns(3)
             
             with col_m1:
                 st.markdown("#### 🎯 Classification Metrics")
                 
                 if has_detailed_metrics:
                     metrics_data = {
-                        'Metric': ['Accuracy', 'Precision (Weighted)', 'Recall (Weighted)', 'F1-Score (Weighted)', 'ROC-AUC (Weighted)'],
+                        'Metric': ['Accuracy', 'Precision', 'Recall', 'F1-Score', 'ROC-AUC'],
                         'Score': [
                             f"{model_data.get('accuracy', 0)*100:.2f}%",
                             f"{model_data.get('precision_weighted', 0)*100:.2f}%",
@@ -1224,7 +1224,6 @@ if selected == 'Model Metrics':
                         ]
                     }
                 else:
-                    # Basic metrics for models without detailed metrics
                     metrics_data = {
                         'Metric': ['Accuracy', 'CV Score'],
                         'Score': [
@@ -1234,12 +1233,12 @@ if selected == 'Model Metrics':
                     }
                 
                 st.dataframe(pd.DataFrame(metrics_data), hide_index=True, use_container_width=True)
-                
-                # Additional macro metrics if available
+            
+            with col_m2:
+                st.markdown("#### 📊 Macro Metrics")
                 if has_detailed_metrics:
-                    st.markdown("#### 📊 Macro Metrics")
                     macro_data = {
-                        'Metric': ['Precision (Macro)', 'Recall (Macro)', 'F1-Score (Macro)', 'ROC-AUC (Macro)'],
+                        'Metric': ['Precision', 'Recall', 'F1-Score', 'ROC-AUC'],
                         'Score': [
                             f"{model_data.get('precision_macro', 0)*100:.2f}%",
                             f"{model_data.get('recall_macro', 0)*100:.2f}%",
@@ -1248,9 +1247,11 @@ if selected == 'Model Metrics':
                         ]
                     }
                     st.dataframe(pd.DataFrame(macro_data), hide_index=True, use_container_width=True)
+                else:
+                    st.info("Macro metrics not available")
             
-            with col_m2:
-                st.markdown("#### 🔧 Model Configuration")
+            with col_m3:
+                st.markdown("#### 🔧 Configuration")
                 config_data = {
                     'Parameter': [],
                     'Value': []
@@ -1268,22 +1269,11 @@ if selected == 'Model Metrics':
                 if model_data.get('n_classes'):
                     config_data['Parameter'].append('Classes')
                     config_data['Value'].append(str(model_data.get('n_classes')))
-                if model_data.get('cv_score'):
-                    config_data['Parameter'].append('CV Score')
-                    config_data['Value'].append(f"{model_data.get('cv_score')*100:.2f}%")
-                if model_data.get('description'):
-                    config_data['Parameter'].append('Description')
-                    config_data['Value'].append(model_data.get('description'))
                 
                 if config_data['Parameter']:
                     st.dataframe(pd.DataFrame(config_data), hide_index=True, use_container_width=True)
                 else:
-                    st.info("Model configuration details not available.")
-                
-                # Feature columns info
-                if 'feature_columns' in model_data or 'symptom_columns' in model_data:
-                    feature_cols = model_data.get('feature_columns') or model_data.get('symptom_columns', [])
-                    st.markdown(f"#### 📝 Total Features: {len(feature_cols)}")
+                    st.info("Config not available")
             
             st.markdown("---")
             
