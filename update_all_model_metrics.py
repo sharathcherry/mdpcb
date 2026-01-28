@@ -129,7 +129,7 @@ def update_model_metrics(filepath):
             data['n_estimators'] = n_estimators
         
         if feature_importance:
-            data['feature_importance'] = feature_importance[:20]  # Top 20
+            data['feature_importance'] = feature_importance  # All features, not just top 20
         
         # Save updated model
         with open(filepath, 'wb') as f:
