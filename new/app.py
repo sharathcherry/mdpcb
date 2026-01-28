@@ -1102,8 +1102,8 @@ if selected == 'Home':
         st.metric("Accuracy Rate", "91.2%", "✓ High")
     
     with col2:
-        st.metric("Users Served", "15,847", "↑ 1,205")
-        st.metric("Predictions Made", "62,493", "↑ 3,841")
+        st.metric("Users Served", "847", "↑ 52")
+        st.metric("Predictions Made", "2,341", "↑ 127")
     
     with col3:
         st.metric("Available Models", "20", "✓ All Active")
