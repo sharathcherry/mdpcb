@@ -59,13 +59,14 @@ MODEL_FILES = {
     "chronic_model": os.path.join(BASE_DIR, "models", "chronic_model.sav"),
     "liver_disease_model": os.path.join(BASE_DIR, "models", "liver_disease_model.sav"),
     "pneumonia_model": os.path.join(BASE_DIR, "models", "pneumonia_model.sav"),
+    "general_disease_model": os.path.join(BASE_DIR, "models", "general_disease_model.sav"),
 }
 
 loaded_models = {}
 failed_models = {}
 
 # Special handling for packaged models (models saved with scaler, encoders, etc.)
-PACKAGED_MODELS = {"diabetes_model", "heart_model", "breast_cancer_model", "kidney_disease_model", "lung_cancer_model", "parkinsons_model", "liver_cancer_model", "hepatitis_c_model", "asthma_model", "malaria_model", "alzheimers_model", "obesity_model", "epilepsy_model", "prostate_model", "cancer_risk_model", "migraine_model", "tuberculosis_model", "copd_model", "cervical_model", "chronic_model", "liver_disease_model", "pneumonia_model"}  # Add more as they get retrained
+PACKAGED_MODELS = {"diabetes_model", "heart_model", "breast_cancer_model", "kidney_disease_model", "lung_cancer_model", "parkinsons_model", "liver_cancer_model", "hepatitis_c_model", "asthma_model", "malaria_model", "alzheimers_model", "obesity_model", "epilepsy_model", "prostate_model", "cancer_risk_model", "migraine_model", "tuberculosis_model", "copd_model", "cervical_model", "chronic_model", "liver_disease_model", "pneumonia_model", "general_disease_model"}  # Add more as they get retrained
 
 for attr_name, model_path in MODEL_FILES.items():
     try:
@@ -2818,82 +2819,197 @@ if selected == 'Hepatitis Prediction':
 # General Disease Prediction (Symptom-based)
 if selected == '🔍 General Disease Prediction':
     st.title("🔍 General Disease Prediction")
-    st.markdown("Predict diseases based on symptoms")
+    st.markdown("AI-powered disease prediction based on symptoms - **41 diseases, 132 symptoms**")
     
-    st.info("Select your symptoms from the list below. The system will predict possible diseases.")
+    # Model accuracy info
+    if "general_disease_model" in loaded_models:
+        model_data = loaded_models["general_disease_model"]
+        if isinstance(model_data, dict) and "accuracy" in model_data:
+            st.success(f"✅ Model loaded successfully | Accuracy: {model_data['accuracy']:.2%}")
     
-    name = st.text_input("Name:")
+    st.info("💡 Select your symptoms from the list below. The AI will predict possible diseases based on your symptoms.")
     
-    # Common symptoms list
-    symptoms_list = [
-        "itching", "skin_rash", "nodal_skin_eruptions", "continuous_sneezing", "shivering",
-        "chills", "joint_pain", "stomach_pain", "acidity", "ulcers_on_tongue", "muscle_wasting",
-        "vomiting", "burning_micturition", "spotting_urination", "fatigue", "weight_gain",
-        "anxiety", "cold_hands_and_feets", "mood_swings", "weight_loss", "restlessness",
-        "lethargy", "patches_in_throat", "irregular_sugar_level", "cough", "high_fever",
-        "sunken_eyes", "breathlessness", "sweating", "dehydration", "indigestion",
-        "headache", "yellowish_skin", "dark_urine", "nausea", "loss_of_appetite",
-        "pain_behind_the_eyes", "back_pain", "constipation", "abdominal_pain", "diarrhoea",
-        "mild_fever", "yellow_urine", "yellowing_of_eyes", "acute_liver_failure",
-        "fluid_overload", "swelling_of_stomach", "swelled_lymph_nodes", "malaise",
-        "blurred_and_distorted_vision", "phlegm", "throat_irritation", "redness_of_eyes",
-        "sinus_pressure", "runny_nose", "congestion", "chest_pain", "weakness_in_limbs",
-        "fast_heart_rate", "pain_during_bowel_movements", "pain_in_anal_region",
-        "bloody_stool", "irritation_in_anus", "neck_pain", "dizziness", "cramps",
-        "bruising", "obesity", "swollen_legs", "swollen_blood_vessels", "puffy_face_and_eyes",
-        "enlarged_thyroid", "brittle_nails", "swollen_extremeties", "excessive_hunger",
-        "extra_marital_contacts", "drying_and_tingling_lips", "slurred_speech",
-        "knee_pain", "hip_joint_pain", "muscle_weakness", "stiff_neck", "swelling_joints",
-        "movement_stiffness", "spinning_movements", "loss_of_balance", "unsteadiness",
-        "weakness_of_one_body_side", "loss_of_smell", "bladder_discomfort",
-        "foul_smell_of_urine", "continuous_feel_of_urine", "passage_of_gases",
-        "internal_itching", "toxic_look_(typhos)", "depression", "irritability",
-        "muscle_pain", "altered_sensorium", "red_spots_over_body", "belly_pain",
-        "abnormal_menstruation", "dischromic_patches", "watering_from_eyes",
-        "increased_appetite", "polyuria", "family_history", "mucoid_sputum",
-        "rusty_sputum", "lack_of_concentration", "visual_disturbances",
-        "receiving_blood_transfusion", "receiving_unsterile_injections", "coma",
-        "stomach_bleeding", "distention_of_abdomen", "history_of_alcohol_consumption",
-        "fluid_overload", "blood_in_sputum", "prominent_veins_on_calf",
-        "palpitations", "painful_walking", "pus_filled_pimples", "blackheads",
-        "scurring", "skin_peeling", "silver_like_dusting", "small_dents_in_nails",
-        "inflammatory_nails", "blister", "red_sore_around_nose", "yellow_crust_ooze"
-    ]
+    name = st.text_input("👤 Patient Name:")
     
-    selected_symptoms = st.multiselect(
-        "Select your symptoms (you can select multiple):",
-        symptoms_list,
-        max_selections=10
-    )
-    
-    if st.button("Predict Disease") and selected_symptoms:
-        try:
-            # This would require the DiseaseModel and helper functions
-            # For demonstration, showing a simplified version
-            st.info("Disease prediction based on selected symptoms...")
-            
-            # Here you would use your DiseaseModel
-            # disease_model = DiseaseModel()
-            # prediction = disease_model.predict(selected_symptoms)
-            
-            st.write(f"**Selected Symptoms:** {', '.join(selected_symptoms)}")
-            st.warning("Please consult with a healthcare professional for accurate diagnosis.")
-            
-            if name:
-                with st.spinner("Generating recommendations..."):
-                    patient_info = {
-                        "name": name,
-                        "symptoms": selected_symptoms
-                    }
+    # Check if model is loaded
+    if "general_disease_model" in loaded_models and isinstance(loaded_models["general_disease_model"], dict):
+        model_data = loaded_models["general_disease_model"]
+        symptom_columns = model_data.get('symptom_columns', [])
+        
+        # Format symptoms for display (replace underscores with spaces, capitalize)
+        formatted_symptoms = {col: col.replace('_', ' ').title() for col in symptom_columns}
+        
+        # Organize symptoms by category for better UX
+        st.subheader("📋 Select Your Symptoms")
+        
+        # Create symptom categories
+        general_symptoms = ['itching', 'skin_rash', 'fatigue', 'lethargy', 'malaise', 'high_fever', 'mild_fever', 
+                          'sweating', 'chills', 'shivering', 'weight_loss', 'weight_gain', 'restlessness', 'anxiety', 'depression']
+        
+        pain_symptoms = ['headache', 'stomach_pain', 'abdominal_pain', 'belly_pain', 'chest_pain', 'back_pain', 
+                        'joint_pain', 'knee_pain', 'hip_joint_pain', 'neck_pain', 'muscle_pain', 'pain_behind_the_eyes']
+        
+        digestive_symptoms = ['nausea', 'vomiting', 'diarrhoea', 'constipation', 'indigestion', 'acidity', 
+                             'loss_of_appetite', 'excessive_hunger', 'increased_appetite', 'stomach_bleeding']
+        
+        respiratory_symptoms = ['cough', 'breathlessness', 'phlegm', 'mucoid_sputum', 'rusty_sputum', 
+                               'blood_in_sputum', 'throat_irritation', 'congestion', 'runny_nose', 'continuous_sneezing']
+        
+        # Get remaining symptoms
+        categorized = set(general_symptoms + pain_symptoms + digestive_symptoms + respiratory_symptoms)
+        other_symptoms = [s for s in symptom_columns if s not in categorized]
+        
+        selected_symptoms = []
+        
+        tab1, tab2, tab3, tab4, tab5 = st.tabs(["🌡️ General", "💢 Pain", "🍽️ Digestive", "🫁 Respiratory", "📋 Other"])
+        
+        with tab1:
+            available_general = [s for s in general_symptoms if s in symptom_columns]
+            for symptom in available_general:
+                if st.checkbox(formatted_symptoms.get(symptom, symptom), key=f"gen_{symptom}"):
+                    selected_symptoms.append(symptom)
+        
+        with tab2:
+            available_pain = [s for s in pain_symptoms if s in symptom_columns]
+            for symptom in available_pain:
+                if st.checkbox(formatted_symptoms.get(symptom, symptom), key=f"pain_{symptom}"):
+                    selected_symptoms.append(symptom)
+        
+        with tab3:
+            available_digestive = [s for s in digestive_symptoms if s in symptom_columns]
+            for symptom in available_digestive:
+                if st.checkbox(formatted_symptoms.get(symptom, symptom), key=f"dig_{symptom}"):
+                    selected_symptoms.append(symptom)
+        
+        with tab4:
+            available_respiratory = [s for s in respiratory_symptoms if s in symptom_columns]
+            for symptom in available_respiratory:
+                if st.checkbox(formatted_symptoms.get(symptom, symptom), key=f"resp_{symptom}"):
+                    selected_symptoms.append(symptom)
+        
+        with tab5:
+            st.write("**Other Symptoms:**")
+            # Use multiselect for remaining symptoms
+            other_selected = st.multiselect(
+                "Select additional symptoms:",
+                [formatted_symptoms.get(s, s) for s in other_symptoms[:50]],  # Limit to prevent UI overload
+                key="other_symptoms"
+            )
+            # Map back to original symptom names
+            reverse_map = {v: k for k, v in formatted_symptoms.items()}
+            for sym in other_selected:
+                if reverse_map.get(sym) in symptom_columns:
+                    selected_symptoms.append(reverse_map[sym])
+        
+        # Show selected symptoms
+        if selected_symptoms:
+            st.markdown("---")
+            st.write(f"**Selected Symptoms ({len(selected_symptoms)}):** {', '.join([formatted_symptoms.get(s, s) for s in selected_symptoms])}")
+        
+        if st.button("🔬 Predict Disease", type="primary"):
+            if selected_symptoms:
+                try:
+                    model = model_data['model']
+                    label_encoder = model_data['label_encoder']
+                    diseases = model_data.get('diseases', [])
                     
-                    severity = "moderate"
-                    recommendations = get_health_recommendations("General Symptoms", severity, patient_info)
-                    if recommendations:
-                        display_recommendations(recommendations)
-                        display_health_tips_dynamic("General Symptoms", severity)
-
-        except:
-            st.error("Please select at least one symptom.")
+                    # Create input vector (all zeros, then set 1 for selected symptoms)
+                    input_vector = np.zeros(len(symptom_columns))
+                    for symptom in selected_symptoms:
+                        if symptom in symptom_columns:
+                            idx = symptom_columns.index(symptom)
+                            input_vector[idx] = 1
+                    
+                    # Make prediction
+                    input_df = pd.DataFrame([input_vector], columns=symptom_columns)
+                    prediction = model.predict(input_df)[0]
+                    prediction_proba = model.predict_proba(input_df)[0]
+                    
+                    # Get predicted disease name
+                    predicted_disease = label_encoder.inverse_transform([prediction])[0]
+                    confidence = prediction_proba[prediction] * 100
+                    
+                    # Get top 3 predictions
+                    top_3_indices = np.argsort(prediction_proba)[-3:][::-1]
+                    top_3_diseases = [(label_encoder.inverse_transform([i])[0], prediction_proba[i] * 100) for i in top_3_indices]
+                    
+                    # Display results
+                    st.markdown("---")
+                    st.subheader("🎯 Prediction Results")
+                    
+                    col_r1, col_r2 = st.columns(2)
+                    
+                    with col_r1:
+                        if confidence >= 70:
+                            st.error(f"🔴 **Primary Prediction: {predicted_disease}**")
+                            severity = "high"
+                        elif confidence >= 40:
+                            st.warning(f"🟡 **Primary Prediction: {predicted_disease}**")
+                            severity = "moderate"
+                        else:
+                            st.info(f"🟢 **Primary Prediction: {predicted_disease}**")
+                            severity = "low"
+                    
+                    with col_r2:
+                        st.metric("Confidence", f"{confidence:.1f}%")
+                    
+                    # Show top 3 predictions
+                    st.write("**Top 3 Possible Conditions:**")
+                    for i, (disease, prob) in enumerate(top_3_diseases, 1):
+                        if prob >= 1:  # Only show if probability > 1%
+                            st.write(f"{i}. **{disease}** - {prob:.1f}%")
+                    
+                    # Probability visualization
+                    st.write("**Probability Distribution:**")
+                    prob_df = pd.DataFrame({
+                        "Disease": [d for d, p in top_3_diseases if p >= 1],
+                        "Probability": [p/100 for d, p in top_3_diseases if p >= 1]
+                    })
+                    st.bar_chart(prob_df.set_index("Disease"))
+                    
+                    # Important disclaimer
+                    st.warning("⚠️ **Disclaimer:** This prediction is for informational purposes only. Please consult a qualified healthcare professional for accurate diagnosis and treatment.")
+                    
+                    # Get AI recommendations
+                    if name:
+                        with st.spinner("Generating personalized recommendations..."):
+                            patient_info = {
+                                "name": name,
+                                "predicted_disease": predicted_disease,
+                                "confidence": f"{confidence:.1f}%",
+                                "symptoms": selected_symptoms
+                            }
+                            
+                            recommendations = get_health_recommendations(predicted_disease, severity, patient_info)
+                            if recommendations:
+                                display_recommendations(recommendations)
+                                display_health_tips_dynamic(predicted_disease, severity)
+                    
+                except Exception as e:
+                    st.error(f"Error in prediction: {str(e)}")
+                    import traceback
+                    st.code(traceback.format_exc())
+            else:
+                st.warning("Please select at least one symptom to make a prediction.")
+    else:
+        st.error("⚠️ General Disease Model not loaded. Please check the model file.")
+        # Fallback to simple symptom list
+        symptoms_list = [
+            "itching", "skin_rash", "nodal_skin_eruptions", "continuous_sneezing", "shivering",
+            "chills", "joint_pain", "stomach_pain", "acidity", "ulcers_on_tongue", "muscle_wasting",
+            "vomiting", "burning_micturition", "fatigue", "weight_gain", "anxiety", "cold_hands_and_feets",
+            "mood_swings", "weight_loss", "restlessness", "lethargy", "patches_in_throat", "cough",
+            "high_fever", "breathlessness", "sweating", "dehydration", "indigestion", "headache",
+            "yellowish_skin", "dark_urine", "nausea", "loss_of_appetite", "back_pain", "constipation",
+            "abdominal_pain", "diarrhoea", "mild_fever", "chest_pain", "dizziness", "muscle_pain"
+        ]
+        
+        selected_symptoms = st.multiselect("Select your symptoms:", symptoms_list)
+        
+        if st.button("Get Health Advice"):
+            if selected_symptoms:
+                st.write(f"**Selected Symptoms:** {', '.join(selected_symptoms)}")
+                st.warning("Model not available. Please consult a healthcare professional for accurate diagnosis.")
 
 # Book Appointment
 if selected == 'Book Appointment':
