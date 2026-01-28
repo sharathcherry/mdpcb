@@ -57,13 +57,15 @@ MODEL_FILES = {
     "copd_model": os.path.join(BASE_DIR, "models", "copd_model.sav"),
     "cervical_model": os.path.join(BASE_DIR, "models", "cervical_model.sav"),
     "chronic_model": os.path.join(BASE_DIR, "models", "chronic_model.sav"),
+    "liver_disease_model": os.path.join(BASE_DIR, "models", "liver_disease_model.sav"),
+    "pneumonia_model": os.path.join(BASE_DIR, "models", "pneumonia_model.sav"),
 }
 
 loaded_models = {}
 failed_models = {}
 
 # Special handling for packaged models (models saved with scaler, encoders, etc.)
-PACKAGED_MODELS = {"diabetes_model", "heart_model", "breast_cancer_model", "kidney_disease_model", "lung_cancer_model", "parkinsons_model", "liver_cancer_model", "hepatitis_c_model", "asthma_model", "malaria_model", "alzheimers_model", "obesity_model", "epilepsy_model", "prostate_model", "cancer_risk_model", "migraine_model", "tuberculosis_model", "copd_model", "cervical_model", "chronic_model"}  # Add more as they get retrained
+PACKAGED_MODELS = {"diabetes_model", "heart_model", "breast_cancer_model", "kidney_disease_model", "lung_cancer_model", "parkinsons_model", "liver_cancer_model", "hepatitis_c_model", "asthma_model", "malaria_model", "alzheimers_model", "obesity_model", "epilepsy_model", "prostate_model", "cancer_risk_model", "migraine_model", "tuberculosis_model", "copd_model", "cervical_model", "chronic_model", "liver_disease_model", "pneumonia_model"}  # Add more as they get retrained
 
 for attr_name, model_path in MODEL_FILES.items():
     try:
@@ -3960,32 +3962,88 @@ if selected == 'HIV/AIDS Prediction':
                 if commercial_sex == "Yes":
                     behavioral_risk += 1
             
-            # CLINICAL RISK CALCULATION
+            # CLINICAL RISK CALCULATION using trained ML model
             if assessment_type in ["Clinical Prediction", "Complete Assessment"]:
-                # Rule-based scoring for clinical risk
-                # Low CD4 count indicates higher risk
-                if cd4_baseline < 200:
-                    clinical_risk += 4
-                elif cd4_baseline < 350:
-                    clinical_risk += 2
-                
-                # CD4 decline
-                if cd4_followup < cd4_baseline:
-                    clinical_risk += 2
-                
-                # High CD8 count can indicate infection
-                if cd8_baseline > 1200:
-                    clinical_risk += 1
-                
-                # Other risk factors
-                if karnof < 90:
-                    clinical_risk += 1
-                if hemophilia == "Yes":
-                    clinical_risk += 1
-                if iv_drugs_clinical == "Yes":
-                    clinical_risk += 2
-                if symptomatic == "Yes":
-                    clinical_risk += 2
+                # Use the trained HIV model if available
+                if 'hiv_model' in loaded_models and isinstance(loaded_models['hiv_model'], dict):
+                    try:
+                        hiv_package = loaded_models['hiv_model']
+                        hiv_clf = hiv_package['model']
+                        hiv_scaler = hiv_package['scaler']
+                        
+                        # Prepare features matching training data
+                        # Features: age, wtkg, hemo, homo, drugs, karnof, oprior, z30, zprior, preanti, 
+                        #           race, gender, str2, strat, symptom, treat, offtrt, cd40, cd420, cd80, cd820
+                        hiv_features = np.array([[
+                            age,                                      # age
+                            weight,                                   # wtkg
+                            1 if hemophilia == "Yes" else 0,          # hemo
+                            1 if homosexual_activity == "Yes" else 0, # homo
+                            1 if iv_drugs_clinical == "Yes" else 0,   # drugs
+                            karnof,                                   # karnof
+                            0,                                        # oprior (default)
+                            1 if prior_zdv == "Yes" else 0,           # z30
+                            1 if prior_zdv == "Yes" else 0,           # zprior
+                            0,                                        # preanti (default days)
+                            0,                                        # race (default white)
+                            1 if assessment_type == "Clinical Prediction" else (1 if gender == "Male" else 0),  # gender
+                            0,                                        # str2 (naive)
+                            1,                                        # strat (default)
+                            1 if symptomatic == "Yes" else 0,         # symptom
+                            0,                                        # treat (default ZDV only)
+                            0,                                        # offtrt
+                            cd4_baseline,                             # cd40
+                            cd4_followup,                             # cd420
+                            cd8_baseline,                             # cd80
+                            cd8_followup                              # cd820
+                        ]])
+                        
+                        hiv_features_scaled = hiv_scaler.transform(hiv_features)
+                        hiv_prediction = hiv_clf.predict(hiv_features_scaled)[0]
+                        hiv_proba = hiv_clf.predict_proba(hiv_features_scaled)[0]
+                        
+                        # Convert ML prediction to clinical risk score (0-10 scale)
+                        clinical_risk = int(hiv_proba[1] * 10)  # Probability of adverse outcome
+                        
+                        st.info(f"🤖 ML Model Confidence: {max(hiv_proba)*100:.1f}%")
+                        
+                    except Exception as model_error:
+                        st.warning(f"ML model error, using rule-based assessment: {str(model_error)}")
+                        # Fallback to rule-based
+                        if cd4_baseline < 200:
+                            clinical_risk += 4
+                        elif cd4_baseline < 350:
+                            clinical_risk += 2
+                        if cd4_followup < cd4_baseline:
+                            clinical_risk += 2
+                        if cd8_baseline > 1200:
+                            clinical_risk += 1
+                        if karnof < 90:
+                            clinical_risk += 1
+                        if hemophilia == "Yes":
+                            clinical_risk += 1
+                        if iv_drugs_clinical == "Yes":
+                            clinical_risk += 2
+                        if symptomatic == "Yes":
+                            clinical_risk += 2
+                else:
+                    # Fallback rule-based scoring
+                    if cd4_baseline < 200:
+                        clinical_risk += 4
+                    elif cd4_baseline < 350:
+                        clinical_risk += 2
+                    if cd4_followup < cd4_baseline:
+                        clinical_risk += 2
+                    if cd8_baseline > 1200:
+                        clinical_risk += 1
+                    if karnof < 90:
+                        clinical_risk += 1
+                    if hemophilia == "Yes":
+                        clinical_risk += 1
+                    if iv_drugs_clinical == "Yes":
+                        clinical_risk += 2
+                    if symptomatic == "Yes":
+                        clinical_risk += 2
             
             # COMBINED RISK ASSESSMENT
             if assessment_type == "Complete Assessment":
