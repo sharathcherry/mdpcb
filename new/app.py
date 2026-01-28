@@ -1073,9 +1073,16 @@ with st.sidebar:
     ch6 = section("Cancer", ["Lung Cancer Prediction", "Breast Cancer Prediction", "Liver Cancer Prediction", "Prostate Cancer Prediction", "Cervical Cancer Prediction", "Cancer Risk Assessment"])
     ch7 = section("Respiratory", ["Asthma Prediction", "COPD Prediction", "Pneumonia Prediction"])
     ch8 = section("Services", ["AI Health Assistant", "Book Appointment", "Set Reminder", "Health Tips"])
+    
+    # Model Metrics Button
+    st.markdown("---")
+    st.caption("📊 Analytics")
+    ch9 = None
+    if st.button("📈 Model Metrics", use_container_width=True, type="secondary" if selected != "Model Metrics" else "primary"):
+        ch9 = "Model Metrics"
 
     # Resolve choice precedence
-    nav_choice = top_choice or ch1 or ch2 or ch3 or ch4 or ch5 or ch6 or ch7 or ch8
+    nav_choice = top_choice or ch1 or ch2 or ch3 or ch4 or ch5 or ch6 or ch7 or ch8 or ch9
 # ---------------------------------------------------
 
 # Apply selection and keep it persistent + normalized for Home
